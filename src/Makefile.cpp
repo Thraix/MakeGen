@@ -40,6 +40,9 @@ void Makefile::Save(const ConfigFile& conf)
   PreSave(conf,hFiles,cppFiles);
 
   std::ofstream outputFile("Makefile");
+  outputFile << "# This Makefile was generated using MakeGen made by Tim Håkansson and is" << std::endl;
+  outputFile << "# licensed under MIT. Full source of the project can be found at" << std::endl;
+  outputFile << "# https://github.com/Thraix/MakeGen" << std::endl;
   outputFile << "CC=@g++" << std::endl;
   if(!conf.executable)
     outputFile << "CO=@ar rs" << std::endl;
@@ -87,7 +90,8 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << "\t$(info Generating output file)" << std::endl;
   outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LIBS)" << std::endl;
   outputFile << "install: all" << std::endl;
-  outputFile << "\tcp $(OUTPUT) /usr/bin/" << conf.outputname << std::endl;
+  outputFile << "\t$(info Installing MakeGen to /usr/bin/)" << std::endl;
+  outputFile << "\t@cp $(OUTPUT) /usr/bin/" << conf.outputname << std::endl;
   std::map<std::string, IncludeDeps*> dependencies;
   for(auto it = cppFiles.begin(); it!=cppFiles.end();++it)
   {

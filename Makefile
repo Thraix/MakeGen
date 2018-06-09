@@ -1,3 +1,6 @@
+# This Makefile was generated using MakeGen made by Tim Håkansson and is
+# licensed under MIT. Full source of the project can be found at
+# https://github.com/Thraix/MakeGen
 CC=@g++
 CO=@g++ -o
 BIN=bin/
@@ -19,7 +22,8 @@ $(OUTPUT): $(OBJECTS)
 	$(info Generating output file)
 	$(CO) $(OUTPUT) $(OBJECTS) $(LIBS)
 install: all
-	cp $(OUTPUT) /usr/bin/makegen
+	$(info Installing MakeGen to /usr/bin/)
+	@cp $(OUTPUT) /usr/bin/makegen
 $(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/ConfigFile.h src/Logging.h
 	$(info ---- $<)
 	$(CC) $(CFLAGS) -o $@ $<
