@@ -41,7 +41,7 @@ void ReadFlags(int argc, char** argv)
         {
           flags |= FLAG_HELP;
         }
-        else if(flag == "--gen")
+        else if(flag == "--conf")
         {
           flags |= FLAG_GEN;
         }
@@ -113,8 +113,12 @@ int main(int argc, char** argv)
   {
     LOG_INFO("Usage: makegen [options]");
     LOG_INFO(" Options:");
-    LOG_INFO("  -h, --help\tDisplays this information");
-    LOG_INFO("  -g, --gen\tGenerate a config file for the project");
+    LOG_INFO("  --help\tDisplays this information");
+    LOG_INFO("  --conf\tGenerate a config file for the project");
+    LOG_INFO("  install\tGenerates a Makefile and runs make install");
+    LOG_INFO("  clean\tGenerates a Makefile and runs make clean");
+    LOG_INFO("  rebuild\tGenerates a Makefile and runs make rebuild");
+    LOG_INFO(" If no option is given it will generate a Makefile and run default make");
     return 0;
   }
   if(flags & FLAG_GEN)
