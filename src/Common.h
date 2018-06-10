@@ -9,7 +9,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_UPDATE 0
-#define VERSION_MINOR 2
+#define VERSION_MINOR 3
 #define VERSION ("v" STR(VERSION_MAJOR) "." STR(VERSION_UPDATE) "." STR(VERSION_MINOR))
 
 const static unsigned int FLAG_HELP = BIT(0);
