@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.0.3 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.0.4 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -23,14 +23,14 @@ install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
 $(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/Common.h src/ConfigFile.h
-	$(info ---- $<)
+	$(info -[25%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/IncludeDeps.h
-	$(info ---- $<)
+	$(info -[50%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/Makefile.o : src/Makefile.cpp src/Common.h src/IncludeDeps.h src/Makefile.h src/ConfigFile.h
-	$(info ---- $<)
+	$(info -[75%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/IncludeDeps.h src/Makefile.h 
-	$(info ---- $<)
+	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<

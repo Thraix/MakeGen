@@ -119,8 +119,21 @@ void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::st
 ConfigFile ConfigFile::Gen()
 {
   ConfigFile conf;
-  InputMultiple("Enter library:", conf.libs,false);
-  InputMultiple("Enter library directory:", conf.libdirs,true);
+  std::string input = "";
+  while(input == "")
+  {
+    LOG_INFO("Should it be compiled as an executable (y/n):");
+    std::getline(std::cin, input);
+    if(input[0] != 'y' && input[0] != 'n')
+      input = "";
+  }
+  conf.executable = input[0] == 'y';
+  // If it isn't an executable there is not need to have libraries
+  if(conf.executable)
+  {
+    InputMultiple("Enter library:", conf.libs,false);
+    InputMultiple("Enter library directory:", conf.libdirs,true);
+  }
   InputMultiple("Enter include directory:", conf.includedirs,true);
   InputMultiple("Enter source directories:", conf.srcdirs,true);
   InputMultiple("Enter preprocessor definitions:", conf.defines,false);
@@ -139,15 +152,6 @@ ConfigFile ConfigFile::Gen()
     LOG_INFO("Enter a name for the output file:");
     std::getline(std::cin, conf.outputname);
   }
-  std::string input = "";
-  while(input == "")
-  {
-    LOG_INFO("Should it be compiled as an executable (y/n):");
-    std::getline(std::cin, input);
-    if(input[0] != 'y' && input[0] != 'n')
-      input = "";
-  }
-  conf.executable = input[0] == 'y';
   return conf;
 }
 

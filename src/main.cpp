@@ -61,7 +61,7 @@ int main(int argc, char** argv)
   }
   if(flags & FLAG_VERSION)
   {
-    LOG_INFO("MakeGen ",VERSION);
+    LOG_INFO("MakeGen ",MAKEGEN_VERSION);
     return 0;
   }
   if(flags & FLAG_GEN)

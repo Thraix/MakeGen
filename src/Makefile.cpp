@@ -40,7 +40,7 @@ void Makefile::Save(const ConfigFile& conf)
   PreSave(conf,hFiles,cppFiles);
 
   std::ofstream outputFile("Makefile");
-  outputFile << "# This Makefile was generated using MakeGen "<< VERSION<< " made by Tim Håkansson" << std::endl;
+  outputFile << "# This Makefile was generated using MakeGen "<< MAKEGEN_VERSION<< " made by Tim Håkansson" << std::endl;
   outputFile << "# and is licensed under MIT. Full source of the project can be found at" << std::endl;
   outputFile << "# https://github.com/Thraix/MakeGen" << std::endl;
   outputFile << "CC=@g++" << std::endl;
@@ -71,18 +71,21 @@ void Makefile::Save(const ConfigFile& conf)
     outputFile << "-D" << *it << " ";
   }
   outputFile << std::endl;
-  outputFile << "LIBDIR=";
-  for(auto it = conf.libdirs.begin();it!=conf.libdirs.end();++it)
+  if(conf.executable)
   {
-    outputFile << "-L./" << *it << " ";
+    outputFile << "LIBDIR=";
+    for(auto it = conf.libdirs.begin();it!=conf.libdirs.end();++it)
+    {
+      outputFile << "-L./" << *it << " ";
+    }
+    outputFile << std::endl;
+    outputFile << "LIBS=$(LIBDIR) ";
+    for(auto it = conf.libs.begin();it!=conf.libs.end();++it)
+    {
+      outputFile << "-l" << *it << " ";
+    }
+    outputFile << std::endl;
   }
-  outputFile << std::endl;
-  outputFile << "LIBS=$(LIBDIR) ";
-  for(auto it = conf.libs.begin();it!=conf.libs.end();++it)
-  {
-    outputFile << "-l" << *it << " ";
-  }
-  outputFile << std::endl;
   outputFile << "OUTPUT=$(BIN)" << conf.outputname << std::endl;
   outputFile << "all: $(OUTPUT)" << std::endl;
   //outputFile << "\t$(info ------------------------)" << std::endl;
@@ -94,13 +97,18 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << "\trm -rf $(OBJPATH)/*.o" << std::endl;
   outputFile << "$(OUTPUT): $(OBJECTS)" << std::endl;
   outputFile << "\t$(info Generating output file)" << std::endl;
-  outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LIBS)" << std::endl;
+  if(conf.executable)
+    outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LIBS)" << std::endl;
+  else
+    outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS)" << std::endl;
   outputFile << "install: all" << std::endl;
   outputFile << "\t$(info Installing " << conf.projectname <<" to /usr/bin/)" << std::endl;
   outputFile << "\t@cp $(OUTPUT) /usr/bin/" << conf.outputname << std::endl;
   std::map<std::string, IncludeDeps*> dependencies;
+  size_t i = 0;
   for(auto it = cppFiles.begin(); it!=cppFiles.end();++it)
   {
+    i++;
     auto itD = dependencies.find(it->first+it->second);
     if(itD == dependencies.end())
     {
@@ -109,7 +117,7 @@ void Makefile::Save(const ConfigFile& conf)
       size_t slash = it->first.find_last_of("/")+1;
       std::string oFile = it->first.substr(slash, extensionPos - slash)+".o ";
       outputFile << "$(OBJPATH)/" << oFile << ": " << *deps << std::endl;
-      outputFile << "\t$(info ---- $<)" << std::endl;
+      outputFile << "\t$(info -[" << (int)(i / (float)cppFiles.size() * 100) << "%]- $<)" << std::endl;
       outputFile << "\t$(CC) $(CFLAGS) -o $@ $<" << std::endl;
       //std::cout << *deps << std::endl;
     }
