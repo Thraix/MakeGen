@@ -71,10 +71,16 @@ void Makefile::Save(const ConfigFile& conf)
     outputFile << "-D" << *it << " ";
   }
   outputFile << std::endl;
-  outputFile << "LIBS=";
+  outputFile << "LIBDIR=";
+  for(auto it = conf.libdirs.begin();it!=conf.libdirs.end();++it)
+  {
+    outputFile << "-L./" << *it << " ";
+  }
+  outputFile << std::endl;
+  outputFile << "LIBS=$(LIBDIR) ";
   for(auto it = conf.libs.begin();it!=conf.libs.end();++it)
   {
-    outputFile << "-l:" << *it << " ";
+    outputFile << "-l" << *it << " ";
   }
   outputFile << std::endl;
   outputFile << "OUTPUT=$(BIN)" << conf.outputname << std::endl;

@@ -6,8 +6,7 @@
 #define FLAG_NONE 0
 #define FLAG_VECTOR 1
 #define FLAG_STRING 2
-#define FLAG_BOOL 3
-
+#define FLAG_BOOL 3 
 ConfigFile::ConfigFile()
   : outputdir("bin"), outputname("out.a"),executable(true)
 {
@@ -121,7 +120,7 @@ ConfigFile ConfigFile::Gen()
 {
   ConfigFile conf;
   InputMultiple("Enter library:", conf.libs,true);
-  InputMultiple("Enter library directory:", conf.libdirs,true);
+  InputMultiple("Enter library directory:", conf.libdirs,false);
   InputMultiple("Enter include directory:", conf.includedirs,true);
   InputMultiple("Enter source directories:", conf.srcdirs,true);
   InputMultiple("Enter preprocessor definitions:", conf.defines,false);
