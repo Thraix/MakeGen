@@ -13,10 +13,13 @@ class ConfigFile
     std::vector<std::string> defines;
     std::string outputdir;
     std::string outputname;
+    std::string projectname;
     bool executable;
   public:
     ConfigFile();
     void Save() const;
     static ConfigFile Gen();
     static ConfigFile Load();
+  private:
+    static void InputMultiple(const std::string& inputText, std::vector<std::string>& vec, bool needEnding);
 };

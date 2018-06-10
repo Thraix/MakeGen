@@ -79,10 +79,10 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << std::endl;
   outputFile << "OUTPUT=$(BIN)" << conf.outputname << std::endl;
   outputFile << "all: $(OUTPUT)" << std::endl;
-  outputFile << "\t$(info ------------------------)" << std::endl;
-  outputFile << "\t$(info ---- Done Compiling ----)" << std::endl;
-  outputFile << "\t$(info ------------------------)" << std::endl;
-  outputFile << "rebuid: clean all" << std::endl;
+  //outputFile << "\t$(info ------------------------)" << std::endl;
+  //outputFile << "\t$(info ---- Done Compiling ----)" << std::endl;
+  //outputFile << "\t$(info ------------------------)" << std::endl;
+  outputFile << "rebuild: clean all" << std::endl;
   outputFile << "clean:" << std::endl;
   outputFile << "\t$(info Removing intermediates)" << std::endl;
   outputFile << "\trm -rf $(OBJPATH)/*.o" << std::endl;
@@ -90,7 +90,7 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << "\t$(info Generating output file)" << std::endl;
   outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LIBS)" << std::endl;
   outputFile << "install: all" << std::endl;
-  outputFile << "\t$(info Installing MakeGen to /usr/bin/)" << std::endl;
+  outputFile << "\t$(info Installing " << conf.projectname <<" to /usr/bin/)" << std::endl;
   outputFile << "\t@cp $(OUTPUT) /usr/bin/" << conf.outputname << std::endl;
   std::map<std::string, IncludeDeps*> dependencies;
   for(auto it = cppFiles.begin(); it!=cppFiles.end();++it)

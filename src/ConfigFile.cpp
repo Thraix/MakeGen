@@ -65,6 +65,11 @@ ConfigFile ConfigFile::Load()
         s = &conf.outputname;
         loadFlag = FLAG_STRING;
       }
+      else if(line == "#projectname")
+      {
+        s = &conf.projectname;
+        loadFlag = FLAG_STRING;
+      }
       else if(line == "#executable")
       {
         b = &conf.executable;
@@ -95,4 +100,93 @@ ConfigFile ConfigFile::Load()
     }
   }
   return conf;
+}
+
+void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::string>& vec, bool needEnding)
+{
+  std::string input;
+  while(true) 
+  {
+    LOG_INFO(inputText);
+    std::getline(std::cin, input);
+    if(input == "")
+      break;
+    if(needEnding && input[input.length()-1] != '/')
+      input+='/';
+    vec.push_back(input);
+  }
+}
+
+ConfigFile ConfigFile::Gen()
+{
+  ConfigFile conf;
+  InputMultiple("Enter library:", conf.libs,true);
+  InputMultiple("Enter library directory:", conf.libdirs,true);
+  InputMultiple("Enter include directory:", conf.includedirs,true);
+  InputMultiple("Enter source directories:", conf.srcdirs,true);
+  InputMultiple("Enter preprocessor definitions:", conf.defines,false);
+  LOG_INFO("Enter output directory (default: bin):");
+  std::getline(std::cin, conf.outputdir);
+  if(conf.outputdir == "")
+    conf.outputdir = "bin/";
+  conf.outputname = "";
+  while(conf.projectname == "")
+  {
+    LOG_INFO("Enter a name for the project:");
+    std::getline(std::cin, conf.projectname);
+  }
+  while(conf.outputname == "")
+  {
+    LOG_INFO("Enter a name for the output file:");
+    std::getline(std::cin, conf.outputname);
+  }
+  std::string input = "";
+  while(input == "")
+  {
+    LOG_INFO("Should it be compiled as an executable (y/n):");
+    std::getline(std::cin, input);
+    if(input[0] != 'y' && input[0] != 'n')
+      input = "";
+  }
+  conf.executable = input[0] == 'y';
+  return conf;
+}
+
+void ConfigFile::Save() const
+{
+  std::ofstream file("makegen.conf");
+  file << "#libs" << std::endl;
+  for(auto it = libs.begin();it!=libs.end();++it)
+  {
+    file << *it << std::endl;
+  }
+  file << "#libdirs" << std::endl;
+  for(auto it = libdirs.begin();it!=libdirs.end();++it)
+  {
+    file << *it << std::endl;
+  }
+  file << "#includedirs" << std::endl;
+  for(auto it = includedirs.begin();it!=includedirs.end();++it)
+  {
+    file << *it << std::endl;
+  }
+  file << "#srcdirs" << std::endl;
+  for(auto it = srcdirs.begin();it!=srcdirs.end();++it)
+  {
+    file << *it << std::endl;
+  }
+  file << "#defines" << std::endl;
+  for(auto it = defines.begin();it!=defines.end();++it)
+  {
+    file << *it << std::endl;
+  }
+  file << "#outputdir" << std::endl;
+  file << outputdir << std::endl;
+  file << "#projectname" << std::endl;
+  file << projectname << std::endl;
+  file << "#outputname" << std::endl;
+  file << outputname << std::endl;
+  file << "#executable" << std::endl;
+  file << (executable ? "true" : "false") << std::endl;
+  file.close();
 }

@@ -11,10 +11,7 @@ CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 -D_DEBUG
 LIBS=
 OUTPUT=$(BIN)makegen
 all: $(OUTPUT)
-	$(info ------------------------)
-	$(info ---- Done Compiling ----)
-	$(info ------------------------)
-rebuid: clean all
+rebuild: clean all
 clean:
 	$(info Removing intermediates)
 	rm -rf $(OBJPATH)/*.o
