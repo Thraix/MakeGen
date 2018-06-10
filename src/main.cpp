@@ -4,10 +4,12 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include <cmath>
 #include "Common.h"
 #include "IncludeDeps.h"
 #include "ConfigFile.h"
 #include "Makefile.h"
+#include "Timer.h"
 
 void GenMakefile()
 {
@@ -70,7 +72,9 @@ int main(int argc, char** argv)
     return 0;
   }
   LOG_INFO("Generating Makefile...");
+  Timer timer;
   GenMakefile();
+  LOG_INFO("Took ", round(timer.Elapsed()*1000.0)/1000.0,"s");
   LOG_INFO("Running Makefile...");
   for(int i = 1;i<argc;i++)
   {

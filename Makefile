@@ -31,6 +31,6 @@ $(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/IncludeDeps.h
 $(OBJPATH)/Makefile.o : src/Makefile.cpp src/Common.h src/IncludeDeps.h src/Makefile.h src/ConfigFile.h
 	$(info -[75%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/IncludeDeps.h src/Makefile.h 
+$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/IncludeDeps.h src/Makefile.h  src/Timer.h
 	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
