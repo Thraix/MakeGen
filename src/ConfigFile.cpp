@@ -119,8 +119,8 @@ void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::st
 ConfigFile ConfigFile::Gen()
 {
   ConfigFile conf;
-  InputMultiple("Enter library:", conf.libs,true);
-  InputMultiple("Enter library directory:", conf.libdirs,false);
+  InputMultiple("Enter library:", conf.libs,false);
+  InputMultiple("Enter library directory:", conf.libdirs,true);
   InputMultiple("Enter include directory:", conf.includedirs,true);
   InputMultiple("Enter source directories:", conf.srcdirs,true);
   InputMultiple("Enter preprocessor definitions:", conf.defines,false);
