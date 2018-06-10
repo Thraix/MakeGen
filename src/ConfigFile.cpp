@@ -1,7 +1,7 @@
 #include "ConfigFile.h"
 
 #include <fstream>
-#include "Logging.h"
+#include "Common.h"
 
 #define FLAG_NONE 0
 #define FLAG_VECTOR 1

@@ -4,8 +4,8 @@
 #include <dirent.h>
 #include <cstring>
 #include <fstream>
-#include "Logging.h"
 #include "IncludeDeps.h"
+#include "Common.h"
 
 void Makefile::GetAllFiles(const std::string& folder, std::vector<std::string>& files)
 {
@@ -40,8 +40,8 @@ void Makefile::Save(const ConfigFile& conf)
   PreSave(conf,hFiles,cppFiles);
 
   std::ofstream outputFile("Makefile");
-  outputFile << "# This Makefile was generated using MakeGen made by Tim Håkansson and is" << std::endl;
-  outputFile << "# licensed under MIT. Full source of the project can be found at" << std::endl;
+  outputFile << "# This Makefile was generated using MakeGen "<< VERSION<< " made by Tim Håkansson" << std::endl;
+  outputFile << "# and is licensed under MIT. Full source of the project can be found at" << std::endl;
   outputFile << "# https://github.com/Thraix/MakeGen" << std::endl;
   outputFile << "CC=@g++" << std::endl;
   if(!conf.executable)

@@ -4,23 +4,10 @@
 #include <vector>
 #include <map>
 #include <fstream>
+#include "Common.h"
 #include "IncludeDeps.h"
 #include "ConfigFile.h"
 #include "Makefile.h"
-#include "Logging.h"
-
-#define BIT(x) (1<<x)
-#define STRINGIFY(x) #x
-#define STR(x) STRINGIFY(x)
-#define VERSION_MAJOR 1
-#define VERSION_UPDATE 0
-#define VERSION_MINOR 2
-#define VERSION ("v" STR(VERSION_MAJOR) "." STR(VERSION_UPDATE) "." STR(VERSION_MINOR))
-const static unsigned int FLAG_HELP = BIT(0);
-const static unsigned int FLAG_GEN= BIT(1);
-const static unsigned int FLAG_VERSION= BIT(2);
-
-int flags = 0;
 
 void GenMakefile()
 {
@@ -28,8 +15,9 @@ void GenMakefile()
   Makefile::Save(conf);
 }
 
-void ReadFlags(int argc, char** argv)
+unsigned int ReadFlags(int argc, char** argv)
 {
+  unsigned int flags = 0;
   for(int i = 1;i<argc;i++)
   {
     if(strlen(argv[i]) > 1)
@@ -52,11 +40,12 @@ void ReadFlags(int argc, char** argv)
       }
     }
   }
+  return flags;
 }
 
 int main(int argc, char** argv)
 {
-  ReadFlags(argc,argv);
+  unsigned int flags = ReadFlags(argc,argv);
   if(flags & FLAG_HELP)
   {
     LOG_INFO("Usage: makegen [options]");
@@ -65,7 +54,7 @@ int main(int argc, char** argv)
     LOG_INFO("  --conf\tGenerate a config file for the project");
     LOG_INFO("  --version\tDisplays the version of this program");
     LOG_INFO("  install\tGenerates a Makefile and runs make install");
-    LOG_INFO("  clean\tGenerates a Makefile and runs make clean");
+    LOG_INFO("  clean\t\tGenerates a Makefile and runs make clean");
     LOG_INFO("  rebuild\tGenerates a Makefile and runs make rebuild");
     LOG_INFO(" If no option is given it will generate a Makefile and run default make");
     return 0;
