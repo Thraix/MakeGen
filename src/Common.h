@@ -12,7 +12,7 @@
 // Release , should be backwards compatible with any minor version
 #define MAKEGEN_VERSION_RELEASE 0
 // Minor changes, should be compatible with any other minor version with same major and release.
-#define MAKEGEN_VERSION_MINOR 5
+#define MAKEGEN_VERSION_MINOR 6
 #define MAKEGEN_VERSION ("v" STR(MAKEGEN_VERSION_MAJOR) "." STR(MAKEGEN_VERSION_RELEASE) "." STR(MAKEGEN_VERSION_MINOR))
 
 const static unsigned int FLAG_HELP = BIT(0);

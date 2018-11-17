@@ -45,7 +45,12 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << "# https://github.com/Thraix/MakeGen" << std::endl;
   outputFile << "CC=@g++" << std::endl;
   if(!conf.executable)
-    outputFile << "CO=@ar rs" << std::endl;
+  {
+    if(conf.shared)
+      outputFile << "CO=@g++ -shared -o" << std::endl;
+    else
+      outputFile << "CO=@g++ -o" << std::endl;
+  }
   else
     outputFile << "CO=@g++ -o" << std::endl;
 
@@ -65,7 +70,14 @@ void Makefile::Save(const ConfigFile& conf)
     outputFile << "$(OBJPATH)/" << it->first.substr(slash, extensionPos - slash) << ".o ";
   }
   outputFile << std::endl;
-  outputFile << "CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 ";
+  if(conf.executable || !conf.shared)
+  {
+    outputFile << "CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 ";
+  }
+  else
+  {
+    outputFile << "CFLAGS=$(INCLUDES) -fPIC -std=c++17 -c -w -g3 ";
+  }
   for(auto it = conf.defines.begin();it!=conf.defines.end();++it)
   {
     outputFile << "-D" << *it << " ";
@@ -149,5 +161,5 @@ void Makefile::PreSave(const ConfigFile& conf, std::map<std::string, std::string
       }
     }
   }
-  
+
 }
