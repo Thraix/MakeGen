@@ -76,7 +76,8 @@ ConfigFile ConfigFile::Load()
       }
       else
       {
-        LOG_ERROR("Invalid flag");
+        LOG_ERROR("Invalid flag: ", line);
+        loadFlag = FLAG_NONE;
       }
     }
     else
