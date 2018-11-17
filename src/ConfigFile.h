@@ -15,6 +15,7 @@ class ConfigFile
     std::string outputname;
     std::string projectname;
     bool executable;
+    bool shared;
   public:
     ConfigFile();
     void Save() const;

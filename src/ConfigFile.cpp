@@ -8,7 +8,7 @@
 #define FLAG_STRING 2
 #define FLAG_BOOL 3 
 ConfigFile::ConfigFile()
-  : outputdir("bin"), outputname("out.a"),executable(true)
+  : outputdir("bin"), outputname("out.a"),executable(true), shared(true)
 {
 
 }
@@ -74,6 +74,11 @@ ConfigFile ConfigFile::Load()
         b = &conf.executable;
         loadFlag = FLAG_BOOL;
       }
+      else if(line == "#shared")
+      {
+        b = &conf.shared;
+        loadFlag = FLAG_BOOL;
+      }
       else
       {
         LOG_ERROR("Invalid flag");
@@ -134,6 +139,18 @@ ConfigFile ConfigFile::Gen()
     InputMultiple("Enter library:", conf.libs,false);
     InputMultiple("Enter library directory:", conf.libdirs,true);
   }
+  else
+  {
+    while(input == "")
+    {
+      LOG_INFO("Should it be compiled as a shared library (y/n):");
+      std::getline(std::cin, input);
+      if(input[0] != 'y' && input[0] != 'n')
+        input = "";
+    }
+    conf.shared = input[0] == 'y';
+
+  }
   InputMultiple("Enter include directory:", conf.includedirs,true);
   InputMultiple("Enter source directories:", conf.srcdirs,true);
   InputMultiple("Enter preprocessor definitions:", conf.defines,false);
@@ -191,5 +208,7 @@ void ConfigFile::Save() const
   file << outputname << std::endl;
   file << "#executable" << std::endl;
   file << (executable ? "true" : "false") << std::endl;
+  file << "#shared" << std::endl;
+  file << (shared ? "true" : "false") << std::endl;
   file.close();
 }
