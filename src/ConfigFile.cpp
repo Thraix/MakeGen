@@ -44,6 +44,11 @@ ConfigFile ConfigFile::Load()
         vec = &conf.includedirs;
         loadFlag = FLAG_VECTOR;
       }
+      else if(line == "#compileflags")
+      {
+        vec = &conf.flags;
+        loadFlag = FLAG_VECTOR;
+      }
       else if(line == "#srcdirs")
       {
         vec = &conf.srcdirs;
@@ -155,6 +160,7 @@ ConfigFile ConfigFile::Gen()
   InputMultiple("Enter include directory:", conf.includedirs,true);
   InputMultiple("Enter source directories:", conf.srcdirs,true);
   InputMultiple("Enter preprocessor definitions:", conf.defines,false);
+  InputMultiple("Enter compile flags:", conf.flags,false);
   LOG_INFO("Enter output directory (default: bin):");
   std::getline(std::cin, conf.outputdir);
   if(conf.outputdir == "")
@@ -198,6 +204,11 @@ void ConfigFile::Save() const
   }
   file << "#defines" << std::endl;
   for(auto it = defines.begin();it!=defines.end();++it)
+  {
+    file << *it << std::endl;
+  }
+  file << "#compileflags" << std::endl;
+  for(auto it = flags.begin();it!=flags.end();++it)
   {
     file << *it << std::endl;
   }

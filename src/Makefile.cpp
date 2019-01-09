@@ -43,7 +43,7 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << "# This Makefile was generated using MakeGen "<< MAKEGEN_VERSION<< " made by Tim Håkansson" << std::endl;
   outputFile << "# and is licensed under MIT. Full source of the project can be found at" << std::endl;
   outputFile << "# https://github.com/Thraix/MakeGen" << std::endl;
-  outputFile << "CC=@g++" << std::endl;
+  outputFile << "CC=@g++ $(CFLAGS)" << std::endl;
   if(!conf.executable)
   {
     if(conf.shared)
@@ -53,6 +53,12 @@ void Makefile::Save(const ConfigFile& conf)
   }
   else
     outputFile << "CO=@g++ -o" << std::endl;
+  outputFile << "CFLAGS=";
+  for(auto it = conf.flags.begin();it!=conf.flags.end();++it)
+  {
+    outputFile << *it << " ";
+  }
+  outputFile << std::endl;
 
   outputFile << "BIN=" << conf.outputdir << std::endl;
   outputFile << "OBJPATH=$(BIN)intermediates" << std::endl;

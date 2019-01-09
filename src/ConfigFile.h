@@ -11,6 +11,7 @@ class ConfigFile
     std::vector<std::string> includedirs;
     std::vector<std::string> srcdirs;
     std::vector<std::string> defines;
+    std::vector<std::string> flags;
     std::string outputdir;
     std::string outputname;
     std::string projectname;
