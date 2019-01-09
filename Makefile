@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.0.6 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.0.8 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -9,6 +9,7 @@ INCLUDES=
 OBJECTS=$(OBJPATH)/ConfigFile.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/main.o 
 CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 -D_DEBUG 
 LIBDIR=
+LDFLAGS=
 LIBS=$(LIBDIR) 
 OUTPUT=$(BIN)makegen
 all: $(OUTPUT)
@@ -18,7 +19,7 @@ clean:
 	rm -rf $(OBJPATH)/*.o
 $(OUTPUT): $(OBJECTS)
 	$(info Generating output file)
-	$(CO) $(OUTPUT) $(OBJECTS) $(LIBS)
+	$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS) $(LIBS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen

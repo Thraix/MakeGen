@@ -43,7 +43,7 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << "# This Makefile was generated using MakeGen "<< MAKEGEN_VERSION<< " made by Tim Håkansson" << std::endl;
   outputFile << "# and is licensed under MIT. Full source of the project can be found at" << std::endl;
   outputFile << "# https://github.com/Thraix/MakeGen" << std::endl;
-  outputFile << "CC=@g++ $(CFLAGS)" << std::endl;
+  outputFile << "CC=@g++" << std::endl;
   if(!conf.executable)
   {
     if(conf.shared)
@@ -53,12 +53,6 @@ void Makefile::Save(const ConfigFile& conf)
   }
   else
     outputFile << "CO=@g++ -o" << std::endl;
-  outputFile << "CFLAGS=";
-  for(auto it = conf.flags.begin();it!=conf.flags.end();++it)
-  {
-    outputFile << *it << " ";
-  }
-  outputFile << std::endl;
 
   outputFile << "BIN=" << conf.outputdir << std::endl;
   outputFile << "OBJPATH=$(BIN)intermediates" << std::endl;
@@ -88,6 +82,10 @@ void Makefile::Save(const ConfigFile& conf)
   {
     outputFile << "-D" << *it << " ";
   }
+  for(auto it = conf.flags.begin();it!=conf.flags.end();++it)
+  {
+    outputFile << *it << " ";
+  }
   outputFile << std::endl;
   if(conf.executable)
   {
@@ -95,6 +93,12 @@ void Makefile::Save(const ConfigFile& conf)
     for(auto it = conf.libdirs.begin();it!=conf.libdirs.end();++it)
     {
       outputFile << "-L./" << *it << " ";
+    }
+    outputFile << std::endl;
+    outputFile << "LDFLAGS=";
+    for(auto it = conf.libdirs.begin();it!=conf.libdirs.end();++it)
+    {
+      outputFile << "-Wl,-rpath=" << *it << " ";
     }
     outputFile << std::endl;
     outputFile << "LIBS=$(LIBDIR) ";
@@ -116,7 +120,7 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << "$(OUTPUT): $(OBJECTS)" << std::endl;
   outputFile << "\t$(info Generating output file)" << std::endl;
   if(conf.executable)
-    outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LIBS)" << std::endl;
+    outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS) $(LIBS)" << std::endl;
   else
     outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS)" << std::endl;
   outputFile << "install: all" << std::endl;
