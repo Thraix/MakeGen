@@ -13,7 +13,7 @@ ConfigFile::ConfigFile()
 
 }
 
-ConfigFile ConfigFile::Load()
+ConfigFile ConfigFile::Load(const std::string& filename)
 {
   ConfigFile conf;
   unsigned int loadFlag = 0;
@@ -22,94 +22,97 @@ ConfigFile ConfigFile::Load()
   std::string* s;
   bool* b;
 
-  std::ifstream file("makegen.conf");
+  std::ifstream file(filename);
   std::string line;
 
-  while(std::getline(file,line))
+  if(file.is_open())
   {
-    if(line[0]=='#')
+    while(std::getline(file,line))
     {
-      if(line == "#libs")
+      if(line[0]=='#')
       {
-        vec = &conf.libs;
-        loadFlag = FLAG_VECTOR;
-      }
-      else if(line == "#libdirs")
-      {
-        vec = &conf.libdirs;
-        loadFlag = FLAG_VECTOR;
-      }
-      else if(line == "#includedirs")
-      {
-        vec = &conf.includedirs;
-        loadFlag = FLAG_VECTOR;
-      }
-      else if(line == "#compileflags")
-      {
-        vec = &conf.flags;
-        loadFlag = FLAG_VECTOR;
-      }
-      else if(line == "#srcdirs")
-      {
-        vec = &conf.srcdirs;
-        loadFlag = FLAG_VECTOR;
-      }
-      else if(line == "#defines")
-      {
-        vec = &conf.defines;
-        loadFlag = FLAG_VECTOR;
-      }
-      else if(line == "#outputdir")
-      {
-        s = &conf.outputdir;
-        loadFlag = FLAG_STRING;
-      }
-      else if(line == "#outputname")
-      {
-        s = &conf.outputname;
-        loadFlag = FLAG_STRING;
-      }
-      else if(line == "#projectname")
-      {
-        s = &conf.projectname;
-        loadFlag = FLAG_STRING;
-      }
-      else if(line == "#executable")
-      {
-        b = &conf.executable;
-        loadFlag = FLAG_BOOL;
-      }
-      else if(line == "#shared")
-      {
-        b = &conf.shared;
-        loadFlag = FLAG_BOOL;
+        if(line == "#libs")
+        {
+          vec = &conf.libs;
+          loadFlag = FLAG_VECTOR;
+        }
+        else if(line == "#libdirs")
+        {
+          vec = &conf.libdirs;
+          loadFlag = FLAG_VECTOR;
+        }
+        else if(line == "#includedirs")
+        {
+          vec = &conf.includedirs;
+          loadFlag = FLAG_VECTOR;
+        }
+        else if(line == "#compileflags")
+        {
+          vec = &conf.flags;
+          loadFlag = FLAG_VECTOR;
+        }
+        else if(line == "#srcdirs")
+        {
+          vec = &conf.srcdirs;
+          loadFlag = FLAG_VECTOR;
+        }
+        else if(line == "#defines")
+        {
+          vec = &conf.defines;
+          loadFlag = FLAG_VECTOR;
+        }
+        else if(line == "#outputdir")
+        {
+          s = &conf.outputdir;
+          loadFlag = FLAG_STRING;
+        }
+        else if(line == "#outputname")
+        {
+          s = &conf.outputname;
+          loadFlag = FLAG_STRING;
+        }
+        else if(line == "#projectname")
+        {
+          s = &conf.projectname;
+          loadFlag = FLAG_STRING;
+        }
+        else if(line == "#executable")
+        {
+          b = &conf.executable;
+          loadFlag = FLAG_BOOL;
+        }
+        else if(line == "#shared")
+        {
+          b = &conf.shared;
+          loadFlag = FLAG_BOOL;
+        }
+        else
+        {
+          LOG_ERROR("Invalid flag: ", line);
+          loadFlag = FLAG_NONE;
+        }
       }
       else
       {
-        LOG_ERROR("Invalid flag: ", line);
-        loadFlag = FLAG_NONE;
+        if(loadFlag == FLAG_STRING)
+        {
+          *s = line;
+        }
+        else if(loadFlag == FLAG_VECTOR)
+        {
+          vec->push_back(line);
+        }
+        else if(loadFlag == FLAG_BOOL)
+        {
+          if(line == "true")
+            *b = true;
+          else
+            *b = false;
+        }
       }
     }
-    else
-    {
-      if(loadFlag == FLAG_STRING)
-      {
-        *s = line;
-      }
-      else if(loadFlag == FLAG_VECTOR)
-      {
-        vec->push_back(line);
-      }
-      else if(loadFlag == FLAG_BOOL)
-      {
-        if(line == "true")
-          *b = true;
-        else
-          *b = false;
-      }
-    }
+    return conf;
   }
-  return conf;
 }
 
 void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::string>& vec, bool needEnding)

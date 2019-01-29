@@ -21,7 +21,7 @@ class ConfigFile
     ConfigFile();
     void Save() const;
     static ConfigFile Gen();
-    static ConfigFile Load();
+    static ConfigFile Load(const std::string& filename);
   private:
     static void InputMultiple(const std::string& inputText, std::vector<std::string>& vec, bool needEnding);
 };

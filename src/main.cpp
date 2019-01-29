@@ -11,10 +11,38 @@
 #include "Makefile.h"
 #include "Timer.h"
 
-void GenMakefile()
+void PrintHelp()
 {
-  ConfigFile conf = ConfigFile::Load(); 
-  Makefile::Save(conf);
+  LOG_INFO("Usage: makegen [options]");
+  LOG_INFO(" Options:");
+  LOG_INFO("  --help\tDisplays this information");
+  LOG_INFO("  --conf\tGenerate a config file for the project");
+  LOG_INFO("  --version\tDisplays the version of this program");
+  LOG_INFO("  install\tGenerates a Makefile and runs make install");
+  LOG_INFO("  clean\t\tGenerates a Makefile and runs make clean");
+  LOG_INFO("  rebuild\tGenerates a Makefile and runs make rebuild");
+  LOG_INFO(" If no option is given it will run default make");
+}
+
+bool GenMakefile()
+{
+  std::ifstream f("makegen.conf");
+  if(f.good())
+  {
+    ConfigFile conf = ConfigFile::Load("makegen.conf"); 
+    Makefile::Save(conf);
+    return true;
+  }
+  f.close();
+  f = std::ifstream("Makefile");
+
+  if(!f.good())
+  {
+    LOG_ERROR("No makegen.conf or Makefile found.");
+    PrintHelp();
+    return false;
+  }
+  return true;
 }
 
 unsigned int ReadFlags(int argc, char** argv)
@@ -50,15 +78,7 @@ int main(int argc, char** argv)
   unsigned int flags = ReadFlags(argc,argv);
   if(flags & FLAG_HELP)
   {
-    LOG_INFO("Usage: makegen [options]");
-    LOG_INFO(" Options:");
-    LOG_INFO("  --help\tDisplays this information");
-    LOG_INFO("  --conf\tGenerate a config file for the project");
-    LOG_INFO("  --version\tDisplays the version of this program");
-    LOG_INFO("  install\tGenerates a Makefile and runs make install");
-    LOG_INFO("  clean\t\tGenerates a Makefile and runs make clean");
-    LOG_INFO("  rebuild\tGenerates a Makefile and runs make rebuild");
-    LOG_INFO(" If no option is given it will generate a Makefile and run default make");
+    PrintHelp();
     return 0;
   }
   if(flags & FLAG_VERSION)
@@ -73,7 +93,8 @@ int main(int argc, char** argv)
   }
   LOG_INFO("Generating Makefile...");
   Timer timer;
-  GenMakefile();
+  if(!GenMakefile())
+    return 1;
   LOG_INFO("Took ", round(timer.Elapsed()*1000.0)/1000.0,"s");
   LOG_INFO("Running Makefile...");
   for(int i = 1;i<argc;i++)
@@ -87,6 +108,6 @@ int main(int argc, char** argv)
   }
 
   system("make");
-  
+
   return 0;
 }
