@@ -6,37 +6,12 @@
 #include <fstream>
 #include "IncludeDeps.h"
 #include "Common.h"
-
-void Makefile::GetAllFiles(const std::string& folder, std::vector<std::string>& files)
-{
-  DIR* dp;
-  struct dirent *dirp;
-  if((dp = opendir(folder.c_str())) == NULL){
-    LOG_ERROR(errno);
-    return;
-  }
-  while((dirp = readdir(dp)) != NULL)
-  {
-    if(dirp->d_type == DT_DIR)
-    {
-      if(strcmp(dirp->d_name,".") == 0)
-        continue;
-      if(strcmp(dirp->d_name,"..") == 0)
-        continue;
-      GetAllFiles(folder+dirp->d_name+"/", files);
-    }
-    else
-    {
-      files.push_back(folder+dirp->d_name);
-    }
-  }
-  closedir(dp);
-}
+#include "FileUtils.h"
 
 void Makefile::Save(const ConfigFile& conf)
 {
-  std::map<std::string, std::string> hFiles;
-  std::map<std::string, std::string> cppFiles;
+  std::set<std::string> hFiles;
+  std::set<std::string> cppFiles;
   PreSave(conf,hFiles,cppFiles);
 
   std::ofstream outputFile("Makefile");
@@ -65,9 +40,9 @@ void Makefile::Save(const ConfigFile& conf)
   outputFile << "OBJECTS=";
   for(auto it = cppFiles.begin();it!=cppFiles.end();++it)
   {
-    size_t extensionPos = it->first.find_last_of(".");
-    size_t slash = it->first.find_last_of("/")+1;
-    outputFile << "$(OBJPATH)/" << it->first.substr(slash, extensionPos - slash) << ".o ";
+    size_t extensionPos = it->find_last_of(".");
+    size_t slash = it->find_last_of("/")+1;
+    outputFile << "$(OBJPATH)/" << it->substr(slash, extensionPos - slash) << ".o ";
   }
   outputFile << std::endl;
   if(conf.executable || !conf.shared)
@@ -131,13 +106,13 @@ void Makefile::Save(const ConfigFile& conf)
   for(auto it = cppFiles.begin(); it!=cppFiles.end();++it)
   {
     i++;
-    auto itD = dependencies.find(it->first+it->second);
+    auto itD = dependencies.find(conf.srcdir + *it);
     if(itD == dependencies.end())
     {
-      IncludeDeps* deps = new IncludeDeps(it->first, it->second,hFiles,dependencies);
-      size_t extensionPos = it->first.find_last_of(".");
-      size_t slash = it->first.find_last_of("/")+1;
-      std::string oFile = it->first.substr(slash, extensionPos - slash)+".o ";
+      IncludeDeps* deps = new IncludeDeps(*it, conf.srcdir,hFiles,dependencies);
+      size_t extensionPos = it->find_last_of(".");
+      size_t slash = it->find_last_of("/")+1;
+      std::string oFile = it->substr(slash, extensionPos - slash)+".o ";
       outputFile << "$(OBJPATH)/" << oFile << ": " << *deps << std::endl;
       outputFile << "\t$(info -[" << (int)(i / (float)cppFiles.size() * 100) << "%]- $<)" << std::endl;
       outputFile << "\t$(CC) $(CFLAGS) -o $@ $<" << std::endl;
@@ -146,30 +121,25 @@ void Makefile::Save(const ConfigFile& conf)
   }
 }
 
-void Makefile::PreSave(const ConfigFile& conf, std::map<std::string, std::string>& hFiles, 
-    std::map<std::string, std::string>& cppFiles)
+void Makefile::PreSave(const ConfigFile& conf, std::set<std::string>& hFiles, std::set<std::string>& cppFiles)
 {
-  for(auto itSrc = conf.srcdirs.begin();itSrc != conf.srcdirs.end();++itSrc)
+  std::vector<std::string> files;
+  FileUtils::GetAllFiles(conf.srcdir,files);
+  // include paramenter with the path of the file
+  // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder 
+  for(auto it = files.begin(); it!=files.end();++it)
   {
-    std::vector<std::string> files;
-    GetAllFiles(*itSrc,files);
-    // include paramenter with the path of the file
-    // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder 
-    for(auto it = files.begin(); it!=files.end();++it)
+    size_t extensionPos = it->find_last_of(".");
+    if(extensionPos != std::string::npos)
     {
-      size_t extensionPos = it->find_last_of(".");
-      if(extensionPos != std::string::npos)
+      if(it->substr(extensionPos+1) == "cpp")
       {
-        if(it->substr(extensionPos+1) == "cpp")
-        {
-          cppFiles.emplace(it->substr(itSrc->length()), *itSrc);
-        }
-        else
-        {
-          hFiles.emplace(it->substr(itSrc->length()), *itSrc);
-        }
+        cppFiles.emplace(it->substr(conf.srcdir.length()));
+      }
+      else
+      {
+        hFiles.emplace(it->substr(conf.srcdir.length()));
       }
     }
   }
-
 }

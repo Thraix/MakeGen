@@ -17,7 +17,7 @@ class IncludeDeps
     static std::set<std::string> printSet;
     static int printCounter;
 
-    IncludeDeps(const std::string& filename, const std::string& dir, const std::map<std::string, std::string>& files, std::map<std::string, IncludeDeps*>& allDeps);
+    IncludeDeps(const std::string& filename, const std::string& dir, const std::set<std::string>& files, std::map<std::string, IncludeDeps*>& allDeps);
 
     std::string GetIncludeFile(const std::string& line, size_t pos, const std::string& filename);
 

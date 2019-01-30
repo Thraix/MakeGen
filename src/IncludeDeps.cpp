@@ -2,7 +2,7 @@
 
 std::set<std::string> IncludeDeps::printSet;
 int IncludeDeps::printCounter = 0;
-IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, const std::map<std::string, std::string>& files, std::map<std::string, IncludeDeps*>& allDeps)
+IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, const std::set<std::string>& files, std::map<std::string, IncludeDeps*>& allDeps)
       : filepath(dir+filename)
     {
       if(filename[filename.length() - 1] =='h')
@@ -20,11 +20,11 @@ IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, co
           auto it = files.find(include);
           if(it != files.end())
           {
-            auto itD = allDeps.find(it->second + it->first);
+            auto itD = allDeps.find(dir + *it);
             if(itD == allDeps.end())
             {
-              IncludeDeps* inc = new IncludeDeps(it->first, it->second,files,allDeps);
-              dependencies.emplace(it->second+ it->first, inc);
+              IncludeDeps* inc = new IncludeDeps(*it, dir,files,allDeps);
+              dependencies.emplace(dir + *it, inc);
             }else{
               dependencies.emplace(itD->first, itD->second);
             }

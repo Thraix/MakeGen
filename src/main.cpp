@@ -9,6 +9,7 @@
 #include "IncludeDeps.h"
 #include "ConfigFile.h"
 #include "Makefile.h"
+#include "HFileGen.h"
 #include "Timer.h"
 
 void PrintHelp()
@@ -30,6 +31,8 @@ bool GenMakefile()
   if(f.good())
   {
     ConfigFile conf = ConfigFile::Load("makegen.conf"); 
+    if(conf.generateHFile)
+      HFileGen::Create(conf);
     Makefile::Save(conf);
     return true;
   }

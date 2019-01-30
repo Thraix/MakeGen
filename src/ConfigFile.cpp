@@ -8,9 +8,8 @@
 #define FLAG_STRING 2
 #define FLAG_BOOL 3 
 ConfigFile::ConfigFile()
-  : outputdir("bin"), outputname("out.a"),executable(true), shared(true)
+  : outputdir("bin"), outputname("out.a"), hFile(""),executable(true), shared(true), generateHFile(false)
 {
-
 }
 
 ConfigFile ConfigFile::Load(const std::string& filename)
@@ -51,15 +50,15 @@ ConfigFile ConfigFile::Load(const std::string& filename)
           vec = &conf.flags;
           loadFlag = FLAG_VECTOR;
         }
-        else if(line == "#srcdirs")
-        {
-          vec = &conf.srcdirs;
-          loadFlag = FLAG_VECTOR;
-        }
         else if(line == "#defines")
         {
           vec = &conf.defines;
           loadFlag = FLAG_VECTOR;
+        }
+        else if(line == "#srcdir")
+        {
+          s = &conf.srcdir;
+          loadFlag = FLAG_STRING;
         }
         else if(line == "#outputdir")
         {
@@ -76,6 +75,11 @@ ConfigFile ConfigFile::Load(const std::string& filename)
           s = &conf.projectname;
           loadFlag = FLAG_STRING;
         }
+        else if(line == "#hfile")
+        {
+          s = &conf.hFile;
+          loadFlag = FLAG_STRING;
+        }
         else if(line == "#executable")
         {
           b = &conf.executable;
@@ -84,6 +88,11 @@ ConfigFile ConfigFile::Load(const std::string& filename)
         else if(line == "#shared")
         {
           b = &conf.shared;
+          loadFlag = FLAG_BOOL;
+        }
+        else if(line == "#generatehfile")
+        {
+          b = &conf.generateHFile;
           loadFlag = FLAG_BOOL;
         }
         else
@@ -111,7 +120,42 @@ ConfigFile ConfigFile::Load(const std::string& filename)
         }
       }
     }
-    return conf;
+  }
+  if(conf.hFile == "")
+    conf.hFile = conf.projectname+".h";
+
+  return conf;
+}
+
+void ConfigFile::InputBoolean(const std::string& inputText, bool& b)
+{
+  std::string input;
+  while(true) 
+  {
+    LOG_INFO(inputText);
+    std::getline(std::cin, input);
+    if(input.length() > 0)
+    {
+      if(input[0] == 'y' || input[0] == 'n')
+      {
+        b = input[0] == 'y';
+        return;
+      }
+    }
+  }
+}
+
+void ConfigFile::InputString(const std::string& inputText, std::string& str, bool needEnding, bool allowEmpty)
+{
+  str = "";
+  while(true)
+  {
+    LOG_INFO(inputText);
+    std::getline(std::cin, str);
+    if(needEnding && str[str.length()-1] != '/' && !str.empty())
+      str += '/';
+    if(allowEmpty || !str.empty())
+      return;
   }
 }
 
@@ -120,12 +164,9 @@ void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::st
   std::string input;
   while(true) 
   {
-    LOG_INFO(inputText);
-    std::getline(std::cin, input);
+    InputString(inputText, input, needEnding, true);
     if(input == "")
       break;
-    if(needEnding && input[input.length()-1] != '/')
-      input+='/';
     vec.push_back(input);
   }
 }
@@ -133,15 +174,7 @@ void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::st
 ConfigFile ConfigFile::Gen()
 {
   ConfigFile conf;
-  std::string input = "";
-  while(input == "")
-  {
-    LOG_INFO("Should it be compiled as an executable (y/n):");
-    std::getline(std::cin, input);
-    if(input[0] != 'y' && input[0] != 'n')
-      input = "";
-  }
-  conf.executable = input[0] == 'y';
+  InputBoolean("Should it be compiled as an executable? (y/n)", conf.executable);
   // If it isn't an executable there is not need to have libraries
   if(conf.executable)
   {
@@ -150,35 +183,22 @@ ConfigFile ConfigFile::Gen()
   }
   else
   {
-    while(input == "")
+    InputBoolean("Should it be compiled as a shared library? (y/n)", conf.shared);
+    InputBoolean("Should it compile a single h file? (y/n):", conf.generateHFile);
+    if(conf.generateHFile)
     {
-      LOG_INFO("Should it be compiled as a shared library (y/n):");
-      std::getline(std::cin, input);
-      if(input[0] != 'y' && input[0] != 'n')
-        input = "";
+      InputString("Enter the h file name (and path): ", conf.hFile, false, false);
     }
-    conf.shared = input[0] == 'y';
-
   }
-  InputMultiple("Enter include directory:", conf.includedirs,true);
-  InputMultiple("Enter source directories:", conf.srcdirs,true);
-  InputMultiple("Enter preprocessor definitions:", conf.defines,false);
-  InputMultiple("Enter compile flags:", conf.flags,false);
-  LOG_INFO("Enter output directory (default: bin):");
-  std::getline(std::cin, conf.outputdir);
+  InputMultiple("Enter include directory:", conf.includedirs, true);
+  InputString("Enter source directories:", conf.srcdir, true, false);
+  InputMultiple("Enter preprocessor definitions:", conf.defines, false);
+  InputMultiple("Enter compile flags:", conf.flags, false);
+  InputString("Enter output directory (default: bin):", conf.outputdir, true, true);
   if(conf.outputdir == "")
     conf.outputdir = "bin/";
-  conf.outputname = "";
-  while(conf.projectname == "")
-  {
-    LOG_INFO("Enter a name for the project:");
-    std::getline(std::cin, conf.projectname);
-  }
-  while(conf.outputname == "")
-  {
-    LOG_INFO("Enter a name for the output file:");
-    std::getline(std::cin, conf.outputname);
-  }
+  InputString("Enter a name for the project:", conf.projectname, false, false);
+  InputString("Enter a name for the output file:", conf.outputname, false, false);
   return conf;
 }
 
@@ -200,11 +220,6 @@ void ConfigFile::Save() const
   {
     file << *it << std::endl;
   }
-  file << "#srcdirs" << std::endl;
-  for(auto it = srcdirs.begin();it!=srcdirs.end();++it)
-  {
-    file << *it << std::endl;
-  }
   file << "#defines" << std::endl;
   for(auto it = defines.begin();it!=defines.end();++it)
   {
@@ -215,6 +230,8 @@ void ConfigFile::Save() const
   {
     file << *it << std::endl;
   }
+  file << "#srcdir" << std::endl;
+  file << srcdir << std::endl;
   file << "#outputdir" << std::endl;
   file << outputdir << std::endl;
   file << "#projectname" << std::endl;
@@ -223,7 +240,17 @@ void ConfigFile::Save() const
   file << outputname << std::endl;
   file << "#executable" << std::endl;
   file << (executable ? "true" : "false") << std::endl;
-  file << "#shared" << std::endl;
-  file << (shared ? "true" : "false") << std::endl;
+  file << "#generatehfile" << std::endl;
+  file << (generateHFile ? "true" : "false") << std::endl;
+  if(generateHFile)
+  {
+    file << "#hfile" << std::endl;
+    file << hFile << std::endl;
+  }
+  if(!executable)
+  {
+    file << "#shared" << std::endl;
+    file << (shared ? "true" : "false") << std::endl;
+  }
   file.close();
 }
