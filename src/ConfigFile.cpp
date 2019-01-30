@@ -1,6 +1,7 @@
 #include "ConfigFile.h"
 
 #include <fstream>
+#include <map>
 #include "Common.h"
 
 #define FLAG_NONE 0
@@ -26,79 +27,65 @@ ConfigFile ConfigFile::Load(const std::string& filename)
 
   if(file.is_open())
   {
+    std::map<std::string, std::string*> strings = 
+    {
+      {"#srcdir", &conf.srcdir},
+      {"#outputdir", &conf.outputdir},
+      {"#outputname", &conf.outputname},
+      {"#projectname", &conf.projectname},
+      {"#hfile", &conf.hFile},
+    };
+
+    std::map<std::string, std::vector<std::string>*> vectors = 
+    {
+      {"#libs", &conf.libs},
+      {"#libdirs", &conf.libdirs},
+      {"#includedirs", &conf.includedirs},
+      {"#compileflags", &conf.flags},
+      {"#defines", &conf.defines},
+    };
+
+    std::map<std::string, bool*> booleans = 
+    {
+      {"#executable", &conf.executable},
+      {"#shared", &conf.shared},
+      {"#generatehfile", &conf.generateHFile},
+    };
+
     while(std::getline(file,line))
     {
       if(line[0]=='#')
       {
-        if(line == "#libs")
+        // The format is a bit wacky, but it is this way since we do not want
+        // to use map::find for all maps. This way we gain some optimization.
+        auto&& itStr{strings.find(line)};
+        if(itStr != strings.end())
         {
-          vec = &conf.libs;
-          loadFlag = FLAG_VECTOR;
-        }
-        else if(line == "#libdirs")
-        {
-          vec = &conf.libdirs;
-          loadFlag = FLAG_VECTOR;
-        }
-        else if(line == "#includedirs")
-        {
-          vec = &conf.includedirs;
-          loadFlag = FLAG_VECTOR;
-        }
-        else if(line == "#compileflags")
-        {
-          vec = &conf.flags;
-          loadFlag = FLAG_VECTOR;
-        }
-        else if(line == "#defines")
-        {
-          vec = &conf.defines;
-          loadFlag = FLAG_VECTOR;
-        }
-        else if(line == "#srcdir")
-        {
-          s = &conf.srcdir;
+          s = itStr->second;
           loadFlag = FLAG_STRING;
-        }
-        else if(line == "#outputdir")
-        {
-          s = &conf.outputdir;
-          loadFlag = FLAG_STRING;
-        }
-        else if(line == "#outputname")
-        {
-          s = &conf.outputname;
-          loadFlag = FLAG_STRING;
-        }
-        else if(line == "#projectname")
-        {
-          s = &conf.projectname;
-          loadFlag = FLAG_STRING;
-        }
-        else if(line == "#hfile")
-        {
-          s = &conf.hFile;
-          loadFlag = FLAG_STRING;
-        }
-        else if(line == "#executable")
-        {
-          b = &conf.executable;
-          loadFlag = FLAG_BOOL;
-        }
-        else if(line == "#shared")
-        {
-          b = &conf.shared;
-          loadFlag = FLAG_BOOL;
-        }
-        else if(line == "#generatehfile")
-        {
-          b = &conf.generateHFile;
-          loadFlag = FLAG_BOOL;
         }
         else
         {
-          LOG_ERROR("Invalid flag: ", line);
-          loadFlag = FLAG_NONE;
+          auto&& itVec{vectors.find(line)};
+          if(itVec != vectors.end())
+          {
+            vec = itVec->second;
+            loadFlag = FLAG_VECTOR;
+          }
+          else 
+          {
+            auto&& itBool{booleans.find(line)};
+            if(itBool != booleans.end())
+            {
+              b = itBool->second;
+              loadFlag = FLAG_BOOL;
+            }
+            else
+            {
+              LOG_ERROR("Invalid flag: ", line);
+              loadFlag = FLAG_NONE;
+            }
+          }
         }
       }
       else
