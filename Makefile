@@ -1,8 +1,9 @@
-# This Makefile was generated using MakeGen v1.1.0 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.1.1 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
 CO=@g++ -o
+MKDIR_P=mkdir -p
 BIN=bin/
 OBJPATH=$(BIN)intermediates
 INCLUDES=
@@ -12,7 +13,14 @@ LIBDIR=
 LDFLAGS=
 LIBS=$(LIBDIR) 
 OUTPUT=$(BIN)makegen
-all: $(OUTPUT)
+.PHONY: directories all rebuild clean
+all: directories $(OUTPUT)
+directories: $(BIN) $(OBJPATH)
+$(BIN):
+	$(info Creating output directories)
+	@$(MKDIR_P) $(BIN)
+$(OBJPATH):
+	@$(MKDIR_P) $(OBJPATH)
 rebuild: clean all
 clean:
 	$(info Removing intermediates)

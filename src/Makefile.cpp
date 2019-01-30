@@ -29,6 +29,7 @@ void Makefile::Save(const ConfigFile& conf)
   else
     outputFile << "CO=@g++ -o" << std::endl;
 
+  outputFile << "MKDIR_P=mkdir -p" << std::endl;
   outputFile << "BIN=" << conf.outputdir << std::endl;
   outputFile << "OBJPATH=$(BIN)intermediates" << std::endl;
   outputFile << "INCLUDES=";
@@ -84,10 +85,17 @@ void Makefile::Save(const ConfigFile& conf)
     outputFile << std::endl;
   }
   outputFile << "OUTPUT=$(BIN)" << conf.outputname << std::endl;
-  outputFile << "all: $(OUTPUT)" << std::endl;
+  outputFile << ".PHONY: all directories rebuild clean" << std::endl;
+  outputFile << "all: directories $(OUTPUT)" << std::endl;
   //outputFile << "\t$(info ------------------------)" << std::endl;
   //outputFile << "\t$(info ---- Done Compiling ----)" << std::endl;
   //outputFile << "\t$(info ------------------------)" << std::endl;
+  outputFile << "directories: $(BIN) $(OBJPATH)" << std::endl;
+  outputFile << "$(BIN):" << std::endl;
+  outputFile << "\t$(info Creating output directories)" << std::endl;
+  outputFile << "\t@$(MKDIR_P) $(BIN)" << std::endl;
+  outputFile << "$(OBJPATH):" << std::endl;
+  outputFile << "\t@$(MKDIR_P) $(OBJPATH)" << std::endl;
   outputFile << "rebuild: clean all" << std::endl;
   outputFile << "clean:" << std::endl;
   outputFile << "\t$(info Removing intermediates)" << std::endl;
