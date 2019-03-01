@@ -13,7 +13,7 @@ LIBDIR=
 LDFLAGS=
 LIBS=$(LIBDIR) 
 OUTPUT=$(BIN)makegen
-.PHONY: directories all rebuild clean
+.PHONY: all directories rebuild clean
 all: directories $(OUTPUT)
 directories: $(BIN) $(OBJPATH)
 $(BIN):

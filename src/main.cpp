@@ -105,12 +105,10 @@ int main(int argc, char** argv)
     if(argv[i][0] != '-')
     {
       std::string make = std::string("make ") + argv[i];
-      system(make.c_str());
-      return 0;
+      return system(make.c_str()) == 0 ? 0 : 1;
     }
   }
 
-  system("make");
-
-  return 0;
+  ;
+  return system("make") == 0 ? 0 : 1;
 }
