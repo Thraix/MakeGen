@@ -10,11 +10,11 @@
 
 void Makefile::Save(const ConfigFile& conf)
 {
-  std::set<std::string> hFiles;
+  std::map<std::string, std::string> hFiles; // hFile, directory
   std::set<std::string> cppFiles;
-  PreSave(conf,hFiles,cppFiles);
+  GetCppAndHFiles(conf,hFiles,cppFiles);
 
-  std::ofstream outputFile("Makefile");
+  std::ofstream outputFile(conf.configPath + "Makefile");
   outputFile << "# This Makefile was generated using MakeGen "<< MAKEGEN_VERSION<< " made by Tim Håkansson" << std::endl;
   outputFile << "# and is licensed under MIT. Full source of the project can be found at" << std::endl;
   outputFile << "# https://github.com/Thraix/MakeGen" << std::endl;
@@ -83,13 +83,31 @@ void Makefile::Save(const ConfigFile& conf)
       outputFile << "-l" << *it << " ";
     }
     outputFile << std::endl;
+    if(!conf.dependencies.empty())
+    {
+      outputFile << "DEPENDENCIES=";
+      for(auto it = conf.dependencies.begin();it!=conf.dependencies.end();++it)
+      {
+        outputFile << *it << " ";
+      }
+      outputFile << std::endl;
+    }
   }
   outputFile << "OUTPUT=$(BIN)" << conf.outputname << std::endl;
-  outputFile << ".PHONY: all directories rebuild clean" << std::endl;
-  outputFile << "all: directories $(OUTPUT)" << std::endl;
+  outputFile << ".PHONY: all directories rebuild clean dependencies" << std::endl;
+  outputFile << "all: dependencies directories $(OUTPUT)" << std::endl;
   //outputFile << "\t$(info ------------------------)" << std::endl;
   //outputFile << "\t$(info ---- Done Compiling ----)" << std::endl;
   //outputFile << "\t$(info ------------------------)" << std::endl;
+
+  outputFile << "dependencies:" << std::endl;
+  if(!conf.dependencies.empty())
+  {
+    //outputFile << "\t$(info Building dependencies)" << std::endl;
+    //outputFile << "\t@for dep in $(DEPENDENCIES); do\\" << std::endl;
+    //outputFile << "\t\tmakegen -C $$dep;\\" << std::endl;
+    //outputFile << "\tdone" << std::endl;
+  }
   outputFile << "directories: $(BIN) $(OBJPATH)" << std::endl;
   outputFile << "$(BIN):" << std::endl;
   outputFile << "\t$(info Creating output directories)" << std::endl;
@@ -117,7 +135,7 @@ void Makefile::Save(const ConfigFile& conf)
     auto itD = dependencies.find(conf.srcdir + *it);
     if(itD == dependencies.end())
     {
-      IncludeDeps* deps = new IncludeDeps(*it, conf.srcdir,hFiles,dependencies);
+      IncludeDeps* deps = new IncludeDeps(*it, conf.configPath+conf.srcdir,hFiles,dependencies);
       size_t extensionPos = it->find_last_of(".");
       size_t slash = it->find_last_of("/")+1;
       std::string oFile = it->substr(slash, extensionPos - slash)+".o ";
@@ -129,10 +147,11 @@ void Makefile::Save(const ConfigFile& conf)
   }
 }
 
-void Makefile::PreSave(const ConfigFile& conf, std::set<std::string>& hFiles, std::set<std::string>& cppFiles)
+void Makefile::GetCppAndHFiles(const ConfigFile& conf, std::map<std::string, std::string>& hFiles, std::set<std::string>& cppFiles)
 {
   std::vector<std::string> files;
-  FileUtils::GetAllFiles(conf.srcdir,files);
+  std::string path = conf.configPath + conf.srcdir;
+  FileUtils::GetAllFiles(path,files);
   // include paramenter with the path of the file
   // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder 
   for(auto it = files.begin(); it!=files.end();++it)
@@ -140,13 +159,33 @@ void Makefile::PreSave(const ConfigFile& conf, std::set<std::string>& hFiles, st
     size_t extensionPos = it->find_last_of(".");
     if(extensionPos != std::string::npos)
     {
-      if(it->substr(extensionPos+1) == "cpp")
+      std::string extension = it->substr(extensionPos+1);
+      std::string filename = it->substr(path.length());
+      if(extension == "cpp" || extension == "c")
       {
-        cppFiles.emplace(it->substr(conf.srcdir.length()));
+        cppFiles.emplace(filename);
       }
-      else
+      else if(extension == "hpp" || extension == "h")
       {
-        hFiles.emplace(it->substr(conf.srcdir.length()));
+        hFiles.emplace(filename,path);
+      }
+    }
+  }
+  for(size_t i = 0; i < conf.dependencies.size(); ++i)
+  {
+    std::vector<std::string> files;
+    std::string depSrcDir = conf.dependencies[i] + conf.dependencyConfigs[i].srcdir;
+    FileUtils::GetAllFiles(depSrcDir, files);
+    for(auto it = files.begin(); it!=files.end();++it)
+    {
+      size_t extensionPos = it->find_last_of(".");
+      if(extensionPos != std::string::npos)
+      {
+        std::string extension = it->substr(extensionPos+1);
+        if(extension == "hpp" || extension == "h")
+        {
+          hFiles.emplace(it->substr(depSrcDir.length()),depSrcDir);
+        }
       }
     }
   }

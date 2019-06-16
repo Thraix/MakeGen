@@ -25,27 +25,23 @@ void PrintHelp()
   LOG_INFO(" If no option is given it will run default make");
 }
 
-bool GenMakefile()
+std::optional<ConfigFile> GetConfigFile(const std::string& filepath)
 {
-  std::ifstream f("makegen.conf");
+  std::ifstream f(filepath + CONFIG_FILENAME);
   if(f.good())
   {
-    ConfigFile conf = ConfigFile::Load("makegen.conf"); 
-    if(conf.generateHFile)
-      HFileGen::Create(conf);
-    Makefile::Save(conf);
-    return true;
+    ConfigFile conf = ConfigFile::Load(filepath); 
+    return conf;
   }
   f.close();
-  f = std::ifstream("Makefile");
+  return {};
+}
 
-  if(!f.good())
-  {
-    LOG_ERROR("No makegen.conf or Makefile found.");
-    PrintHelp();
-    return false;
-  }
-  return true;
+void GenMakefile(const ConfigFile& conf)
+{
+  if(conf.generateHFile)
+    HFileGen::Create(conf);
+  Makefile::Save(conf);
 }
 
 unsigned int ReadFlags(int argc, char** argv)
@@ -76,6 +72,25 @@ unsigned int ReadFlags(int argc, char** argv)
   return flags;
 }
 
+bool MakeGen(const std::string& filepath, const std::string& args, const ConfigFile& conf)
+{
+  for(size_t i = 0;i<conf.dependencies.size();++i)
+  {
+    bool success = MakeGen(conf.dependencies[i], args, conf.dependencyConfigs[i]);
+    if(!success)
+      return success;
+  }
+  LOG_INFO("---------------------------");
+  LOG_INFO("Building ", conf.projectname);
+  LOG_INFO("Generating Makefile...");
+  Timer timer;
+  GenMakefile(conf);
+  LOG_INFO("Took ", round(timer.Elapsed()*1000.0)/1000.0,"s");
+  LOG_INFO("Running Makefile...");
+
+  return system(std::string("make --no-print-directory -C " + filepath + " " + args).c_str()) == 0;
+}
+
 int main(int argc, char** argv)
 {
   unsigned int flags = ReadFlags(argc,argv);
@@ -94,21 +109,21 @@ int main(int argc, char** argv)
     ConfigFile::Gen().Save();
     return 0;
   }
-  LOG_INFO("Generating Makefile...");
-  Timer timer;
-  if(!GenMakefile())
-    return 1;
-  LOG_INFO("Took ", round(timer.Elapsed()*1000.0)/1000.0,"s");
-  LOG_INFO("Running Makefile...");
+
+  std::string args = std::string("");
   for(int i = 1;i<argc;i++)
   {
-    if(argv[i][0] != '-')
-    {
-      std::string make = std::string("make ") + argv[i];
-      return system(make.c_str()) == 0 ? 0 : 1;
-    }
+    args += " " + std::string(argv[i]);
   }
-
-  ;
-  return system("make") == 0 ? 0 : 1;
+  auto conf = GetConfigFile("./");
+  if(conf)
+  {
+    bool success = MakeGen("./", args, *conf);
+    return success ? 0 : 1;
+  }
+  else
+  {
+    LOG_ERROR("No ", CONFIG_FILENAME, " or Makefile found.");
+    PrintHelp();
+  }
 }

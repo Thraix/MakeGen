@@ -3,6 +3,7 @@
 #include <fstream>
 #include <map>
 #include "Common.h"
+#include "FileUtils.h"
 
 #define FLAG_NONE 0
 #define FLAG_VECTOR 1
@@ -13,16 +14,17 @@ ConfigFile::ConfigFile()
 {
 }
 
-ConfigFile ConfigFile::Load(const std::string& filename)
+ConfigFile ConfigFile::Load(const std::string& filepath)
 {
   ConfigFile conf;
+  conf.configPath = FileUtils::GetRealPath(filepath);
   unsigned int loadFlag = 0;
 
   std::vector<std::string>* vec;
   std::string* s;
   bool* b;
 
-  std::ifstream file(filename);
+  std::ifstream file(filepath+CONFIG_FILENAME);
   std::string line;
 
   if(file.is_open())
@@ -43,6 +45,7 @@ ConfigFile ConfigFile::Load(const std::string& filename)
       {"#includedirs", &conf.includedirs},
       {"#compileflags", &conf.flags},
       {"#defines", &conf.defines},
+      {"#dependencies", &conf.dependencies},
     };
 
     std::map<std::string, bool*> booleans = 
@@ -54,6 +57,8 @@ ConfigFile ConfigFile::Load(const std::string& filename)
 
     while(std::getline(file,line))
     {
+      if(line == "")
+        continue;
       if(line[0]=='#')
       {
         // The format is a bit wacky, but it is this way since we do not want
@@ -111,6 +116,13 @@ ConfigFile ConfigFile::Load(const std::string& filename)
   if(conf.hFile == "")
     conf.hFile = conf.projectname+".h";
 
+  // Create dependency config files.
+  for(size_t i = 0; i < conf.dependencies.size();++i)
+  {
+    conf.dependencies[i] = FileUtils::GetRealPath(conf.dependencies[i]);
+    conf.dependencyConfigs.push_back(ConfigFile::Load(conf.dependencies[i]));
+  }
+
   return conf;
 }
 
@@ -167,6 +179,7 @@ ConfigFile ConfigFile::Gen()
   {
     InputMultiple("Enter library:", conf.libs,false);
     InputMultiple("Enter library directory:", conf.libdirs,true);
+    InputMultiple("Enter project dependencies:", conf.dependencies,true);
   }
   else
   {
@@ -214,6 +227,11 @@ void ConfigFile::Save() const
   }
   file << "#compileflags" << std::endl;
   for(auto it = flags.begin();it!=flags.end();++it)
+  {
+    file << *it << std::endl;
+  }
+  file << "#dependencies" << std::endl;
+  for(auto it = dependencies.begin();it!=dependencies.end();++it)
   {
     file << *it << std::endl;
   }

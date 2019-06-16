@@ -3,14 +3,19 @@
 #include <vector>
 #include <string>
 
+static const std::string CONFIG_FILENAME = "makegen.conf";
+
 class ConfigFile
 {
   public:
+    std::string configPath;
     std::vector<std::string> libs;
     std::vector<std::string> libdirs;
     std::vector<std::string> includedirs;
     std::vector<std::string> defines;
     std::vector<std::string> flags;
+    std::vector<std::string> dependencies;
+
     std::string outputdir;
     std::string srcdir;
     std::string outputname;
@@ -19,6 +24,7 @@ class ConfigFile
     bool executable;
     bool shared;
     bool generateHFile;
+    std::vector<ConfigFile> dependencyConfigs;
   public:
     ConfigFile();
     void Save() const;

@@ -13,8 +13,9 @@ LIBDIR=
 LDFLAGS=
 LIBS=$(LIBDIR) 
 OUTPUT=$(BIN)makegen
-.PHONY: all directories rebuild clean
-all: directories $(OUTPUT)
+.PHONY: all directories rebuild clean dependencies
+all: dependencies directories $(OUTPUT)
+dependencies:
 directories: $(BIN) $(OBJPATH)
 $(BIN):
 	$(info Creating output directories)
@@ -31,18 +32,18 @@ $(OUTPUT): $(OBJECTS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
-$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/Common.h src/ConfigFile.h
+$(OBJPATH)/ConfigFile.o : /home/thraix/Documents/MakeGen/src/ConfigFile.cpp /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/ConfigFile.h /home/thraix/Documents/MakeGen/src/FileUtils.h 
 	$(info -[20%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/HFileGen.h src/ConfigFile.h
+$(OBJPATH)/HFileGen.o : /home/thraix/Documents/MakeGen/src/HFileGen.cpp /home/thraix/Documents/MakeGen/src/FileUtils.h /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/HFileGen.h /home/thraix/Documents/MakeGen/src/ConfigFile.h
 	$(info -[40%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/IncludeDeps.h
+$(OBJPATH)/IncludeDeps.o : /home/thraix/Documents/MakeGen/src/IncludeDeps.cpp /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/IncludeDeps.h
 	$(info -[60%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/Makefile.o : src/Makefile.cpp src/Common.h src/FileUtils.h  src/IncludeDeps.h src/Makefile.h src/ConfigFile.h
+$(OBJPATH)/Makefile.o : /home/thraix/Documents/MakeGen/src/Makefile.cpp /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/FileUtils.h  /home/thraix/Documents/MakeGen/src/IncludeDeps.h /home/thraix/Documents/MakeGen/src/Makefile.h /home/thraix/Documents/MakeGen/src/ConfigFile.h
 	$(info -[80%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/HFileGen.h  src/IncludeDeps.h src/Makefile.h  src/Timer.h
+$(OBJPATH)/main.o : /home/thraix/Documents/MakeGen/src/main.cpp /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/ConfigFile.h /home/thraix/Documents/MakeGen/src/HFileGen.h  /home/thraix/Documents/MakeGen/src/IncludeDeps.h /home/thraix/Documents/MakeGen/src/Makefile.h  /home/thraix/Documents/MakeGen/src/Timer.h
 	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<

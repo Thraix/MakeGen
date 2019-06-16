@@ -6,9 +6,23 @@
 #include "Common.h"
 #include <cstring>
 #include <vector>
+#include <stdlib.h>
 
 struct FileUtils
 {
+  static std::string GetRealPath(const std::string& filename)
+  {
+#if defined(__linux__)
+    char* path = realpath(filename.c_str(), NULL);
+    std::string sPath = path;
+    sPath+="/";
+    free(path);
+    return sPath;
+#endif
+    LOG_ERROR("GetRealPath not supported");
+    return filename;
+  }
+
   static void GetAllFiles(const std::string& folder, std::vector<std::string>& files)
   {
     DIR* dp;
