@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.1.1 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.1.2 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -32,18 +32,18 @@ $(OUTPUT): $(OBJECTS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
-$(OBJPATH)/ConfigFile.o : /home/thraix/Documents/MakeGen/src/ConfigFile.cpp /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/ConfigFile.h /home/thraix/Documents/MakeGen/src/FileUtils.h 
+$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/Common.h src/ConfigFile.h src/FileUtils.h 
 	$(info -[20%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/HFileGen.o : /home/thraix/Documents/MakeGen/src/HFileGen.cpp /home/thraix/Documents/MakeGen/src/FileUtils.h /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/HFileGen.h /home/thraix/Documents/MakeGen/src/ConfigFile.h
+$(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/HFileGen.h src/ConfigFile.h
 	$(info -[40%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/IncludeDeps.o : /home/thraix/Documents/MakeGen/src/IncludeDeps.cpp /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/IncludeDeps.h
+$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/FileUtils.h 
 	$(info -[60%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/Makefile.o : /home/thraix/Documents/MakeGen/src/Makefile.cpp /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/FileUtils.h  /home/thraix/Documents/MakeGen/src/IncludeDeps.h /home/thraix/Documents/MakeGen/src/Makefile.h /home/thraix/Documents/MakeGen/src/ConfigFile.h
+$(OBJPATH)/Makefile.o : src/Makefile.cpp src/Common.h src/FileUtils.h  src/IncludeDeps.h src/ConfigFile.h  src/Makefile.h 
 	$(info -[80%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/main.o : /home/thraix/Documents/MakeGen/src/main.cpp /home/thraix/Documents/MakeGen/src/Common.h /home/thraix/Documents/MakeGen/src/ConfigFile.h /home/thraix/Documents/MakeGen/src/HFileGen.h  /home/thraix/Documents/MakeGen/src/IncludeDeps.h /home/thraix/Documents/MakeGen/src/Makefile.h  /home/thraix/Documents/MakeGen/src/Timer.h
+$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/FileUtils.h  src/HFileGen.h  src/IncludeDeps.h   src/Makefile.h  src/Timer.h
 	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<

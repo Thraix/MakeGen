@@ -80,7 +80,7 @@ bool MakeGen(const std::string& filepath, const std::string& args, const ConfigF
     if(!success)
       return success;
   }
-  LOG_INFO("---------------------------");
+  LOG_INFO("-----------------------------------");
   LOG_INFO("Building ", conf.projectname);
   LOG_INFO("Generating Makefile...");
   Timer timer;
@@ -90,6 +90,8 @@ bool MakeGen(const std::string& filepath, const std::string& args, const ConfigF
 
   return system(std::string("make --no-print-directory -C " + filepath + " " + args).c_str()) == 0;
 }
+
+#include "FileUtils.h"
 
 int main(int argc, char** argv)
 {

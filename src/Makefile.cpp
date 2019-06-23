@@ -139,7 +139,9 @@ void Makefile::Save(const ConfigFile& conf)
       size_t extensionPos = it->find_last_of(".");
       size_t slash = it->find_last_of("/")+1;
       std::string oFile = it->substr(slash, extensionPos - slash)+".o ";
-      outputFile << "$(OBJPATH)/" << oFile << ": " << *deps << std::endl;
+      outputFile << "$(OBJPATH)/" << oFile << ": ";
+      deps->Output(outputFile, conf);
+      outputFile << std::endl;
       outputFile << "\t$(info -[" << (int)(i / (float)cppFiles.size() * 100) << "%]- $<)" << std::endl;
       outputFile << "\t$(CC) $(CFLAGS) -o $@ $<" << std::endl;
       //std::cout << *deps << std::endl;

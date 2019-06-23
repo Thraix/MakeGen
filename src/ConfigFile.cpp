@@ -119,8 +119,8 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
   // Create dependency config files.
   for(size_t i = 0; i < conf.dependencies.size();++i)
   {
+    conf.dependencyConfigs.push_back(ConfigFile::Load(conf.configPath + conf.dependencies[i]));
     conf.dependencies[i] = FileUtils::GetRealPath(conf.dependencies[i]);
-    conf.dependencyConfigs.push_back(ConfigFile::Load(conf.dependencies[i]));
   }
 
   return conf;

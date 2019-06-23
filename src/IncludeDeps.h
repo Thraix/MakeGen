@@ -6,6 +6,8 @@
 #include <string>
 #include <fstream>
 #include <exception>
+#include "ConfigFile.h"
+#include "FileUtils.h"
 
 struct CompareIncludeDeps;
 
@@ -21,22 +23,24 @@ class IncludeDeps
 
     std::string GetIncludeFile(const std::string& line, size_t pos, const std::string& filename);
 
-    friend std::ostream& operator<<(std::ostream& stream, const IncludeDeps& deps)
+    std::ostream& Output(std::ostream& stream, const ConfigFile& conf)
     {
-      if(printSet.find(deps.filepath) != printSet.end())
+      if(printSet.find(filepath) != printSet.end())
         return stream;
       printCounter++; 
-      printSet.emplace(deps.filepath);
-      stream << deps.filepath;
-      for(auto it = deps.dependencies.begin();it!=deps.dependencies.end();++it)
+      printSet.emplace(filepath);
+      stream << FileUtils::GetRelativePath(conf.configPath, filepath);
+      for(auto it = dependencies.begin();it!=dependencies.end();++it)
       {
-        stream << " " << *(it->second);
+        stream << " ";
+        (it->second)->Output(stream, conf);
       }
       printCounter--;
       if(printCounter == 0)
         printSet.clear();
       return stream;
     }
+
     IncludeDeps(const std::string& filename, const std::string& dir)
       : filepath(dir+filename){}
 

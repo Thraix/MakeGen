@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 
 #define BIT(x) (1<<x)
 
@@ -12,7 +13,7 @@
 // Release , should be backwards compatible with any minor version
 #define MAKEGEN_VERSION_RELEASE 1
 // Minor changes, should be compatible with any other minor version with same major and release.
-#define MAKEGEN_VERSION_MINOR 1
+#define MAKEGEN_VERSION_MINOR 2
 #define MAKEGEN_VERSION ("v" STR(MAKEGEN_VERSION_MAJOR) "." STR(MAKEGEN_VERSION_RELEASE) "." STR(MAKEGEN_VERSION_MINOR))
 
 const static unsigned int FLAG_HELP = BIT(0);
@@ -37,3 +38,16 @@ void Log(const T& var, const Ts& ...vars)
   Log(vars...);
 }
 
+inline std::string CommonPrefix(const std::string& s1, const std::string& s2)
+{
+  size_t n = 0;
+  for(size_t i = 0; i<s1.size() && i<s2.size();++i)
+  {
+    if(s1[i] != s2[i])
+    {
+      n = i;
+      break;
+    }
+  }
+  return s1.substr(0, n);
+}
