@@ -1,18 +1,20 @@
 #include "Makefile.h"
-#include <map>
-#include <errno.h>
-#include <dirent.h>
-#include <cstring>
-#include <fstream>
-#include "IncludeDeps.h"
+
 #include "Common.h"
 #include "FileUtils.h"
+#include "IncludeDeps.h"
+#include "Utils.h"
+
+#include <cstring>
+#include <dirent.h>
+#include <fstream>
+#include <map> 
 
 void Makefile::Save(const ConfigFile& conf)
 {
-  std::map<std::string, std::string> hFiles; // hFile, directory
+  std::set<HFile> hFiles; // hFile, directory
   std::set<std::string> cppFiles;
-  GetCppAndHFiles(conf,hFiles,cppFiles);
+  Utils::GetCppAndHFiles(conf, hFiles, cppFiles);
 
   std::ofstream outputFile(conf.configPath + "Makefile");
   outputFile << "# This Makefile was generated using MakeGen "<< MAKEGEN_VERSION<< " made by Tim Håkansson" << std::endl;
@@ -141,7 +143,7 @@ void Makefile::Save(const ConfigFile& conf)
 
   std::map<std::string, IncludeDeps*> dependencies;
   size_t i = 0;
-  for(auto it = cppFiles.begin(); it!=cppFiles.end();++it)
+  for(auto it = cppFiles.begin(); it!= cppFiles.end();++it)
   {
     i++;
     auto itD = dependencies.find(conf.srcdir + *it);
@@ -158,50 +160,6 @@ void Makefile::Save(const ConfigFile& conf)
       outputFile << "\t$(info -[" << (int)(i / (float)cppFiles.size() * 100) << "%]- $<)" << std::endl;
       outputFile << "\t$(CC) $(CFLAGS) -o $@ $<" << std::endl;
       //std::cout << *deps << std::endl;
-    }
-  }
-}
-
-void Makefile::GetCppAndHFiles(const ConfigFile& conf, std::map<std::string, std::string>& hFiles, std::set<std::string>& cppFiles)
-{
-  std::vector<std::string> files;
-  std::string path = conf.configPath + conf.srcdir;
-  FileUtils::GetAllFiles(path,files);
-  // include paramenter with the path of the file
-  // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder 
-  for(auto it = files.begin(); it!=files.end();++it)
-  {
-    size_t extensionPos = it->find_last_of(".");
-    if(extensionPos != std::string::npos)
-    {
-      std::string extension = it->substr(extensionPos+1);
-      std::string filename = it->substr(path.length());
-      if(extension == "cpp" || extension == "c")
-      {
-        cppFiles.emplace(filename);
-      }
-      else if(extension == "hpp" || extension == "h")
-      {
-        hFiles.emplace(filename,path);
-      }
-    }
-  }
-  for(size_t i = 0; i < conf.dependencies.size(); ++i)
-  {
-    std::vector<std::string> files;
-    std::string depSrcDir = conf.dependencies[i] + conf.dependencyConfigs[i].srcdir;
-    FileUtils::GetAllFiles(depSrcDir, files);
-    for(auto it = files.begin(); it!=files.end();++it)
-    {
-      size_t extensionPos = it->find_last_of(".");
-      if(extensionPos != std::string::npos)
-      {
-        std::string extension = it->substr(extensionPos+1);
-        if(extension == "hpp" || extension == "h")
-        {
-          hFiles.emplace(it->substr(depSrcDir.length()),depSrcDir);
-        }
-      }
     }
   }
 }

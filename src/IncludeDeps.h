@@ -1,13 +1,15 @@
 #pragma once
 
-#include <iostream>
-#include <set>
-#include <map>
-#include <string>
-#include <fstream>
-#include <exception>
 #include "ConfigFile.h"
 #include "FileUtils.h"
+#include "Utils.h"
+
+#include <exception>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <set>
+#include <string>
 
 struct CompareIncludeDeps;
 
@@ -16,10 +18,13 @@ class IncludeDeps
   public:
     std::map<std::string, IncludeDeps*> dependencies;
     std::string filepath;
+    bool projectHFile;
     static std::set<std::string> printSet;
     static int printCounter;
 
-    IncludeDeps(const std::string& filename, const std::string& dir, const std::map<std::string, std::string>& files, std::map<std::string, IncludeDeps*>& allDeps);
+    IncludeDeps(const std::string& filename, const std::string& dir, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps);
+
+    IncludeDeps(const std::string& filename, const std::string& dir, bool projectHFile, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps);
 
     std::string GetIncludeFile(const std::string& line, size_t pos, const std::string& filename);
 
@@ -29,7 +34,8 @@ class IncludeDeps
         return stream;
       printCounter++; 
       printSet.emplace(filepath);
-      stream << FileUtils::GetRelativePath(conf.configPath, filepath);
+      if(!projectHFile)
+        stream << FileUtils::GetRelativePath(conf.configPath, filepath);
       for(auto it = dependencies.begin();it!=dependencies.end();++it)
       {
         stream << " ";
@@ -40,10 +46,6 @@ class IncludeDeps
         printSet.clear();
       return stream;
     }
-
-    IncludeDeps(const std::string& filename, const std::string& dir)
-      : filepath(dir+filename){}
-
 };
 
 struct CompareIncludeDeps

@@ -3,8 +3,13 @@
 
 std::set<std::string> IncludeDeps::printSet;
 int IncludeDeps::printCounter = 0;
-IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, const std::map<std::string, std::string>& files, std::map<std::string, IncludeDeps*>& allDeps)
-  : filepath(dir+filename)
+
+IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
+  : IncludeDeps{filename, dir, false, files, allDeps}
+{}
+
+IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, bool projectHFile, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
+  : filepath(dir+filename), projectHFile{projectHFile}
 {
   if(filename[filename.length() - 1] =='h')
   {
@@ -18,14 +23,14 @@ IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, co
     if(pos != std::string::npos)
     {
       std::string include = GetIncludeFile(line, pos, filename);
-      auto it = files.find(include);
+      auto it = files.find({include, "", false});
       if(it != files.end())
       {
-        auto itD = allDeps.find(it->second + it->first);
+        auto itD = allDeps.find(it->filepath);
         if(itD == allDeps.end())
         {
-          IncludeDeps* inc = new IncludeDeps(it->first, it->second,files,allDeps);
-          dependencies.emplace(it->second + it->first, inc);
+          IncludeDeps* inc = new IncludeDeps(it->filename,it->directory, it->isProjectHFile, files,allDeps);
+          dependencies.emplace(it->filepath, inc);
         }else{
           dependencies.emplace(itD->first, itD->second);
         }

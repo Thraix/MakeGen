@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.h"
+#include "Utils.h"
 #include <algorithm>
 #include <cstring>
 #include <dirent.h>
@@ -74,7 +75,7 @@ struct FileUtils
     else
     {
       // Find the most common directory
-      std::string commonPath = CommonPrefix(from,to);
+      std::string commonPath = Utils::CommonPrefix(from,to);
       while(commonPath.back() != '/')
         commonPath.pop_back();
       commonPath.pop_back();

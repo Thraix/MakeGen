@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.1.4 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.1.5 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -7,7 +7,7 @@ MKDIR_P=mkdir -p
 BIN=bin/
 OBJPATH=$(BIN)intermediates
 INCLUDES=
-OBJECTS=$(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/main.o 
+OBJECTS=$(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/Utils.o $(OBJPATH)/main.o 
 CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 -D_DEBUG 
 LIBDIR=
 LDFLAGS=
@@ -33,18 +33,21 @@ $(OUTPUT): $(OBJECTS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
-$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/Common.h src/ConfigFile.h src/FileUtils.h 
-	$(info -[20%]- $<)
+$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/Common.h src/ConfigFile.h src/FileUtils.h  src/Utils.h 
+	$(info -[16%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/HFileGen.h src/ConfigFile.h
-	$(info -[40%]- $<)
+$(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/Utils.h src/ConfigFile.h src/HFileGen.h 
+	$(info -[33%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/FileUtils.h 
-	$(info -[60%]- $<)
+$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/FileUtils.h  src/Utils.h  
+	$(info -[50%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/Makefile.o : src/Makefile.cpp src/Common.h src/FileUtils.h  src/IncludeDeps.h src/ConfigFile.h  src/Makefile.h 
-	$(info -[80%]- $<)
+$(OBJPATH)/Makefile.o : src/Makefile.cpp src/Common.h src/FileUtils.h  src/Utils.h src/ConfigFile.h src/IncludeDeps.h    src/Makefile.h  
+	$(info -[66%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/FileUtils.h  src/HFileGen.h  src/IncludeDeps.h   src/Makefile.h  src/Timer.h
+$(OBJPATH)/Utils.o : src/Utils.cpp src/FileUtils.h src/Common.h src/Utils.h src/ConfigFile.h 
+	$(info -[83%]- $<)
+	$(CC) $(CFLAGS) -o $@ $<
+$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/FileUtils.h  src/Utils.h  src/HFileGen.h  src/IncludeDeps.h    src/Makefile.h  src/Timer.h
 	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
