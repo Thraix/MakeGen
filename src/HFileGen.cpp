@@ -24,7 +24,6 @@ void HFileGen::Create(const ConfigFile& conf)
       }
     }
   }
-  LOG_INFO(conf.configPath);
 
   std::ofstream os(conf.configPath + conf.srcdir+"/"+conf.hFile);
   os << "#pragma once" << std::endl << std::endl;

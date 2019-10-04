@@ -175,7 +175,6 @@ bool MakeGen(const std::string& filepath, unsigned int flags, const ConfigFile& 
     FileUtils::CreateDirectory(conf.configPath + conf.outputdir);
     FileUtils::CreateDirectory(conf.configPath + conf.outputdir + "intermediates");
   }
-  LOG_INFO(conf.configPath + conf.outputdir);
   return RunMake(filepath, flags, conf);
 }
 
