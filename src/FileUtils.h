@@ -1,16 +1,32 @@
 #pragma once
 
-#include <string>
-#include <fstream>
-#include <dirent.h>
 #include "Common.h"
-#include <cstring>
-#include <vector>
 #include <algorithm>
+#include <cstring>
+#include <dirent.h>
+#include <fstream>
+#include <sys/stat.h>
 #include <stdlib.h>
+#include <string>
+#include <vector>
 
 struct FileUtils
 {
+  static bool HasPath(const std::string& path)
+  {
+    struct stat info;
+
+    if(stat(path.c_str(), &info) != 0)
+      return false;
+    else
+      return true;
+  }
+
+  static bool CreateDirectory(const std::string& path)
+  {
+    return mkdir(path.c_str(), 0777);
+  }
+
   static std::string GetRealPath(const std::string& filename)
   {
 #if defined(__linux__)

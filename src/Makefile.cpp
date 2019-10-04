@@ -94,39 +94,51 @@ void Makefile::Save(const ConfigFile& conf)
     }
   }
   outputFile << "OUTPUT=$(BIN)" << conf.outputname << std::endl;
-  outputFile << ".PHONY: all directories rebuild clean dependencies" << std::endl;
-  outputFile << "all: dependencies directories $(OUTPUT)" << std::endl;
-  //outputFile << "\t$(info ------------------------)" << std::endl;
-  //outputFile << "\t$(info ---- Done Compiling ----)" << std::endl;
-  //outputFile << "\t$(info ------------------------)" << std::endl;
+  outputFile << ".PHONY: all directories rebuild clean run" << std::endl;
 
-  outputFile << "dependencies:" << std::endl;
-  if(!conf.dependencies.empty())
-  {
-    //outputFile << "\t$(info Building dependencies)" << std::endl;
-    //outputFile << "\t@for dep in $(DEPENDENCIES); do\\" << std::endl;
-    //outputFile << "\t\tmakegen -C $$dep;\\" << std::endl;
-    //outputFile << "\tdone" << std::endl;
-  }
+  // All
+  outputFile << "all: directories $(OUTPUT)" << std::endl;
+
+  // Directories
   outputFile << "directories: $(BIN) $(OBJPATH)" << std::endl;
+
+  // Bin path
   outputFile << "$(BIN):" << std::endl;
   outputFile << "\t$(info Creating output directories)" << std::endl;
   outputFile << "\t@$(MKDIR_P) $(BIN)" << std::endl;
+
+  // Object path
   outputFile << "$(OBJPATH):" << std::endl;
   outputFile << "\t@$(MKDIR_P) $(OBJPATH)" << std::endl;
+
+  // Run
+  outputFile << "run: all" << std::endl;
+  if(conf.executable)
+  {
+    outputFile << "\t@./$(OUTPUT)" << std::endl;
+  }
+
+  // Rebuild
   outputFile << "rebuild: clean all" << std::endl;
+
+  // Clean
   outputFile << "clean:" << std::endl;
   outputFile << "\t$(info Removing intermediates)" << std::endl;
   outputFile << "\trm -rf $(OBJPATH)/*.o" << std::endl;
+
+  // Output file
   outputFile << "$(OUTPUT): $(OBJECTS)" << std::endl;
   outputFile << "\t$(info Generating output file)" << std::endl;
   if(conf.executable)
     outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS) $(LIBS)" << std::endl;
   else
     outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS)" << std::endl;
+
+  // Install
   outputFile << "install: all" << std::endl;
   outputFile << "\t$(info Installing " << conf.projectname <<" to /usr/bin/)" << std::endl;
   outputFile << "\t@cp $(OUTPUT) /usr/bin/" << conf.outputname << std::endl;
+
   std::map<std::string, IncludeDeps*> dependencies;
   size_t i = 0;
   for(auto it = cppFiles.begin(); it!=cppFiles.end();++it)
@@ -139,6 +151,7 @@ void Makefile::Save(const ConfigFile& conf)
       size_t extensionPos = it->find_last_of(".");
       size_t slash = it->find_last_of("/")+1;
       std::string oFile = it->substr(slash, extensionPos - slash)+".o ";
+
       outputFile << "$(OBJPATH)/" << oFile << ": ";
       deps->Output(outputFile, conf);
       outputFile << std::endl;

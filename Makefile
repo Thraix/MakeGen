@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.1.3 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.1.4 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -13,15 +13,16 @@ LIBDIR=
 LDFLAGS=
 LIBS=$(LIBDIR) 
 OUTPUT=$(BIN)makegen
-.PHONY: all directories rebuild clean dependencies
-all: dependencies directories $(OUTPUT)
-dependencies:
+.PHONY: all directories rebuild clean run
+all: directories $(OUTPUT)
 directories: $(BIN) $(OBJPATH)
 $(BIN):
 	$(info Creating output directories)
 	@$(MKDIR_P) $(BIN)
 $(OBJPATH):
 	@$(MKDIR_P) $(OBJPATH)
+run: all
+	@./$(OUTPUT)
 rebuild: clean all
 clean:
 	$(info Removing intermediates)
