@@ -8,7 +8,8 @@
 #define FLAG_NONE 0
 #define FLAG_VECTOR 1
 #define FLAG_STRING 2
-#define FLAG_BOOL 3 
+#define FLAG_BOOL 3
+
 ConfigFile::ConfigFile()
   : outputdir("bin"), outputname("out.a"), hFile(""),executable(true), shared(true), generateHFile(false)
 {
@@ -32,7 +33,7 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
   if(file.is_open())
   {
     // config name, { pointer to memory, isDirectory}
-    std::map<std::string, std::pair<std::string*, bool>> strings = 
+    std::map<std::string, std::pair<std::string*, bool>> strings =
     {
       {"#srcdir", {&conf.srcdir, true}},
       {"#outputdir", {&conf.outputdir, true}},
@@ -42,7 +43,7 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
     };
 
     // config name, { pointer to memory, isDirectory}
-    std::map<std::string, std::pair<std::vector<std::string>*, bool>> vectors = 
+    std::map<std::string, std::pair<std::vector<std::string>*, bool>> vectors =
     {
       {"#libs", {&conf.libs, false}},
       {"#libdirs", {&conf.libdirs, true}},
@@ -52,7 +53,7 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
       {"#dependencies", {&conf.dependencies, true}},
     };
 
-    std::map<std::string, bool*> booleans = 
+    std::map<std::string, bool*> booleans =
     {
       {"#executable", &conf.executable},
       {"#shared", &conf.shared},
@@ -83,7 +84,7 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
             isDirectory = itVec->second.second;
             loadFlag = FLAG_VECTOR;
           }
-          else 
+          else
           {
             auto&& itBool{booleans.find(line)};
             if(itBool != booleans.end())
@@ -141,7 +142,7 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
 void ConfigFile::InputBoolean(const std::string& inputText, bool& b)
 {
   std::string input;
-  while(true) 
+  while(true)
   {
     LOG_INFO(inputText);
     std::getline(std::cin, input);
@@ -173,7 +174,7 @@ void ConfigFile::InputString(const std::string& inputText, std::string& str, boo
 void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::string>& vec, bool needEnding)
 {
   std::string input;
-  while(true) 
+  while(true)
   {
     InputString(inputText, input, needEnding, true);
     if(input == "")

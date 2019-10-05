@@ -45,6 +45,8 @@ void PrintHelp()
   LOG_INFO("                           make all && make run");
   LOG_INFO("    -s,     single        Runs additional makegen options as single thread");
   LOG_INFO("                           (no --jobs=X flag)");
+  LOG_INFO("            --simple      Creates a simple Makefile without include dependencies");
+  LOG_INFO("                           (no --jobs=X flag)");
   LOG_INFO("");
   LOG_INFO("  If no option is given it will run \"make all\"");
   LOG_INFO("");
@@ -64,11 +66,11 @@ std::optional<ConfigFile> GetConfigFile(const std::string& filepath)
   return {};
 }
 
-void GenMakefile(const ConfigFile& conf)
+void GenMakefile(const ConfigFile& conf, unsigned int flags)
 {
   if(conf.generateHFile)
     HFileGen::Create(conf);
-  Makefile::Save(conf);
+  Makefile::Save(conf, flags);
 }
 
 unsigned int ReadFlags(int argc, char** argv)
@@ -118,6 +120,10 @@ unsigned int ReadFlags(int argc, char** argv)
       {
         flags |= FLAG_SINGLE_THREAD;
       }
+      else if(flag == "--simple")
+      {
+        flags |= FLAG_SIMPLE;
+      }
       else if(flag != "")
       {
         LOG_ERROR("Unknown argument ", flag);
@@ -166,7 +172,7 @@ bool MakeGen(const std::string& filepath, unsigned int flags, const ConfigFile& 
   LOG_INFO("Building ", conf.projectname);
   LOG_INFO("Generating Makefile...");
   Timer timer;
-  GenMakefile(conf);
+  GenMakefile(conf, flags);
   LOG_INFO("Took ", round(timer.Elapsed()*1000.0)/1000.0,"s");
   LOG_INFO("Running Makefile...");
 

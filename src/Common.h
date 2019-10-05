@@ -13,7 +13,7 @@
 // Release , should be backwards compatible with any minor version
 #define MAKEGEN_VERSION_RELEASE 1
 // Minor changes, should be compatible with any other minor version with same major and release.
-#define MAKEGEN_VERSION_MINOR 5
+#define MAKEGEN_VERSION_MINOR 6
 #define MAKEGEN_VERSION ("v" STR(MAKEGEN_VERSION_MAJOR) "." STR(MAKEGEN_VERSION_RELEASE) "." STR(MAKEGEN_VERSION_MINOR))
 
 const static unsigned int FLAG_HELP = BIT(0);
@@ -26,6 +26,7 @@ const static unsigned int FLAG_INSTALL = BIT(6);
 const static unsigned int FLAG_REBUILD = BIT(7);
 const static unsigned int FLAG_SINGLE_THREAD = BIT(8);
 const static unsigned int FLAG_DEPENDENCY = BIT(9);
+const static unsigned int FLAG_SIMPLE = BIT(10);
 
 
 #define LOG_INFO(...) Log(__VA_ARGS__); std::cout << std::endl

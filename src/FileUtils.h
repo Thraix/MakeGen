@@ -58,7 +58,7 @@ struct FileUtils
       // Remove the 'from' path
       return to.substr(from.size()+1);
     }
-    // Check if the directory is a child of from 
+    // Check if the directory is a child of from
     else if(strncmp(from.c_str(), to.c_str(), to.size()) == 0)
     {
       std::string sub = from.substr(to.size());

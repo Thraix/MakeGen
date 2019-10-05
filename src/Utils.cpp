@@ -16,6 +16,27 @@ std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
   return s1.substr(0, n);
 }
 
+void Utils::GetCppFiles(const ConfigFile& conf, std::set<std::string>& cppFiles)
+{
+  std::vector<std::string> files;
+  std::string path = conf.configPath + conf.srcdir;
+  FileUtils::GetAllFiles(path, files);
+
+  for(auto it = files.begin(); it!=files.end();++it)
+  {
+    size_t extensionPos = it->find_last_of(".");
+    if(extensionPos != std::string::npos)
+    {
+      std::string extension = it->substr(extensionPos+1);
+      std::string filename = it->substr(path.length());
+      if(extension == "cpp" || extension == "c")
+      {
+        cppFiles.emplace(filename);
+      }
+    }
+  }
+}
+
 void Utils::GetCppAndHFiles(const ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles)
 {
   std::vector<std::string> files;

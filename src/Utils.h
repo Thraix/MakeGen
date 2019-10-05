@@ -28,6 +28,7 @@ struct HFile
 struct Utils
 {
   static std::string CommonPrefix(const std::string& s1, const std::string& s2);
+  static void GetCppFiles(const ConfigFile& conf, std::set<std::string>& cppFiles);
   static void GetCppAndHFiles(const ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles);
   static void GetHFiles(const std::string& dependencyDir, const ConfigFile& conf, std::set<HFile>& hFiles);
 };

@@ -8,13 +8,16 @@
 #include <cstring>
 #include <dirent.h>
 #include <fstream>
-#include <map> 
+#include <map>
 
-void Makefile::Save(const ConfigFile& conf)
+void Makefile::Save(const ConfigFile& conf, unsigned int flags)
 {
   std::set<HFile> hFiles; // hFile, directory
   std::set<std::string> cppFiles;
-  Utils::GetCppAndHFiles(conf, hFiles, cppFiles);
+  if(flags & FLAG_SIMPLE)
+    Utils::GetCppFiles(conf, cppFiles);
+  else
+    Utils::GetCppAndHFiles(conf, hFiles, cppFiles);
 
   std::ofstream outputFile(conf.configPath + "Makefile");
   outputFile << "# This Makefile was generated using MakeGen "<< MAKEGEN_VERSION<< " made by Tim Håkansson" << std::endl;
@@ -159,7 +162,6 @@ void Makefile::Save(const ConfigFile& conf)
       outputFile << std::endl;
       outputFile << "\t$(info -[" << (int)(i / (float)cppFiles.size() * 100) << "%]- $<)" << std::endl;
       outputFile << "\t$(CC) $(CFLAGS) -o $@ $<" << std::endl;
-      //std::cout << *deps << std::endl;
     }
   }
 }
