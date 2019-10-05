@@ -24,28 +24,32 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
   std::string* s;
   bool* b;
 
+  bool isDirectory = false;
+
   std::ifstream file(filepath+CONFIG_FILENAME);
   std::string line;
 
   if(file.is_open())
   {
-    std::map<std::string, std::string*> strings = 
+    // config name, { pointer to memory, isDirectory}
+    std::map<std::string, std::pair<std::string*, bool>> strings = 
     {
-      {"#srcdir", &conf.srcdir},
-      {"#outputdir", &conf.outputdir},
-      {"#outputname", &conf.outputname},
-      {"#projectname", &conf.projectname},
-      {"#hfile", &conf.hFile},
+      {"#srcdir", {&conf.srcdir, true}},
+      {"#outputdir", {&conf.outputdir, true}},
+      {"#outputname", {&conf.outputname, false}},
+      {"#projectname", {&conf.projectname, false}},
+      {"#hfile", {&conf.hFile, false}},
     };
 
-    std::map<std::string, std::vector<std::string>*> vectors = 
+    // config name, { pointer to memory, isDirectory}
+    std::map<std::string, std::pair<std::vector<std::string>*, bool>> vectors = 
     {
-      {"#libs", &conf.libs},
-      {"#libdirs", &conf.libdirs},
-      {"#includedirs", &conf.includedirs},
-      {"#compileflags", &conf.flags},
-      {"#defines", &conf.defines},
-      {"#dependencies", &conf.dependencies},
+      {"#libs", {&conf.libs, false}},
+      {"#libdirs", {&conf.libdirs, true}},
+      {"#includedirs", {&conf.includedirs, true}},
+      {"#compileflags", {&conf.flags, false}},
+      {"#defines", {&conf.defines, false}},
+      {"#dependencies", {&conf.dependencies, true}},
     };
 
     std::map<std::string, bool*> booleans = 
@@ -66,7 +70,8 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
         auto&& itStr{strings.find(line)};
         if(itStr != strings.end())
         {
-          s = itStr->second;
+          s = itStr->second.first;
+          isDirectory = itStr->second.second;
           loadFlag = FLAG_STRING;
         }
         else
@@ -74,7 +79,8 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
           auto&& itVec{vectors.find(line)};
           if(itVec != vectors.end())
           {
-            vec = itVec->second;
+            vec = itVec->second.first;
+            isDirectory = itVec->second.second;
             loadFlag = FLAG_VECTOR;
           }
           else 
@@ -97,10 +103,16 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
       {
         if(loadFlag == FLAG_STRING)
         {
+          if(isDirectory && line[line.size()-1] != '/')
+            line += '/';
           *s = line;
         }
         else if(loadFlag == FLAG_VECTOR)
         {
+          if(isDirectory && line[line.size()-1] != '/')
+          {;
+            line += '/';
+          }
           vec->push_back(line);
         }
         else if(loadFlag == FLAG_BOOL)
