@@ -33,7 +33,7 @@ void PrintHelp()
   LOG_INFO("            --conf        Prompt the user to enter information to create config");
   LOG_INFO("                           file");
   LOG_INFO("    -v,     --version     Displays the version of this program");
-  LOG_INFO("    -m,-a,  make,all      Generates a Makefile and runs");
+  LOG_INFO("    -m,-a,  make, all     Generates a Makefile and runs");
   LOG_INFO("                           make all");
   LOG_INFO("    -i,     install       Generates a Makefile and runs");
   LOG_INFO("                           make all && make install");
