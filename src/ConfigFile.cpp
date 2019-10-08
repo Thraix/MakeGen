@@ -15,10 +15,55 @@ ConfigFile::ConfigFile()
 {
 }
 
+std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath)
+{
+  std::map<std::string, ConfigFile> loadedConfigs;
+  return GetConfigFile(filepath, loadedConfigs);
+}
+
+std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath, std::map<std::string, ConfigFile>& loadedConfigs)
+{
+  std::string realPath = FileUtils::GetRealPath(filepath);
+  auto it = loadedConfigs.find(realPath);
+  if(it != loadedConfigs.end())
+  {
+    return {};
+  }
+
+  std::ifstream f(filepath + CONFIG_FILENAME);
+  // Check if the file exists
+  if(f.good())
+  {
+    f.close();
+    ConfigFile conf = ConfigFile::Load(realPath);
+    loadedConfigs.emplace(realPath, conf);
+
+    // Create dependency config files.
+    for(size_t i = 0; i < conf.dependencies.size();++i)
+    {
+      std::optional<ConfigFile> dep = GetConfigFile(conf.configPath + conf.dependencies[i], loadedConfigs);
+      if(dep)
+      {
+        conf.dependencyConfigs.push_back(*dep);
+        conf.dependencies[i] = dep->configPath;
+      }
+      else
+      {
+        // Remove the dependency since it is already accounted for
+        conf.dependencies.erase(conf.dependencies.begin() + i);
+        --i;
+      }
+    }
+    return conf;
+  }
+  return {};
+}
+
+
 ConfigFile ConfigFile::Load(const std::string& filepath)
 {
   ConfigFile conf;
-  conf.configPath = FileUtils::GetRealPath(filepath);
+  conf.configPath = filepath;
   unsigned int loadFlag = 0;
 
   std::vector<std::string>* vec;
@@ -128,13 +173,6 @@ ConfigFile ConfigFile::Load(const std::string& filepath)
   }
   if(conf.hFile == "")
     conf.hFile = conf.projectname+".h";
-
-  // Create dependency config files.
-  for(size_t i = 0; i < conf.dependencies.size();++i)
-  {
-    conf.dependencyConfigs.push_back(ConfigFile::Load(conf.configPath + conf.dependencies[i]));
-    conf.dependencies[i] = FileUtils::GetRealPath(conf.dependencies[i]);
-  }
 
   return conf;
 }

@@ -54,18 +54,6 @@ void PrintHelp()
   LOG_INFO("    clean all install run, rebuild will be translated to \"clean make\"");
 }
 
-std::optional<ConfigFile> GetConfigFile(const std::string& filepath)
-{
-  std::ifstream f(filepath + CONFIG_FILENAME);
-  if(f.good())
-  {
-    ConfigFile conf = ConfigFile::Load(filepath); 
-    return conf;
-  }
-  f.close();
-  return {};
-}
-
 void GenMakefile(const ConfigFile& conf, unsigned int flags)
 {
   if(conf.generateHFile)
@@ -202,8 +190,8 @@ int main(int argc, char** argv)
     ConfigFile::Gen().Save();
     return 0;
   }
-
-  auto conf = GetConfigFile("./");
+  std::map<std::string, ConfigFile> files{};
+  auto conf = ConfigFile::GetConfigFile();
   if(conf)
   {
     bool success = MakeGen("./", flags, *conf);

@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <string>
+#include <optional>
+#include <map>
 
 static const std::string CONFIG_FILENAME = "makegen.conf";
 
@@ -29,8 +31,10 @@ class ConfigFile
     ConfigFile();
     void Save() const;
     static ConfigFile Gen();
-    static ConfigFile Load(const std::string& filename);
+    static std::optional<ConfigFile> GetConfigFile(const std::string& filepath = "./");
   private:
+    static std::optional<ConfigFile> GetConfigFile(const std::string& filepath, std::map<std::string, ConfigFile>& loadedConfigs);
+    static ConfigFile Load(const std::string& filename);
     static void InputBoolean(const std::string& inputText, bool& b);
     static void InputMultiple(const std::string& inputText, std::vector<std::string>& vec, bool needEnding);
     static void InputString(const std::string& inputText, std::string& vec, bool needEnding, bool allowEmpty);
