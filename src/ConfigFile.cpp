@@ -1,9 +1,8 @@
 #include "ConfigFile.h"
 
-#include <fstream>
-#include <map>
-#include "Common.h"
 #include "FileUtils.h"
+
+#include <fstream>
 
 #define FLAG_NONE 0
 #define FLAG_VECTOR 1

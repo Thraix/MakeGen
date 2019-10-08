@@ -2,7 +2,6 @@
 
 #include "ConfigFile.h"
 
-#include <map>
 #include <set>
 #include <string>
 

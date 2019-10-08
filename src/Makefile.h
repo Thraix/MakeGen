@@ -2,9 +2,6 @@
 
 #include "ConfigFile.h"
 
-#include <set>
-#include <map>
-
 class Makefile
 {
   public:

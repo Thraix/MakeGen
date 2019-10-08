@@ -1,9 +1,9 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <optional>
 #include <map>
+#include <optional>
+#include <string>
+#include <vector>
 
 static const std::string CONFIG_FILENAME = "makegen.conf";
 

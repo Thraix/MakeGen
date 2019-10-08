@@ -33,21 +33,21 @@ $(OUTPUT): $(OBJECTS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
-$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/Common.h src/ConfigFile.h src/FileUtils.h  src/Utils.h 
+$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/ConfigFile.h src/FileUtils.h src/Common.h src/Utils.h 
 	$(info -[16%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/Utils.h src/ConfigFile.h src/HFileGen.h 
 	$(info -[33%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/FileUtils.h  src/Utils.h  
+$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/FileUtils.h  src/Utils.h 
 	$(info -[50%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/Makefile.o : src/Makefile.cpp src/Common.h src/FileUtils.h  src/Utils.h src/ConfigFile.h src/IncludeDeps.h    src/Makefile.h  
+$(OBJPATH)/Makefile.o : src/Makefile.cpp src/IncludeDeps.h src/ConfigFile.h src/FileUtils.h src/Common.h src/Utils.h  src/Makefile.h  
 	$(info -[66%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/Utils.o : src/Utils.cpp src/FileUtils.h src/Common.h src/Utils.h src/ConfigFile.h 
 	$(info -[83%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/FileUtils.h  src/Utils.h  src/HFileGen.h  src/IncludeDeps.h    src/Makefile.h  src/Timer.h
+$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/FileUtils.h  src/Utils.h  src/HFileGen.h  src/Makefile.h  src/Timer.h
 	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<

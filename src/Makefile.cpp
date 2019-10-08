@@ -1,12 +1,8 @@
 #include "Makefile.h"
 
-#include "Common.h"
-#include "FileUtils.h"
 #include "IncludeDeps.h"
 #include "Utils.h"
 
-#include <cstring>
-#include <dirent.h>
 #include <fstream>
 #include <map>
 
