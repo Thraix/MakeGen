@@ -7,7 +7,7 @@ MKDIR_P=mkdir -p
 BIN=bin/
 OBJPATH=$(BIN)intermediates
 INCLUDES=
-OBJECTS=$(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/Utils.o $(OBJPATH)/main.o 
+OBJECTS=$(OBJPATH)/CLI.o $(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/Utils.o $(OBJPATH)/main.o 
 CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 -D_DEBUG 
 LIBDIR=
 LDFLAGS=
@@ -33,21 +33,24 @@ $(OUTPUT): $(OBJECTS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
+$(OBJPATH)/CLI.o : src/CLI.cpp src/CLI.h src/Common.h src/ConfigFile.h
+	$(info -[14%]- $<)
+	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/ConfigFile.h src/FileUtils.h src/Common.h src/Utils.h 
-	$(info -[16%]- $<)
+	$(info -[28%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/Utils.h src/ConfigFile.h src/HFileGen.h 
-	$(info -[33%]- $<)
+	$(info -[42%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/FileUtils.h  src/Utils.h 
-	$(info -[50%]- $<)
+	$(info -[57%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/Makefile.o : src/Makefile.cpp src/IncludeDeps.h src/ConfigFile.h src/FileUtils.h src/Common.h src/Utils.h  src/Makefile.h  
-	$(info -[66%]- $<)
+	$(info -[71%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/Utils.o : src/Utils.cpp src/FileUtils.h src/Common.h src/Utils.h src/ConfigFile.h 
-	$(info -[83%]- $<)
+	$(info -[85%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigFile.h src/FileUtils.h  src/Utils.h  src/HFileGen.h  src/Makefile.h  src/Timer.h
+$(OBJPATH)/main.o : src/main.cpp src/CLI.h src/Common.h src/ConfigFile.h src/FileUtils.h  src/Utils.h  src/HFileGen.h  src/Makefile.h  src/Timer.h
 	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
