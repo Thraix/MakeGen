@@ -234,10 +234,10 @@ ConfigFile ConfigFile::Gen()
   else
   {
     InputBoolean("Should it be compiled as a shared library? (y/n)", conf.shared);
-    InputBoolean("Should it compile a single h file? (y/n):", conf.generateHFile);
+    InputBoolean("Should it compile a project h-file? (y/n):", conf.generateHFile);
     if(conf.generateHFile)
     {
-      InputString("Enter the h file name (and path): ", conf.hFile, false, false);
+      InputString("Enter the project h-file name (relative to source directory): ", conf.hFile, false, false);
     }
   }
   InputMultiple("Enter include directory:", conf.includedirs, true);
