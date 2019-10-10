@@ -149,7 +149,7 @@ int ConfigCLI::Gen(int argc, char** argv)
   }
   if(argc < 2)
   {
-    LOG_ERROR("gen needs exactly one parameters");
+    LOG_ERROR("gen needs exactly one parameter");
     return 1;
   }
   std::string option = argv[1];
@@ -292,7 +292,7 @@ int ConfigCLI::Get(int argc, char** argv, ConfigFile& config)
   }
   if(argc != 2)
   {
-    LOG_ERROR("get needs exactly one parameters");
+    LOG_ERROR("get needs exactly one parameter");
     return 1;
   }
   auto settingVectorMap = GetSettingVectorMap(config);
@@ -336,6 +336,11 @@ int ConfigCLI::Main(int argc, char** argv)
   std::string command = argv[1];
   if(command == "gen")
   {
+    if(config)
+    {
+      LOG_ERROR("Config file already exist (makegen.conf)");
+      return 1;
+    }
     return Gen(argc-1, &argv[1]);
   }
   else if(config)

@@ -188,6 +188,5 @@ int main(int argc, char** argv)
   else
   {
     LOG_ERROR("No ", CONFIG_FILENAME, " or Makefile found.");
-    PrintHelp();
   }
 }
