@@ -31,7 +31,7 @@ $(OUTPUT): $(OBJECTS)
 	$(info Generating output file)
 	$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS) $(LIBS)
 install: all
-	$(info Installing Testing space to /usr/bin/)
+	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
 $(OBJPATH)/ConfigCLI.o : src/ConfigCLI.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h 
 	$(info -[14%]- $<)
