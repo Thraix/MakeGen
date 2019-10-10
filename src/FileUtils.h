@@ -3,6 +3,7 @@
 #include "Common.h"
 #include "Utils.h"
 #include <algorithm>
+#include <assert.h>
 #include <cstring>
 #include <dirent.h>
 #include <fstream>
@@ -10,6 +11,7 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 struct FileUtils
 {
@@ -26,6 +28,20 @@ struct FileUtils
   static bool CreateDirectory(const std::string& path)
   {
     return mkdir(path.c_str(), 0777);
+  }
+
+  static std::string GetCurrentDirectory()
+  {
+    static char path[256]; // Usual maximum filename
+    getcwd(path, sizeof(path));
+    std::string dir = path;
+    size_t pos = dir.find_last_of("/");
+    if(pos == std::string::npos)
+    {
+      LOG_ERROR("Couldn't find / (slash) in directory. This shouldn't occur.");
+      assert(false);
+    }
+    return dir.substr(pos+1);
   }
 
   static std::string GetRealPath(const std::string& filename)

@@ -34,6 +34,9 @@ void ConfigCLI::DisplayGenHelp()
   LOG_INFO("");
   LOG_INFO("options:");
   LOG_INFO("  prompt           Prompt the user for all needed settings");
+  LOG_INFO("  default          Generate a default config file. Source directory is set to");
+  LOG_INFO("                    src/, outputdir is set to bin/ and project name is set to");
+  LOG_INFO("                    the current directory name.");
 }
 
 void ConfigCLI::DisplayAddHelp()
@@ -156,6 +159,11 @@ int ConfigCLI::Gen(int argc, char** argv)
   if(option == "prompt")
   {
     ConfigFile::Gen().Save();
+    return 0;
+  }
+  if(option == "default")
+  {
+    ConfigFile{}.Save();
     return 0;
   }
   else

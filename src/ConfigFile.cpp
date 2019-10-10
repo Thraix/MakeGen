@@ -2,6 +2,7 @@
 
 #include "FileUtils.h"
 
+#include <algorithm>
 #include <fstream>
 
 #define FLAG_NONE 0
@@ -10,8 +11,32 @@
 #define FLAG_BOOL 3
 
 ConfigFile::ConfigFile()
-  : outputdir("bin"), outputname("out.a"), hFile(""),executable(true), shared(true), generateHFile(false)
+  : outputdir("bin/"), srcdir("src/"), outputname(""), projectname(FileUtils::GetCurrentDirectory()), hFile(""), executable(true), shared(true), generateHFile(false)
 {
+  // Converts project name (current directory) to lowercase
+  // and replace whitespace with underscore
+  std::transform(
+      projectname.begin(),
+      projectname.end(),
+      std::back_inserter(outputname),
+      [](unsigned char c)
+      {
+        if(c == ' ')
+          return '_';
+        return (char)std::tolower(c);
+      });
+
+  // Removes all other characters
+  std::remove_if(
+      outputdir.begin(),
+      outputdir.end(),
+      [](unsigned char c)
+      {
+        return (c < 'a' || c > 'z') && c != '_';
+      });
+
+  // Add suffix
+  outputname += ".out";
 }
 
 std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath)

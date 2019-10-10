@@ -35,6 +35,12 @@ In order to create a MakeGen configuration file use the following command:
     makegen conf gen prompt
 
 This will prompt you with all the needed configurations in order to create a Makefile which will compile your code.
+If you want to create a quick and simple config file you can also run:
+
+    makegen conf gen default
+
+Which will default the source directory to `src/`, output directory to `bin/` and project name to the current directory name.
+
 When this is done it will create a file called `makegen.conf` which contains all relevant data for MakeGen to create a Makefile.
 
 If you want to change your config you can modify the makegen.conf file or use makegens config command line interface.
