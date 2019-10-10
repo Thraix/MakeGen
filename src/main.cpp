@@ -1,5 +1,5 @@
-#include "CLI.h"
 #include "Common.h"
+#include "ConfigCLI.h"
 #include "ConfigFile.h"
 #include "FileUtils.h"
 #include "HFileGen.h"
@@ -23,8 +23,6 @@ void PrintHelp()
   LOG_INFO("");
   LOG_INFO("  Options:");
   LOG_INFO("    -h,     --help        Displays this information");
-  LOG_INFO("            conf          Run config command with given parameters. To see more");
-  LOG_INFO("                           run makegen conf --help");
   LOG_INFO("    -v,     --version     Displays the version of this program");
   LOG_INFO("    -m,-a,  make, all     Generates a Makefile and runs");
   LOG_INFO("                           make all");
@@ -57,7 +55,7 @@ void GenMakefile(const ConfigFile& conf, unsigned int flags)
 unsigned int ReadFlags(int argc, char** argv)
 {
   if(argc >= 2 && std::string(argv[1]) == "conf")
-    return FLAG_CLI;
+    return FLAG_CONFIG;
   unsigned int flags = 0;
   bool make = true;
   for(int i = 1;i<argc;i++)
@@ -68,10 +66,6 @@ unsigned int ReadFlags(int argc, char** argv)
       if(flag == "-h" || flag == "--help")
       {
         flags |= FLAG_HELP;
-      }
-      else if(flag == "--conf")
-      {
-        flags |= FLAG_GEN;
       }
       else if(flag == "-v" || flag == "--version")
       {
@@ -180,14 +174,9 @@ int main(int argc, char** argv)
     LOG_INFO("MakeGen ",MAKEGEN_VERSION);
     return 0;
   }
-  if(flags & FLAG_GEN)
+  if(flags & FLAG_CONFIG)
   {
-    ConfigFile::Gen().Save();
-    return 0;
-  }
-  if(flags & FLAG_CLI)
-  {
-    return CLI::Main(argc-1, &argv[1]);
+    return ConfigCLI::Main(argc-1, &argv[1]);
   }
   std::map<std::string, ConfigFile> files{};
   auto conf = ConfigFile::GetConfigFile();

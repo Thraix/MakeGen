@@ -16,7 +16,7 @@
 #define MAKEGEN_VERSION ("v" STR(MAKEGEN_VERSION_MAJOR) "." STR(MAKEGEN_VERSION_RELEASE) "." STR(MAKEGEN_VERSION_MINOR))
 
 const static unsigned int FLAG_HELP = BIT(0);
-const static unsigned int FLAG_GEN = BIT(1);
+// const static unsigned int FLAG_GEN = BIT(1);
 const static unsigned int FLAG_VERSION = BIT(2);
 const static unsigned int FLAG_CLEAN = BIT(3);
 const static unsigned int FLAG_MAKE = BIT(4);
@@ -26,7 +26,7 @@ const static unsigned int FLAG_REBUILD = BIT(7);
 const static unsigned int FLAG_SINGLE_THREAD = BIT(8);
 const static unsigned int FLAG_DEPENDENCY = BIT(9);
 const static unsigned int FLAG_SIMPLE = BIT(10);
-const static unsigned int FLAG_CLI = BIT(11);
+const static unsigned int FLAG_CONFIG = BIT(11);
 
 
 #define LOG_INFO(...) Log(__VA_ARGS__); std::cout << std::endl
