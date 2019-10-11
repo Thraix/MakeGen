@@ -15,34 +15,36 @@
 
 void PrintHelp()
 {
-  LOG_INFO("MakeGen ", MAKEGEN_VERSION);
-  LOG_INFO("");
-  LOG_INFO("MakeGen is a utility tool to generate and run Makefiles in a simple manner.\nBy default it always compiles code with parallell jobs.");
-  LOG_INFO("");
-  LOG_INFO("Usage: makegen [options]");
-  LOG_INFO("");
-  LOG_INFO("  Options:");
-  LOG_INFO("    -h,     --help        Displays this information");
-  LOG_INFO("    -v,     --version     Displays the version of this program");
-  LOG_INFO("    -m,-a,  make, all     Generates a Makefile and runs");
-  LOG_INFO("                           make all");
-  LOG_INFO("    -i,     install       Generates a Makefile and runs");
-  LOG_INFO("                           make all && make install");
-  LOG_INFO("    -c,     clean         Generates a Makefile and runs");
-  LOG_INFO("                           make clean");
-  LOG_INFO("    -r,     rebuild       Generates a Makefile and runs");
-  LOG_INFO("                           make clean && make all");
-  LOG_INFO("    -e,     run, execute  Generates a Makefile and runs");
-  LOG_INFO("                           make all && make run");
-  LOG_INFO("    -s,     single        Runs additional makegen options as single thread");
-  LOG_INFO("                           (no --jobs=X flag)");
-  LOG_INFO("            --simple      Creates a simple Makefile without include dependencies");
-  LOG_INFO("                           (no --jobs=X flag)");
-  LOG_INFO("");
-  LOG_INFO("  If no option is given it will run \"make all\"");
-  LOG_INFO("");
-  LOG_INFO("  If multiple make options are given it will run in the following order:");
-  LOG_INFO("    clean all install run, rebuild will be translated to \"clean make\"");
+  LOG_INFO(1+(char*)R"(
+MakeGen ", MAKEGEN_VERSIO
+
+MakeGen is a utility tool to generate and run Makefiles in a simple manner.
+By default it always compiles code with parallell jobs.
+
+Usage: makegen [options]
+
+  Options:
+    -h,     --help        Displays this information
+    -v,     --version     Displays the version of this program
+    -m,-a,  make, all     Generates a Makefile and runs
+                           make all
+    -i,     install       Generates a Makefile and runs
+                           make all && make install
+    -c,     clean         Generates a Makefile and runs
+                           make clean
+    -r,     rebuild       Generates a Makefile and runs
+                           make clean && make all
+    -e,     run, execute  Generates a Makefile and runs
+                           make all && make run
+    -s,     single        Runs additional makegen options as single thread
+                           (no --jobs=X flag)
+            --simple      Creates a simple Makefile without include dependencies
+                           (no --jobs=X flag)
+
+  If no option is given it will run \"make all\"
+
+  If multiple make options are given it will run in the following order:
+    clean all install run, rebuild will be translated to \"clean make\")");
 }
 
 void GenMakefile(const ConfigFile& conf, unsigned int flags)

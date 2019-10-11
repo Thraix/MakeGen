@@ -7,139 +7,144 @@
 
 void ConfigCLI::DisplayCLIHelp()
 {
-  LOG_INFO("MakeGen conf is used to create, modify and query the makegen.conf file.");
-  LOG_INFO("");
-  LOG_INFO("Usage: makegen conf <command> [<args>] [--help] ");
-  LOG_INFO("");
-  LOG_INFO("Generating config files");
-  LOG_INFO("  gen             Prompt the user to enter information to create config");
-  LOG_INFO("");
+  LOG_INFO(1+(char*)R"(
+MakeGen conf is used to create, modify and query the makegen.conf file.
 
-  LOG_INFO("Modifying config settings");
-  LOG_INFO("  add             Add values to config settings which support multiple arguments");
-  LOG_INFO("  remove          Remove values to config settings which support multiple");
-  LOG_INFO("                   arguments");
-  LOG_INFO("  set             Set value to config settings which support only one argument");
-  LOG_INFO("");
+Usage: makegen conf <command> [<args>] [--help]
 
-  LOG_INFO("Querying config settings");
-  LOG_INFO("  get             Get value of the config setting");
+Generating config files
+  gen             Prompt the user to enter information to create config
+
+Modifying config settings
+  add           Add values to config settings which support multiple arguments
+  remove        Remove values to config settings which support multiple
+                 arguments
+  set           Set value to config settings which support only one argument
+
+
+Querying config settings
+  get             Get value of the config setting)");
 }
 
 void ConfigCLI::DisplayGenHelp()
 {
-  LOG_INFO("Generate a config file from prompts");
-  LOG_INFO("");
-  LOG_INFO("Usage: makegen conf gen <option>");
-  LOG_INFO("");
-  LOG_INFO("options:");
-  LOG_INFO("  prompt           Prompt the user for all needed settings");
-  LOG_INFO("  default          Generate a default config file. Source directory is set to");
-  LOG_INFO("                    src/, outputdir is set to bin/ and project name is set to");
-  LOG_INFO("                    the current directory name.");
+  LOG_INFO(1+(char*)R"(
+Generate a config file from prompts
+
+Usage: makegen conf gen <option>
+
+options:
+  prompt        Prompt the user for all needed settings
+  default       Generate a default config file. Source directory is set to
+                 src/, outputdir is set to bin/ and project name is set to
+                 the current directory name.)");
 }
 
 void ConfigCLI::DisplayAddHelp()
 {
-  LOG_INFO("Add values to config settings which support multiple arguments");
-  LOG_INFO("");
-  LOG_INFO("Usage: makegen conf add <setting> <value> [<values>]");
-  LOG_INFO("");
-  LOG_INFO("Valid settings are:");
-  LOG_INFO("  library       Library");
-  LOG_INFO("  libdir        Library directory");
-  LOG_INFO("  includedir    Include directory");
-  LOG_INFO("  define        Preprocessor define");
-  LOG_INFO("  cflag         g++ compiler flags");
-  LOG_INFO("  dependency    Project which current project depends on");
+  LOG_INFO(1+(char*)R"(
+Add values to config settings which support multiple arguments
+
+Usage: makegen conf add <setting> <value> [<values>]
+
+Valid settings are:
+  library       Library
+  libdir        Library directory
+  includedir    Include directory
+  define        Preprocessor define
+  cflag         g++ compiler flags
+  dependency    Project which current project depends on)");
 }
 
 void ConfigCLI::DisplayRemoveHelp()
 {
-  LOG_INFO("Remove values to config settings which support multiple arguments");
-  LOG_INFO("");
-  LOG_INFO("Usage: makegen conf remove <setting> <value> [<values>]");
-  LOG_INFO("");
-  LOG_INFO("Valid settings are:");
-  LOG_INFO("  library       Library name");
-  LOG_INFO("  libdir        Library directory");
-  LOG_INFO("  includedir    Include directory");
-  LOG_INFO("  define        Preprocessor define");
-  LOG_INFO("  cflag         g++ compiler flags");
-  LOG_INFO("  dependency    Project which current project depends on");
+  LOG_INFO(1+(char*)R"(
+Remove values to config settings which support multiple
+
+Usage: makegen conf remove <setting> <value> [<
+
+Valid settings are
+  library       Library name
+  libdir        Library directory
+  includedir    Include directory
+  define        Preprocessor define
+  cflag         g++ compiler flags
+  dependency    Project which current project depends on)");
 }
 
 void ConfigCLI::DisplaySetHelp()
 {
-  LOG_INFO("Set value to config settings which only support one argument");
-  LOG_INFO("");
-  LOG_INFO("Usage: makegen conf set <setting> <value>");
-  LOG_INFO("");
-  LOG_INFO("Valid string settings are:");
-  LOG_INFO("  outputdir     Directory of the compiled output");
-  LOG_INFO("  output        Name of the output executable/library");
-  LOG_INFO("  name          Name of the project");
-  LOG_INFO("  hfile         Name of the generated project h-file");
-  LOG_INFO("");
-  LOG_INFO("Valid boolean settings are:");
-  LOG_INFO("  executable    Specifies if the project be compiled as executable or library");
-  LOG_INFO("  shared        Specifies if the library should be compiled as shared.");
-  LOG_INFO("  genhfile      Specifies if MakeGen should generate a project h-file");
-  LOG_INFO("");
-  LOG_INFO("Boolean values can be set to either true/t/yes/y or false/f/no/n");
+  LOG_INFO(1+(char*)R"(
+Set value to config settings which only support one argument
+
+Usage: makegen conf set <setting> <value>
+
+Valid string settings are:
+  outputdir     Directory of the compiled output
+  output        Name of the output executable/library
+  name          Name of the project
+  hfile         Name of the generated project h-file
+
+Valid boolean settings are:
+  executable    Specifies if the project be compiled as executable or library
+  shared        Specifies if the library should be compiled as shared.
+  genhfile      Specifies if MakeGen should generate a project h-file
+
+Boolean values can be set to either true/t/yes/y or false/f/no/n)");
 }
 
 void ConfigCLI::DisplayGetHelp()
 {
-  LOG_INFO("Get value of the config setting");
-  LOG_INFO("");
-  LOG_INFO("Usage: makegen conf get <setting>");
-  LOG_INFO("");
-  LOG_INFO("Valid settings are:");
-  LOG_INFO("  library       Library name");
-  LOG_INFO("  libdir        Library directory");
-  LOG_INFO("  includedir    Include directory");
-  LOG_INFO("  define        Preprocessor define");
-  LOG_INFO("  cflag         g++ compiler flags");
-  LOG_INFO("  dependency    Project which current project depends on");
-  LOG_INFO("  outputdir     Directory of the compiled output");
-  LOG_INFO("  output        Name of the output executable/library");
-  LOG_INFO("  name          Name of the project");
-  LOG_INFO("  hfile         Name of the generated project h-file");
-  LOG_INFO("  executable    Specifies if the project be compiled as executable or library");
-  LOG_INFO("  shared        Specifies if the library should be compiled as shared.");
-  LOG_INFO("  genhfile      Specifies if MakeGen should generate a project h-file");
+  LOG_INFO(1+(char*)R"(
+Get value of the config setting
+
+Usage: makegen conf get <setting>
+
+Valid settings are:
+  library       Library name
+  libdir        Library directory
+  includedir    Include directory
+  define        Preprocessor define
+  cflag         g++ compiler flags
+  dependency    Project which current project depends on
+  outputdir     Directory of the compiled output
+  output        Name of the output executable/library
+  name          Name of the project
+  hfile         Name of the generated project h-file
+  executable    Specifies if the project be compiled as executable or library
+  shared        Specifies if the library should be compiled as shared.
+  genhfile      Specifies if MakeGen should generate a project h-file)");
 }
 
 std::map<std::string, std::vector<std::string>*> ConfigCLI::GetSettingVectorMap(ConfigFile& config)
 {
   return {
     {"library",&config.libs},
-      {"libdir",&config.libdirs},
-      {"includedir",&config.includedirs},
-      {"define",&config.defines},
-      {"cflag",&config.flags},
-      {"dependency",&config.dependencies}
+    {"libdir",&config.libdirs},
+    {"includedir",&config.includedirs},
+    {"define",&config.defines},
+    {"cflag",&config.flags},
+    {"dependency",&config.dependencies}
   };
 }
 
 
-std::map<std::string, std::string*> ConfigCLI::GetSettingStringMap(ConfigFile& config) 
+std::map<std::string, std::string*> ConfigCLI::GetSettingStringMap(ConfigFile& config)
 {
   return {
     {"outputdir", &config.outputdir},
-      {"output", &config.outputname},
-      {"name", &config.projectname},
-      {"hfile", &config.hFile},
+    {"output", &config.outputname},
+    {"name", &config.projectname},
+    {"hfile", &config.hFile},
   };
 }
 
-std::map<std::string, bool*> ConfigCLI::GetSettingBoolMap(ConfigFile& config) 
+std::map<std::string, bool*> ConfigCLI::GetSettingBoolMap(ConfigFile& config)
 {
   return {
     {"executable", &config.executable},
-      {"shared", &config.shared},
-      {"genhfile", &config.generateHFile}
+    {"shared", &config.shared},
+    {"genhfile", &config.generateHFile}
   };
 }
 
