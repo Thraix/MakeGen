@@ -30,4 +30,10 @@ struct Utils
   static void GetCppFiles(const ConfigFile& conf, std::set<std::string>& cppFiles);
   static void GetCppAndHFiles(const ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles);
   static void GetHFiles(const std::string& dependencyDir, const ConfigFile& conf, std::set<HFile>& hFiles);
+
+  // Used for parsing xml
+  static bool IsWhiteSpace(char c);
+  static bool IsLetter(char c);
+  static bool IsWord(const std::string& string);
+  static std::string GetWord(const std::string& string, int startPos = 0);
 };

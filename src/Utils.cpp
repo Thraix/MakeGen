@@ -95,3 +95,32 @@ void Utils::GetHFiles(const std::string& dependencyDir, const ConfigFile& conf, 
     }
   }
 }
+bool Utils::IsWhiteSpace(char c)
+{
+  return c == '\n' || c == '\t' || c == '\r' || c == ' ' || c == '\t';
+}
+
+bool Utils::IsLetter(char c)
+{
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+bool Utils::IsWord(const std::string& string)
+{
+  for(auto it{string.begin()}; it != string.end();++it)
+  {
+    if(!IsLetter(*it))
+      return false;
+  }
+  return true;
+}
+
+std::string Utils::GetWord(const std::string& string, int startPos)
+{
+  if (startPos >= string.length())
+    throw std::runtime_error("start position out of bounds.");
+
+  int endPos = startPos;
+  while (endPos < string.length() && IsLetter(string[endPos])) endPos++;
+  return string.substr(startPos, endPos - startPos);
+}
