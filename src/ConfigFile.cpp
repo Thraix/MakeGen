@@ -1,17 +1,14 @@
 #include "ConfigFile.h"
 
 #include "FileUtils.h"
+#include "compatibility/ConfigFileConf.h"
+#include "xml/XML.h"
 
 #include <algorithm>
 #include <fstream>
 
-#define FLAG_NONE 0
-#define FLAG_VECTOR 1
-#define FLAG_STRING 2
-#define FLAG_BOOL 3
-
 ConfigFile::ConfigFile()
-  : outputdir("bin/"), srcdir("src/"), outputname(""), projectname(FileUtils::GetCurrentDirectory()), hFile(""), executable(true), shared(true), generateHFile(false)
+  : outputdir("bin/"), srcdir("src/"), outputname(""), projectname(FileUtils::GetCurrentDirectory()), hFile(projectname+".h"), executable(true), shared(true), generateHFile(false)
 {
   // Converts project name (current directory) to lowercase
   // and replace whitespace with underscore
@@ -54,27 +51,42 @@ std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath,
     return {};
   }
 
+  bool oldFile = false;
   std::ifstream f(filepath + CONFIG_FILENAME);
+  if(!f.good())
+  {
+    // try to read an old config file
+    f.close();
+    f = std::ifstream(filepath + "makegen.conf");
+    oldFile = true;
+  }
+
   // Check if the file exists
   if(f.good())
   {
     f.close();
-    ConfigFile conf = ConfigFile::Load(realPath);
-    loadedConfigs.emplace(realPath, conf);
+    std::optional<ConfigFile> conf;
+    if(oldFile)
+      conf = ConfigFileConf::Load(realPath);
+    else
+      conf = ConfigFile::Load(realPath);
+    if(!conf)
+      return {};
+    loadedConfigs.emplace(realPath, *conf);
 
     // Create dependency config files.
-    for(size_t i = 0; i < conf.dependencies.size();++i)
+    for(size_t i = 0; i < conf->dependencies.size();++i)
     {
-      std::optional<ConfigFile> dep = GetConfigFile(conf.configPath + conf.dependencies[i], loadedConfigs);
+      std::optional<ConfigFile> dep = GetConfigFile(conf->configPath + conf->dependencies[i], loadedConfigs);
       if(dep)
       {
-        conf.dependencyConfigs.push_back(*dep);
-        conf.dependencies[i] = dep->configPath;
+        conf->dependencyConfigs.push_back(*dep);
+        conf->dependencies[i] = dep->configPath;
       }
       else
       {
         // Remove the dependency since it is already accounted for
-        conf.dependencies.erase(conf.dependencies.begin() + i);
+        conf->dependencies.erase(conf->dependencies.begin() + i);
         --i;
       }
     }
@@ -84,120 +96,99 @@ std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath,
 }
 
 
-ConfigFile ConfigFile::Load(const std::string& filepath)
+std::optional<ConfigFile> ConfigFile::Load(const std::string& filedir)
 {
-  ConfigFile conf;
-  conf.configPath = filepath;
-  unsigned int loadFlag = 0;
+  XMLObject object{XML::FromFile(filedir + CONFIG_FILENAME)};
 
-  std::vector<std::string>* vec;
-  std::string* s;
-  bool* b;
-
-  bool isDirectory = false;
-
-  std::ifstream file(filepath+CONFIG_FILENAME);
-  std::string line;
-
-  if(file.is_open())
+  const std::string& target = object.GetObject("target", {XMLObject{"target", {}, "Release"}})[0].GetText();
+  const std::vector<XMLObject>& configurations = object.GetObject("configuration");
+  const XMLObject* configuration = nullptr;
+  for(auto it = configurations.begin(); it != configurations.end(); ++it)
   {
-    // config name, { pointer to memory, isDirectory}
-    std::map<std::string, std::pair<std::string*, bool>> strings =
+    if(!it->HasAttribute("name"))
     {
-      {"#srcdir", {&conf.srcdir, true}},
-      {"#outputdir", {&conf.outputdir, true}},
-      {"#outputname", {&conf.outputname, false}},
-      {"#projectname", {&conf.projectname, false}},
-      {"#hfile", {&conf.hFile, false}},
-    };
+      LOG_ERROR("No name attribute in configuration tag");
+      continue;
+    }
+    if(it->GetAttribute("name") == target)
+    {
+      configuration = &(*it);
+      break;
+    }
+  }
 
-    // config name, { pointer to memory, isDirectory}
-    std::map<std::string, std::pair<std::vector<std::string>*, bool>> vectors =
-    {
-      {"#libs", {&conf.libs, false}},
-      {"#libdirs", {&conf.libdirs, true}},
-      {"#includedirs", {&conf.includedirs, true}},
-      {"#compileflags", {&conf.flags, false}},
-      {"#defines", {&conf.defines, false}},
-      {"#dependencies", {&conf.dependencies, true}},
-    };
+  if(configuration == nullptr)
+  {
+    LOG_ERROR("No configuration matching target: ", target); 
+    return {};
+  }
 
-    std::map<std::string, bool*> booleans =
-    {
-      {"#executable", &conf.executable},
-      {"#shared", &conf.shared},
-      {"#generatehfile", &conf.generateHFile},
-    };
+  ConfigFile conf;
+  conf.configPath = filedir;
+  conf.projectname = configuration->GetObject("projectname", 
+      {XMLObject{"projectname", {}, conf.projectname}})[0].GetText();
+  conf.outputname = configuration->GetObject("outputname", 
+      {XMLObject{"outputname", {}, conf.outputname}})[0].GetText();
+  conf.srcdir = configuration->GetObject("srcdir", 
+      {XMLObject{"srcdir", {}, conf.srcdir}})[0].GetText();
+  conf.outputdir = configuration->GetObject("outputdir", 
+      {XMLObject{"outputdir", {}, conf.outputdir}})[0].GetText();
+  conf.hFile = configuration->GetObject("hfile", 
+      {XMLObject{"hfile", {}, conf.hFile}})[0].GetText();
+  std::string outputtype = configuration->GetObject("outputtype", 
+      {XMLObject{"outputtype", {}, "executable"}})[0].GetText();
 
-    while(std::getline(file,line))
+  if(conf.srcdir[conf.srcdir.size()-1] != '/')
+    conf.srcdir += '/';
+  if(conf.outputdir[conf.srcdir.size()-1] != '/')
+    conf.outputdir += '/';
+
+  if(outputtype == "executable")
+    conf.executable = true;
+  else if(outputtype == "staticlibrary")
+  {
+    conf.executable = false;
+    conf.shared = false;
+  }
+  else if(outputtype == "sharedlibrary")
+  {
+    conf.executable = false;
+    conf.shared = true;
+  }
+  else
+  {
+    LOG_ERROR("Invalid outputtype: ", outputtype);
+    LOG_ERROR("Valid arguments are executable, staticlibrary and sharedlibrary");
+  }
+  conf.generateHFile = configuration->GetObject("generatehfile", 
+      {XMLObject{"generatehfile", {}, conf.generateHFile ? "true" : "false"}})[0].GetText() == "true";
+
+  const int vectorCount = 6;
+  std::tuple<std::vector<XMLObject>, std::vector<std::string>*, bool> vectors[vectorCount] = {
+    {configuration->GetObject("library"), &conf.libs, false},
+    {configuration->GetObject("libdir"), &conf.libdirs, true},
+    {configuration->GetObject("includedir"), &conf.includedirs, true},
+    {configuration->GetObject("define"), &conf.defines, false},
+    {configuration->GetObject("compileflag"), &conf.flags, false},
+    {configuration->GetObject("dependency"), &conf.dependencies, true}
+  };
+
+  for(int i = 0;i<vectorCount;++i)
+  {
+    const std::vector<XMLObject>& xmls = std::get<0>(vectors[i]);
+    std::vector<std::string>* vec = std::get<1>(vectors[i]);
+    bool isDir = std::get<2>(vectors[i]);
+    for(auto it = xmls.begin(); it != xmls.end();++it)
     {
-      if(line == "")
-        continue;
-      if(line[0]=='#')
+      if(it->GetText() != "")
       {
-        // The format is a bit wacky, but it is this way since we do not want
-        // to use map::find for all maps. This way we gain some optimization.
-        auto&& itStr{strings.find(line)};
-        if(itStr != strings.end())
-        {
-          s = itStr->second.first;
-          isDirectory = itStr->second.second;
-          loadFlag = FLAG_STRING;
-        }
-        else
-        {
-          auto&& itVec{vectors.find(line)};
-          if(itVec != vectors.end())
-          {
-            vec = itVec->second.first;
-            isDirectory = itVec->second.second;
-            loadFlag = FLAG_VECTOR;
-          }
-          else
-          {
-            auto&& itBool{booleans.find(line)};
-            if(itBool != booleans.end())
-            {
-              b = itBool->second;
-              loadFlag = FLAG_BOOL;
-            }
-            else
-            {
-              LOG_ERROR("Invalid flag: ", line);
-              loadFlag = FLAG_NONE;
-            }
-          }
-        }
-      }
-      else
-      {
-        if(loadFlag == FLAG_STRING)
-        {
-          if(isDirectory && line[line.size()-1] != '/')
-            line += '/';
-          *s = line;
-        }
-        else if(loadFlag == FLAG_VECTOR)
-        {
-          if(isDirectory && line[line.size()-1] != '/')
-          {;
-            line += '/';
-          }
-          vec->push_back(line);
-        }
-        else if(loadFlag == FLAG_BOOL)
-        {
-          if(line == "true")
-            *b = true;
-          else
-            *b = false;
-        }
+        std::string s = it->GetText();
+        if(isDir && s[s.size()-1] != '/')
+          s += '/';
+        vec->push_back(s);
       }
     }
   }
-  if(conf.hFile == "")
-    conf.hFile = conf.projectname+".h";
-
   return conf;
 }
 
@@ -279,58 +270,36 @@ ConfigFile ConfigFile::Gen()
 
 void ConfigFile::Save() const
 {
-  std::ofstream file("makegen.conf");
-  file << "#libs" << std::endl;
-  for(auto it = libs.begin();it!=libs.end();++it)
-  {
-    file << *it << std::endl;
-  }
-  file << "#libdirs" << std::endl;
-  for(auto it = libdirs.begin();it!=libdirs.end();++it)
-  {
-    file << *it << std::endl;
-  }
-  file << "#includedirs" << std::endl;
-  for(auto it = includedirs.begin();it!=includedirs.end();++it)
-  {
-    file << *it << std::endl;
-  }
-  file << "#defines" << std::endl;
-  for(auto it = defines.begin();it!=defines.end();++it)
-  {
-    file << *it << std::endl;
-  }
-  file << "#compileflags" << std::endl;
-  for(auto it = flags.begin();it!=flags.end();++it)
-  {
-    file << *it << std::endl;
-  }
-  file << "#dependencies" << std::endl;
-  for(auto it = dependencies.begin();it!=dependencies.end();++it)
-  {
-    file << *it << std::endl;
-  }
-  file << "#srcdir" << std::endl;
-  file << srcdir << std::endl;
-  file << "#outputdir" << std::endl;
-  file << outputdir << std::endl;
-  file << "#projectname" << std::endl;
-  file << projectname << std::endl;
-  file << "#outputname" << std::endl;
-  file << outputname << std::endl;
-  file << "#executable" << std::endl;
-  file << (executable ? "true" : "false") << std::endl;
-  file << "#generatehfile" << std::endl;
-  file << (generateHFile ? "true" : "false") << std::endl;
-  if(generateHFile)
-  {
-    file << "#hfile" << std::endl;
-    file << hFile << std::endl;
-  }
-  if(!executable)
-  {
-    file << "#shared" << std::endl;
-    file << (shared ? "true" : "false") << std::endl;
-  }
-  file.close();
+  XMLObject makegen("makegen", {}, std::map<std::string, std::vector<XMLObject>>{});
+
+  // Version, target and configuration is probably going to be used in the future
+  makegen.AddXMLObject(XMLObject("version", {}, "v1.3.0"));
+  makegen.AddXMLObject(XMLObject("target", {}, "Release"));
+
+  XMLObject configuration("configuration", {{"name", "Release"}}, std::map<std::string, std::vector<XMLObject>>{});
+  configuration.AddXMLObject(XMLObject("projectname", {}, projectname));
+  configuration.AddXMLObject(XMLObject("outputname", {}, outputname));
+  configuration.AddXMLObject(XMLObject("srcdir", {}, srcdir));
+  configuration.AddXMLObject(XMLObject("outputdir", {}, outputdir));
+  configuration.AddXMLObject(XMLObject("hfile", {}, hFile));
+  configuration.AddXMLObject(XMLObject("outputtype", {}, 
+        executable ? "executable" : (shared ? "sharedlibrary" : "staticlibrary")));
+  configuration.AddXMLObject(XMLObject("generatehfile", {}, generateHFile ? "true" : "false"));
+
+  for(auto it = libs.begin();it != libs.end(); ++it)
+    configuration.AddXMLObject({"library",{},*it});
+  for(auto it = libdirs.begin();it != libdirs.end(); ++it)
+    configuration.AddXMLObject({"libdir",{},*it});
+  for(auto it = includedirs.begin();it != includedirs.end(); ++it)
+    configuration.AddXMLObject({"includedir",{},*it});
+  for(auto it = defines.begin();it != defines.end(); ++it)
+    configuration.AddXMLObject({"define",{},*it});
+  for(auto it = flags.begin();it != flags.end(); ++it)
+    configuration.AddXMLObject({"compileflag",{},*it});
+  for(auto it = dependencies.begin();it != dependencies.end(); ++it)
+    configuration.AddXMLObject({"dependency",{},*it});
+
+  makegen.AddXMLObject(configuration);
+  std::ofstream file("makegen.xml");
+  file << makegen;
 }

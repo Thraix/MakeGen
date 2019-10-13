@@ -1,0 +1,14 @@
+<makegen>
+  <configuration name="Release">
+    <define>_DEBUG</define>
+    <generatehfile>false</generatehfile>
+    <hfile>MakeGen.h</hfile>
+    <outputdir>bin/</outputdir>
+    <outputname>makegen</outputname>
+    <outputtype>executable</outputtype>
+    <projectname>MakeGen</projectname>
+    <srcdir>src/</srcdir>
+	</configuration>
+  <target>Release</target>
+  <version>v1.3.0</version>
+</makegen>

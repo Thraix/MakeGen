@@ -34,7 +34,7 @@ XMLObject::XMLObject(const std::string& name, const std::map<std::string, std::s
 
 }
 
-XMLObject::XMLObject(const std::string& name, const std::map<std::string, std::string>& attributes, const std::vector<XMLObject>& objects)
+XMLObject::XMLObject(const std::string& name, const std::map<std::string, std::string>& attributes, const std::map<std::string,std::vector<XMLObject>>& objects)
   : name(name), attributes(attributes), objects(objects)
 {
 
@@ -66,15 +66,16 @@ unsigned int XMLObject::GetObjectCount() const
   return objects.size();
 }
 
-const XMLObject& XMLObject::GetObject(unsigned int i) const
+const std::vector<XMLObject>& XMLObject::GetObject(const std::string& name, const std::vector<XMLObject>& defaults) const
 {
-  if (i >= objects.size())
-    throw XMLException((std::string("XML index out of bounds \"") + std::to_string(i) + "\".").c_str());
+  auto it = objects.find(name);
+  if(it == objects.end())
+    return defaults;
 
-  return objects[i];
+  return it->second;
 }
 
-const std::vector<XMLObject>& XMLObject::GetObjects() const
+const std::map<std::string, std::vector<XMLObject>>& XMLObject::GetObjects() const
 {
   return objects;
 }
@@ -108,7 +109,14 @@ void XMLObject::AddAttribute(const std::string& property, const std::string& val
     attributes.emplace(property, value);
   else
     LOG_ERROR("XML property name can only be made up of letters");
-
+}
+void XMLObject::AddXMLObject(const XMLObject& object)
+{
+  auto it = objects.find(object.name);
+  if(it == objects.end())
+    objects.emplace(object.name, std::vector<XMLObject>{object});
+  else
+    it->second.push_back(object);
 }
 
 XMLObject XMLObject::GetStrippedXMLObject() const
@@ -234,8 +242,7 @@ void XMLObject::ReadBodyTail(const std::string& string, XMLLoadData& data)
   std::string closeTag = GetClosingTag(string, data);
   while (closeTag.length() == 0)
   {
-    XMLObject object = XMLObject(string, data);
-    objects.push_back(object);
+    AddXMLObject(XMLObject(string, data));
     ReadWhiteSpace(string, data);
     closeTag = GetClosingTag(string, data);
   }
@@ -333,3 +340,46 @@ std::string XMLObject::ReadXMLName(const std::string& string, XMLLoadData& data)
     endPos++;
   return string.substr(data.pos, endPos - data.pos);
 }
+
+std::ostream& XMLObject::WriteToStream(std::ostream& stream, int indent) const
+{
+  for(int i = 0;i<indent;i++)
+  {
+    stream << "  ";
+  }
+  stream << "<" << name;
+  for(auto it = attributes.begin();it!=attributes.end();++it)
+  {
+    stream << " " << it->first << "=\"" << it->second << "\"";
+  }
+  stream << ">";
+  if(text != "")
+  {
+    stream << text;
+  }
+  else
+  {
+    bool hasChild = false;
+    for(auto it = objects.begin(); it != objects.end();++it)
+    {
+      for(auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+      {
+        stream << "\n";
+        it2->WriteToStream(stream, indent+1);
+        hasChild = true;
+      }
+    }
+    if(hasChild)
+    {
+      stream << "\n";
+      for(int i = 0;i<indent;i++)
+      {
+        stream << "\t";
+      }
+    }
+  }
+  stream << "</" << name << ">";
+
+  return stream;
+}
+
