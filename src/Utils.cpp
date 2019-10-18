@@ -1,5 +1,6 @@
 #include "Utils.h"
 
+#include "ConfigFile.h"
 #include "FileUtils.h"
 
 std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
@@ -16,10 +17,10 @@ std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
   return s1.substr(0, n);
 }
 
-void Utils::GetCppFiles(const ConfigFile& conf, std::set<std::string>& cppFiles)
+void Utils::GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
 {
   std::vector<std::string> files;
-  std::string path = conf.configPath + conf.srcdir;
+  std::string path = conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::SourceDir);
   FileUtils::GetAllFiles(path, files);
 
   for(auto it = files.begin(); it!=files.end();++it)
@@ -37,10 +38,10 @@ void Utils::GetCppFiles(const ConfigFile& conf, std::set<std::string>& cppFiles)
   }
 }
 
-void Utils::GetCppAndHFiles(const ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles)
+void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles)
 {
   std::vector<std::string> files;
-  std::string path = conf.configPath + conf.srcdir;
+  std::string path = conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::SourceDir);
   FileUtils::GetAllFiles(path,files);
   // include paramenter with the path of the file
   // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder 
@@ -62,24 +63,26 @@ void Utils::GetCppAndHFiles(const ConfigFile& conf, std::set<HFile>& hFiles, std
     }
   }
 
-  for(size_t i = 0; i < conf.dependencies.size(); ++i)
+  std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
+  for(size_t i = 0; i < dependencies.size(); ++i)
   {
-    GetHFiles(conf.dependencies[i], conf.dependencyConfigs[i], hFiles);
+    GetHFiles(dependencies[i], conf.GetDependencyConfig(i), hFiles);
   }
 }
 
-void Utils::GetHFiles(const std::string& dependencyDir, const ConfigFile& conf, std::set<HFile>& hFiles)
+void Utils::GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::set<HFile>& hFiles)
 {
   // TODO: Fix so that cyclic dependencies doesn't crash the tool.
   // Cyclic dependencies probably shouldn't exist.
   // so just warn the user that it does and terminate.
-  for(size_t i = 0; i < conf.dependencies.size(); ++i)
+  std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
+  for(size_t i = 0; i < dependencies.size(); ++i)
   {
-    GetHFiles(conf.dependencies[i], conf.dependencyConfigs[i], hFiles);
+    GetHFiles(dependencies[i], conf.GetDependencyConfig(i), hFiles);
   }
 
   std::vector<std::string> files;
-  std::string depSrcDir = dependencyDir + conf.srcdir;
+  std::string depSrcDir = dependencyDir + conf.GetSettingString(ConfigSetting::SourceDir);
   FileUtils::GetAllFiles(depSrcDir, files);
   for(auto it = files.begin(); it!=files.end();++it)
   {
@@ -90,7 +93,7 @@ void Utils::GetHFiles(const std::string& dependencyDir, const ConfigFile& conf, 
       if(extension == "hpp" || extension == "h")
       {
         std::string filename = it->substr(depSrcDir.length());
-        hFiles.emplace(HFile{filename, depSrcDir, conf.generateHFile && filename == conf.hFile});
+        hFiles.emplace(HFile{filename, depSrcDir, conf.GetSettingBool(ConfigSetting::GenerateHFile) && filename == conf.GetSettingString(ConfigSetting::HFileName)});
       }
     }
   }

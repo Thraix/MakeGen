@@ -29,6 +29,6 @@ class ConfigFileConf
   public:
     ConfigFileConf();
 
-    static ConfigFile Load(const std::string& filename);
+    static void CreateXMLFile(const std::string& filename);
   private:
 };

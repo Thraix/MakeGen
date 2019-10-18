@@ -8,7 +8,7 @@
 void ConfigCLI::DisplayCLIHelp()
 {
   LOG_INFO(1+(char*)R"(
-MakeGen conf is used to create, modify and query the makegen.conf file.
+MakeGen conf is used to create, modify and query the makegen.xml file.
 
 Usage: makegen conf <command> [<args>] [--help]
 
@@ -49,7 +49,7 @@ Usage: makegen conf add <setting> <value> [<values>]
 
 Valid settings are:
   library       Library
-  libdir        Library directory
+  librarydir    Library directory
   includedir    Include directory
   define        Preprocessor define
   cflag         g++ compiler flags
@@ -65,7 +65,7 @@ Usage: makegen conf remove <setting> <value> [<
 
 Valid settings are
   library       Library name
-  libdir        Library directory
+  librarydir    Library directory
   includedir    Include directory
   define        Preprocessor define
   cflag         g++ compiler flags
@@ -81,13 +81,13 @@ Usage: makegen conf set <setting> <value>
 
 Valid string settings are:
   outputdir     Directory of the compiled output
-  output        Name of the output executable/library
-  name          Name of the project
+  outputname    Name of the output executable/library
+  projectname   Name of the project
+  outputtype    Type of the output, valid values are executable, sharedlibrary
+                 and staticlibrary
   hfile         Name of the generated project h-file
 
 Valid boolean settings are:
-  executable    Specifies if the project be compiled as executable or library
-  shared        Specifies if the library should be compiled as shared.
   genhfile      Specifies if MakeGen should generate a project h-file
 
 Boolean values can be set to either true/t/yes/y or false/f/no/n)");
@@ -102,50 +102,42 @@ Usage: makegen conf get <setting>
 
 Valid settings are:
   library       Library name
-  libdir        Library directory
+  librarydir    Library directory
   includedir    Include directory
   define        Preprocessor define
   cflag         g++ compiler flags
   dependency    Project which current project depends on
   outputdir     Directory of the compiled output
-  output        Name of the output executable/library
-  name          Name of the project
+  outputname    Name of the output executable/library
+  outputtype    Type of the output, valid values are executable, sharedlibrary
+                 and staticlibrary
+  projectname   Name of the project
   hfile         Name of the generated project h-file
-  executable    Specifies if the project be compiled as executable or library
-  shared        Specifies if the library should be compiled as shared.
   genhfile      Specifies if MakeGen should generate a project h-file)");
 }
 
-std::map<std::string, std::vector<std::string>*> ConfigCLI::GetSettingVectorMap(ConfigFile& config)
-{
-  return {
-    {"library",&config.libs},
-    {"libdir",&config.libdirs},
-    {"includedir",&config.includedirs},
-    {"define",&config.defines},
-    {"cflag",&config.flags},
-    {"dependency",&config.dependencies}
-  };
-}
 
-
-std::map<std::string, std::string*> ConfigCLI::GetSettingStringMap(ConfigFile& config)
+ConfigSetting ConfigCLI::CLIStringToSetting(const std::string& s)
 {
-  return {
-    {"outputdir", &config.outputdir},
-    {"output", &config.outputname},
-    {"name", &config.projectname},
-    {"hfile", &config.hFile},
+  static std::map<std::string, ConfigSetting> map{
+    {"srcdir", ConfigSetting::SourceDir},
+    {"outputdir", ConfigSetting::OutputDir},
+    {"outputname", ConfigSetting::OutputName},
+    {"outputtype", ConfigSetting::OutputType},
+    {"projectname", ConfigSetting::ProjectName},
+    {"hfile", ConfigSetting::HFileName},
+    {"library", ConfigSetting::Library},
+    {"librarydir", ConfigSetting::LibraryDir},
+    {"includedir", ConfigSetting::IncludeDir},
+    {"define", ConfigSetting::Define},
+    {"cflag", ConfigSetting::CFlag},
+    {"dependency", ConfigSetting::Dependency},
+    {"genhfile", ConfigSetting::GenerateHFile},
   };
-}
-
-std::map<std::string, bool*> ConfigCLI::GetSettingBoolMap(ConfigFile& config)
-{
-  return {
-    {"executable", &config.executable},
-    {"shared", &config.shared},
-    {"genhfile", &config.generateHFile}
-  };
+  auto it = map.find(s);
+  if(it == map.end())
+    return ConfigSetting::Invalid;
+  return it->second;
 }
 
 int ConfigCLI::Gen(int argc, char** argv)
@@ -168,7 +160,7 @@ int ConfigCLI::Gen(int argc, char** argv)
   }
   if(option == "default")
   {
-    ConfigFile{}.Save();
+    ConfigFile{FileUtils::GetRealPath("."),0}.Save();
     return 0;
   }
   else
@@ -191,25 +183,24 @@ int ConfigCLI::Add(int argc, char** argv, ConfigFile& config)
     return 1;
   }
 
-  auto settingMap = GetSettingVectorMap(config);
-  auto it = settingMap.find(argv[1]);
-  if(it == settingMap.end())
+  ConfigSetting setting = CLIStringToSetting(argv[1]);
+  if(!ConfigUtils::IsVectorSetting(setting))
   {
-    LOG_ERROR("Invalid setting: ", argv[1]);
+    if(setting == ConfigSetting::Invalid)
+    {
+      LOG_ERROR("No such setting: ", argv[1]);
+    }
+    else
+    {
+      LOG_ERROR("Cannot remove setting which only supports one argument");
+      LOG_ERROR("use set instead.");
+    }
     return 1;
   }
-
-  std::vector<std::string>* setting = it->second;
-  std::set<std::string> settingSet{setting->begin(), setting->end()};
   for(int i = 2; i<argc;++i)
   {
-    auto res = settingSet.emplace(argv[i]);
-    if(!res.second)
-    {
-      LOG_ERROR("Duplicate value: ", argv[i]);
-    }
+    config.AddSettingVectorString(setting, argv[i]);
   }
-  *setting = {settingSet.begin(), settingSet.end()};
 
   config.Save();
   return 0;
@@ -228,27 +219,25 @@ int ConfigCLI::Remove(int argc, char** argv, ConfigFile& config)
     return 1;
   }
 
-  auto settingMap = GetSettingVectorMap(config);
-  auto it = settingMap.find(argv[1]);
-  if(it == settingMap.end())
+  ConfigSetting setting = CLIStringToSetting(argv[1]);
+  if(!ConfigUtils::IsVectorSetting(setting))
   {
-    LOG_ERROR("Invalid setting: ", argv[1]);
+    if(setting == ConfigSetting::Invalid)
+    {
+      LOG_ERROR("No such setting: ", argv[1]);
+    }
+    else
+    {
+      LOG_ERROR("Cannot remove setting which only supports one argument");
+      LOG_ERROR("use set instead.");
+    }
     return 1;
   }
 
-  std::vector<std::string>* setting = it->second;
-  std::set<std::string> settingSet{setting->begin(), setting->end()};
   for(int i = 2; i<argc;++i)
   {
-    auto it = settingSet.find(argv[i]);
-    if(it == settingSet.end())
-    {
-      LOG_ERROR("No such value in setting: ", argv[i]);
-    }
-    else
-      settingSet.erase(it);
+    config.RemoveSettingVectorString(setting, argv[i]);
   }
-  *setting = {settingSet.begin(), settingSet.end()};
 
   config.Save();
   return 0;
@@ -267,31 +256,22 @@ int ConfigCLI::Set(int argc, char** argv, ConfigFile& config)
     return 1;
   }
 
-  auto settingStringMap = GetSettingStringMap(config);
-  auto it1 = settingStringMap.find(argv[1]);
-  if(it1 == settingStringMap.end())
+  ConfigSetting setting = CLIStringToSetting(argv[1]);
+  if(!ConfigUtils::IsStringSetting(setting) && !ConfigUtils::IsBoolSetting(setting))
   {
-    auto settingBoolMap = GetSettingBoolMap(config);
-    auto it2 = settingBoolMap.find(argv[1]);
-    if(it2 == settingBoolMap.end())
+    if(setting == ConfigSetting::Invalid)
     {
-      LOG_ERROR("Invalid setting: ", argv[1]);
-      return 1;
+      LOG_ERROR("No such setting: ", argv[1]);
     }
-    std::string b = argv[2];
-    if(b == "true" || b == "t" || b == "yes" || b == "y")
-      *(it2->second) = true;
-    else if(b == "false" || b == "f" || b == "no" || b == "n")
-      *it2->second = false;
     else
     {
-      LOG_ERROR("Invalid boolean value: ", argv[2]);
-      return 1;
+      LOG_ERROR("Cannot set setting which supports multiple arguments");
+      LOG_ERROR("use add or remove instead.");
     }
-    config.Save();
-    return 0;
+    return 1;
   }
-  *it1->second = argv[2];
+
+  config.SetSettingString(setting, argv[2]);
   config.Save();
   return 0;
 }
@@ -308,29 +288,9 @@ int ConfigCLI::Get(int argc, char** argv, ConfigFile& config)
     LOG_ERROR("get needs exactly one parameter");
     return 1;
   }
-  auto settingVectorMap = GetSettingVectorMap(config);
-  auto itV = settingVectorMap.find(argv[1]);
-  if(itV == settingVectorMap.end())
-  {
-    auto settingStringMap = GetSettingStringMap(config);
-    auto itS = settingStringMap.find(argv[1]);
-    if(itS == settingStringMap.end())
-    {
-      auto settingBoolMap = GetSettingBoolMap(config);
-      auto itB = settingBoolMap.find(argv[1]);
-      if(itB == settingBoolMap.end())
-      {
-        LOG_ERROR("Invalid setting: ", argv[1]);
-        return 1;
-      }
-      bool* t = itB->second;
-      LOG_INFO(*itB->second ? "true" : "false");
-      return 0;
-    }
-    LOG_INFO(*itS->second);
-    return 0;
-  }
-  for(auto it = itV->second->begin(); it != itV->second->end(); ++it)
+  ConfigSetting setting = CLIStringToSetting(argv[1]);
+  std::vector<std::string> vector = config.GetSetting(setting);
+  for(auto it = vector.begin(); it != vector.end(); ++it)
   {
     LOG_INFO(*it);
   }
@@ -351,7 +311,7 @@ int ConfigCLI::Main(int argc, char** argv)
   {
     if(config)
     {
-      LOG_ERROR("Config file already exist (makegen.conf)");
+      LOG_ERROR("Config file already exist (", CONFIG_FILENAME, ")");
       return 1;
     }
     return Gen(argc-1, &argv[1]);

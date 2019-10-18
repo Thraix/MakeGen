@@ -3,11 +3,11 @@
 #include "FileUtils.h"
 #include <set>
 
-void HFileGen::Create(const ConfigFile& conf)
+void HFileGen::Create(ConfigFile& conf)
 {
   std::set<std::string> hFiles;
   std::vector<std::string> files;
-  std::string path = conf.configPath + conf.srcdir;
+  std::string path = conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::SourceDir);
   FileUtils::GetAllFiles(path,files);
   // include paramenter with the path of the file
   // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder 
@@ -17,7 +17,7 @@ void HFileGen::Create(const ConfigFile& conf)
     if(extensionPos != std::string::npos)
     {
       std::string filename = it->substr(path.length());
-      if(it->substr(extensionPos+1) == "h" && filename != conf.configPath + conf.hFile)
+      if(it->substr(extensionPos+1) == "h" && filename != conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::HFileName))
       {
         // Make files sorted in alphabetical order
         hFiles.emplace(filename);
@@ -25,7 +25,7 @@ void HFileGen::Create(const ConfigFile& conf)
     }
   }
 
-  std::ofstream os(conf.configPath + conf.srcdir+"/"+conf.hFile);
+  std::ofstream os(path + "/" + conf.GetSettingString(ConfigSetting::HFileName));
   os << "#pragma once" << std::endl << std::endl;
   for(auto&& hFile : hFiles)
     os << "#include <" << hFile << ">" << std::endl; 

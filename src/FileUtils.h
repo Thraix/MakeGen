@@ -34,14 +34,26 @@ struct FileUtils
   {
     static char path[256]; // Usual maximum filename
     getcwd(path, sizeof(path));
-    std::string dir = path;
-    size_t pos = dir.find_last_of("/");
+    return GetTopDirectory(path);
+  }
+
+  static std::string GetTopDirectory(const std::string& dir)
+  {
+    if(dir.size() == 0)
+    {
+      LOG_ERROR("Cannot send empty string to FileUtils::GetTopDirectory()");
+      assert(false);
+    }
+    size_t dirEnd = std::string::npos;
+    if(dir[dir.size()-1] == '/')
+      dirEnd = dir.size()-2;
+    size_t pos = dir.find_last_of("/", dirEnd);
     if(pos == std::string::npos)
     {
       LOG_ERROR("Couldn't find / (slash) in directory. This shouldn't occur.");
       assert(false);
     }
-    return dir.substr(pos+1);
+    return dir.substr(pos + 1, dirEnd - pos);
   }
 
   static std::string GetRealPath(const std::string& filename)

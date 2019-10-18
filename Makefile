@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.2.0 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.3.0 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -8,7 +8,7 @@ BIN=bin/
 OBJPATH=$(BIN)intermediates
 INCLUDES=
 OBJECTS=$(OBJPATH)/ConfigCLI.o $(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/Utils.o $(OBJPATH)/ConfigFileConf.o $(OBJPATH)/main.o $(OBJPATH)/XML.o $(OBJPATH)/XMLObject.o 
-CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 -D_DEBUG 
+CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 
 LIBDIR=
 LDFLAGS=
 LIBS=$(LIBDIR) 
@@ -33,28 +33,28 @@ $(OUTPUT): $(OBJECTS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
-$(OBJPATH)/ConfigCLI.o : src/ConfigCLI.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/xml/XMLObject.h 
+$(OBJPATH)/ConfigCLI.o : src/ConfigCLI.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/ConfigUtils.h  src/FileUtils.h  src/Utils.h src/xml/XMLObject.h 
 	$(info -[10%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/ConfigFile.h src/xml/XMLObject.h src/FileUtils.h src/Common.h src/Utils.h  src/compatibility/ConfigFileConf.h src/xml/XML.h 
+$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h  src/Utils.h src/xml/XMLObject.h  src/compatibility/ConfigFileConf.h src/xml/XML.h 
 	$(info -[20%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/Utils.h src/ConfigFile.h src/xml/XMLObject.h src/HFileGen.h 
+$(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/Utils.h src/HFileGen.h src/ConfigFile.h src/ConfigUtils.h   src/xml/XMLObject.h
 	$(info -[30%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/xml/XMLObject.h src/FileUtils.h  src/Utils.h 
+$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/ConfigUtils.h  src/FileUtils.h  src/Utils.h src/xml/XMLObject.h 
 	$(info -[40%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/Makefile.o : src/Makefile.cpp src/IncludeDeps.h src/ConfigFile.h src/xml/XMLObject.h src/FileUtils.h src/Common.h src/Utils.h  src/Makefile.h  
+$(OBJPATH)/Makefile.o : src/Makefile.cpp src/IncludeDeps.h src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h  src/Utils.h src/xml/XMLObject.h  src/Makefile.h  
 	$(info -[50%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/Utils.o : src/Utils.cpp src/FileUtils.h src/Common.h src/Utils.h src/ConfigFile.h src/xml/XMLObject.h 
+$(OBJPATH)/Utils.o : src/Utils.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h  src/Utils.h src/xml/XMLObject.h  
 	$(info -[60%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/ConfigFileConf.o : src/compatibility/ConfigFileConf.cpp src/compatibility/ConfigFileConf.h
 	$(info -[70%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/xml/XMLObject.h  src/FileUtils.h  src/Utils.h  src/HFileGen.h  src/Makefile.h  src/Timer.h
+$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/ConfigUtils.h  src/FileUtils.h  src/Utils.h src/xml/XMLObject.h   src/HFileGen.h  src/Makefile.h  src/Timer.h
 	$(info -[80%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/XML.o : src/xml/XML.cpp src/xml/XML.h src/xml/XMLObject.h src/xml/XMLException.h 

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ConfigFile.h"
-
 #include <set>
 #include <string>
 
@@ -24,12 +22,14 @@ struct HFile
   }
 };
 
+class ConfigFile;
+
 struct Utils
 {
   static std::string CommonPrefix(const std::string& s1, const std::string& s2);
-  static void GetCppFiles(const ConfigFile& conf, std::set<std::string>& cppFiles);
-  static void GetCppAndHFiles(const ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles);
-  static void GetHFiles(const std::string& dependencyDir, const ConfigFile& conf, std::set<HFile>& hFiles);
+  static void GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles);
+  static void GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles);
+  static void GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::set<HFile>& hFiles);
 
   // Used for parsing xml
   static bool IsWhiteSpace(char c);

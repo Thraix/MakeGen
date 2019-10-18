@@ -42,9 +42,9 @@ ConfigFileConf::ConfigFileConf()
   outputname += ".out";
 }
 
-ConfigFile ConfigFileConf::Load(const std::string& filepath)
+void ConfigFileConf::CreateXMLFile(const std::string& filepath)
 {
-  ConfigFile conf;
+  ConfigFileConf conf;
   conf.configPath = filepath;
   unsigned int loadFlag = 0;
 
@@ -152,13 +152,43 @@ ConfigFile ConfigFileConf::Load(const std::string& filepath)
         }
       }
     }
+
+    LOG_INFO("------ COULDN\'T FIND makegen.xml. BUT FOUND OLD makegen.conf.");
+    LOG_INFO("------ GENERATING NEW CONFIGURATION FILE");
+    if(conf.hFile == "")
+      conf.hFile = conf.projectname+".h";
+
+    XMLObject makegen("makegen", {}, std::map<std::string, std::vector<XMLObject>>{});
+
+    // Version, target and configuration is probably going to be used in the future
+    makegen.AddXMLObject(XMLObject("version", {}, "v1.3.0"));
+    makegen.AddXMLObject(XMLObject("target", {}, "Release"));
+
+    XMLObject configuration("configuration", {{"name", "Release"}}, std::map<std::string, std::vector<XMLObject>>{});
+    configuration.AddXMLObject(XMLObject("projectname", {}, conf.projectname));
+    configuration.AddXMLObject(XMLObject("outputname", {}, conf.outputname));
+    configuration.AddXMLObject(XMLObject("srcdir", {}, conf.srcdir));
+    configuration.AddXMLObject(XMLObject("outputdir", {}, conf.outputdir));
+    configuration.AddXMLObject(XMLObject("hfilename", {}, conf.hFile));
+    configuration.AddXMLObject(XMLObject("outputtype", {}, 
+          conf.executable ? "executable" : (conf.shared ? "sharedlibrary" : "staticlibrary")));
+    configuration.AddXMLObject(XMLObject("generatehfile", {}, conf.generateHFile ? "true" : "false"));
+
+    for(auto it = conf.libs.begin();it != conf.libs.end(); ++it)
+      configuration.AddXMLObject({"library",{},*it});
+    for(auto it = conf.libdirs.begin();it != conf.libdirs.end(); ++it)
+      configuration.AddXMLObject({"librarydir",{},*it});
+    for(auto it = conf.includedirs.begin();it != conf.includedirs.end(); ++it)
+      configuration.AddXMLObject({"includedir",{},*it});
+    for(auto it = conf.defines.begin();it != conf.defines.end(); ++it)
+      configuration.AddXMLObject({"define",{},*it});
+    for(auto it = conf.flags.begin();it != conf.flags.end(); ++it)
+      configuration.AddXMLObject({"cflag",{},*it});
+    for(auto it = conf.dependencies.begin();it != conf.dependencies.end(); ++it)
+      configuration.AddXMLObject({"dependency",{},*it});
+
+    makegen.AddXMLObject(configuration);
+    std::ofstream xmlFile("makegen.xml");
+    xmlFile << makegen;
   }
-  if(conf.hFile == "")
-    conf.hFile = conf.projectname+".h";
-
-  LOG_INFO("------ COULDN\'T FIND makegen.xml. BUT FOUND OLD makegen.conf.");
-  LOG_INFO("------ GENERATING NEW CONFIGURATION FILE");
-
-  conf.Save();
-  return conf;
 }

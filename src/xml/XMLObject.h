@@ -35,7 +35,7 @@ class XMLObject
     const std::string& GetAttribute(const std::string& property, const std::string& defaultValue) const;
 
     unsigned int GetObjectCount() const;
-    const std::vector<XMLObject>& GetObject(const std::string& name, const std::vector<XMLObject>& defaults = {}) const;
+    std::vector<XMLObject>* GetObjectPtr(const std::string& name);
     const std::map<std::string, std::vector<XMLObject>>& GetObjects() const;
     const std::string& GetName() const;
     const std::string& GetText() const;
@@ -45,6 +45,7 @@ class XMLObject
     void SetText(const std::string& text);
     void AddAttribute(const std::string& property, const std::string& value);
     void AddXMLObject(const XMLObject& object);
+    bool RemoveXMLObject(const XMLObject& object);
 
     friend bool operator<(const XMLObject& obj1, const XMLObject& obj2)
     {
@@ -55,6 +56,43 @@ class XMLObject
     friend std::ostream& operator<<(std::ostream& stream, const XMLObject& object)
     {
       return object.WriteToStream(stream);
+    }
+
+    friend bool operator==(const XMLObject& object1, const XMLObject& object2)
+    {
+      if(object1.attributes.size() != object2.attributes.size())
+        return false;
+      if(object1.objects.size() != object2.objects.size())
+        return false;
+      if(object1.name != object2.name)
+        return false;
+      if(object1.GetText() != object2.GetText())
+        return false;
+
+      {
+        auto it1 = object1.attributes.begin();
+        auto it2 = object2.attributes.begin();
+        while(it1 != object1.attributes.end())
+        {
+          if(it1->first != it2->first || it1->second != it1->second)
+            return false;
+          ++it1;
+          ++it2;
+        }
+      }
+
+      {
+        auto it1 = object1.objects.begin();
+        auto it2 = object2.objects.begin();
+        while(it1 != object1.objects.end())
+        {
+          if(it1->second != it2->second)
+            return false;
+          ++it1;
+          ++it2;
+        }
+      }
+      return true;
     }
 
   private:

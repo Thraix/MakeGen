@@ -28,9 +28,9 @@ const static unsigned int FLAG_SIMPLE = BIT(9);
 const static unsigned int FLAG_CONFIG = BIT(10);
 
 
-#define LOG_INFO(...) Log(__VA_ARGS__); std::cout << std::endl
-#define LOG_WARNING(...) Log(__VA_ARGS__); std::cout << std::endl
-#define LOG_ERROR(...) Log(__VA_ARGS__); std::cout << std::endl
+#define LOG_INFO(...) LogHelper(__VA_ARGS__)
+#define LOG_WARNING(...) LogHelper(__VA_ARGS__)
+#define LOG_ERROR(...) LogHelper(__VA_ARGS__)
 
 template <typename T>
 void Log(const T& var)
@@ -43,4 +43,19 @@ void Log(const T& var, const Ts& ...vars)
 {
   Log(var);
   Log(vars...);
+}
+
+template <typename T, typename ...Ts>
+void LogHelper(const T& var)
+{
+  Log(var);
+  std::cout << std::endl;
+}
+
+template <typename T, typename ...Ts>
+void LogHelper(const T& var, const Ts& ...vars)
+{
+  Log(var);
+  Log(vars...);
+  std::cout << std::endl;
 }

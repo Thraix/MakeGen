@@ -47,9 +47,9 @@ Usage: makegen [options]
     clean all install run, rebuild will be translated to \"clean make\")");
 }
 
-void GenMakefile(const ConfigFile& conf, unsigned int flags)
+void GenMakefile(ConfigFile& conf, unsigned int flags)
 {
-  if(conf.generateHFile)
+  if(conf.GetSettingBool(ConfigSetting::GenerateHFile))
     HFileGen::Create(conf);
   Makefile::Save(conf, flags);
 }
@@ -115,7 +115,7 @@ unsigned int ReadFlags(int argc, char** argv)
   return flags;
 }
 
-bool RunMake(const std::string& filepath, unsigned int flags, const ConfigFile& conf)
+bool RunMake(const std::string& filepath, unsigned int flags, ConfigFile& conf)
 {
   std::string make = "make --no-print-directory -C " + filepath;
   if(!(flags & FLAG_SINGLE_THREAD))
@@ -132,33 +132,37 @@ bool RunMake(const std::string& filepath, unsigned int flags, const ConfigFile& 
   {
     RETURN_IF(system(std::string(make + " install").c_str()) != 0, false);
   }
-  if(flags & FLAG_RUN && conf.executable)
+  if(flags & FLAG_RUN && conf.GetSettingString(ConfigSetting::OutputType) == "executable")
   {
     RETURN_IF(system(std::string(make + " run").c_str()) != 0, false);
   }
   return true;
 }
 
-bool MakeGen(const std::string& filepath, unsigned int flags, const ConfigFile& conf)
+bool MakeGen(const std::string& filepath, unsigned int flags, ConfigFile& conf)
 {
-  for(size_t i = 0;i<conf.dependencies.size();++i)
+  std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
+  for(size_t i = 0;i<dependencies.size();++i)
   {
-    bool success = MakeGen(conf.dependencies[i], flags, conf.dependencyConfigs[i]);
+    bool success = MakeGen(dependencies[i], flags, conf.GetDependencyConfig(i));
     if(!success)
       return success;
   }
   LOG_INFO("-----------------------------------");
-  LOG_INFO("Building ", conf.projectname);
+  LOG_INFO("Building ", conf.GetSettingString(ConfigSetting::ProjectName));
   LOG_INFO("Generating Makefile...");
   Timer timer;
   GenMakefile(conf, flags);
   LOG_INFO("Took ", round(timer.Elapsed()*1000.0)/1000.0,"s");
   LOG_INFO("Running Makefile...");
 
-  if(!FileUtils::HasPath(conf.configPath + conf.outputdir))
+  std::string outputPath = conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::OutputDir);
+  if(!FileUtils::HasPath(outputPath))
   {
-    FileUtils::CreateDirectory(conf.configPath + conf.outputdir);
-    FileUtils::CreateDirectory(conf.configPath + conf.outputdir + "intermediates");
+    FileUtils::CreateDirectory(outputPath);
+    std::string intermediatePath = outputPath + "intermediates";
+    if(!FileUtils::HasPath(intermediatePath ))
+      FileUtils::CreateDirectory(intermediatePath );
   }
   return RunMake(filepath, flags, conf);
 }
@@ -189,6 +193,6 @@ int main(int argc, char** argv)
   }
   else
   {
-    LOG_ERROR("No ", CONFIG_FILENAME, " or Makefile found.");
+    LOG_ERROR("Couldn\'t load config file");
   }
 }

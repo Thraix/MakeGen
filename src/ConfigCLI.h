@@ -14,9 +14,7 @@ struct ConfigCLI
     static void DisplaySetHelp();
     static void DisplayGetHelp();
 
-    static std::map<std::string, std::vector<std::string>*> GetSettingVectorMap(ConfigFile& config); 
-    static std::map<std::string, std::string*> GetSettingStringMap(ConfigFile& config); 
-    static std::map<std::string, bool*> GetSettingBoolMap(ConfigFile& config); 
+    static ConfigSetting CLIStringToSetting(const std::string& s);
 
     static int Gen(int argc, char** argv);
     static int Add(int argc, char** argv, ConfigFile& config);

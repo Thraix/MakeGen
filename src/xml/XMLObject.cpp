@@ -66,13 +66,13 @@ unsigned int XMLObject::GetObjectCount() const
   return objects.size();
 }
 
-const std::vector<XMLObject>& XMLObject::GetObject(const std::string& name, const std::vector<XMLObject>& defaults) const
+std::vector<XMLObject>* XMLObject::GetObjectPtr(const std::string& name)
 {
   auto it = objects.find(name);
   if(it == objects.end())
-    return defaults;
+    return nullptr;
 
-  return it->second;
+  return &it->second;
 }
 
 const std::map<std::string, std::vector<XMLObject>>& XMLObject::GetObjects() const
@@ -110,6 +110,7 @@ void XMLObject::AddAttribute(const std::string& property, const std::string& val
   else
     LOG_ERROR("XML property name can only be made up of letters");
 }
+
 void XMLObject::AddXMLObject(const XMLObject& object)
 {
   auto it = objects.find(object.name);
@@ -117,6 +118,26 @@ void XMLObject::AddXMLObject(const XMLObject& object)
     objects.emplace(object.name, std::vector<XMLObject>{object});
   else
     it->second.push_back(object);
+}
+
+bool XMLObject::RemoveXMLObject(const XMLObject& object)
+{
+  auto it = objects.find(object.name);
+  if(it == objects.end())
+    return false;
+
+  bool removed = false;
+  for(auto it2 = it->second.begin(); it2 != it->second.end();)
+  {
+    if(*it2 == object)
+    {
+      it2 = it->second.erase(it2);
+      removed = true;
+    }
+    else 
+      ++it2;
+  }
+  return removed;
 }
 
 XMLObject XMLObject::GetStrippedXMLObject() const
@@ -374,7 +395,7 @@ std::ostream& XMLObject::WriteToStream(std::ostream& stream, int indent) const
       stream << "\n";
       for(int i = 0;i<indent;i++)
       {
-        stream << "\t";
+        stream << "  ";
       }
     }
   }
