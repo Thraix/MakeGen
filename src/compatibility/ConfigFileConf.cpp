@@ -188,7 +188,7 @@ void ConfigFileConf::CreateXMLFile(const std::string& filepath)
       configuration.AddXMLObject({"dependency",{},*it});
 
     makegen.AddXMLObject(configuration);
-    std::ofstream xmlFile("makegen.xml");
+    std::ofstream xmlFile(conf.configPath + "makegen.xml");
     xmlFile << makegen;
   }
 }
