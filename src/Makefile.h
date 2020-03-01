@@ -5,5 +5,5 @@
 class Makefile
 {
   public:
-    static void Save(const ConfigFile& conf, unsigned int flags);
+    static void Save(ConfigFile& conf, unsigned int flags);
 };

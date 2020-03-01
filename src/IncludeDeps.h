@@ -32,7 +32,7 @@ class IncludeDeps
       printCounter++; 
       printSet.emplace(filepath);
       if(!projectHFile)
-        stream << FileUtils::GetRelativePath(conf.configPath, filepath);
+        stream << FileUtils::GetRelativePath(conf.GetConfigPath(), filepath);
       for(auto it = dependencies.begin();it!=dependencies.end();++it)
       {
         stream << " ";

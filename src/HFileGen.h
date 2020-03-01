@@ -5,5 +5,5 @@
 class HFileGen 
 {
   public:
-    static void Create(const ConfigFile& conf);
+    static void Create(ConfigFile& conf);
 };
