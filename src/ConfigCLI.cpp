@@ -17,10 +17,9 @@ Generating config files
 
 Modifying config settings
   add           Add values to config settings which support multiple arguments
-  remove        Remove values to config settings which support multiple
+  remove        Remove values from config settings which support multiple
                  arguments
   set           Set value to config settings which support only one argument
-
 
 Querying config settings
   get             Get value of the config setting)");
@@ -52,7 +51,8 @@ Valid settings are:
   librarydir    Library directory
   includedir    Include directory
   define        Preprocessor define
-  cflag         g++ compiler flags
+  cflag         g++ compiler flag
+  lflag         g++ linking flag
   dependency    Project which current project depends on)");
 }
 
@@ -68,7 +68,8 @@ Valid settings are
   librarydir    Library directory
   includedir    Include directory
   define        Preprocessor define
-  cflag         g++ compiler flags
+  cflag         g++ compiler flag
+  lflag         g++ linking flag
   dependency    Project which current project depends on)");
 }
 
@@ -105,7 +106,8 @@ Valid settings are:
   librarydir    Library directory
   includedir    Include directory
   define        Preprocessor define
-  cflag         g++ compiler flags
+  cflag         g++ compiler flag
+  lflag         g++ linking flag
   dependency    Project which current project depends on
   outputdir     Directory of the compiled output
   outputname    Name of the output executable/library
@@ -131,6 +133,7 @@ ConfigSetting ConfigCLI::CLIStringToSetting(const std::string& s)
     {"includedir", ConfigSetting::IncludeDir},
     {"define", ConfigSetting::Define},
     {"cflag", ConfigSetting::CFlag},
+    {"lflag", ConfigSetting::LFlag},
     {"dependency", ConfigSetting::Dependency},
     {"genhfile", ConfigSetting::GenerateHFile},
   };

@@ -77,7 +77,12 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
       outputFile << "-L./" << *it << " ";
     }
     outputFile << std::endl;
+    std::vector<std::string>& lflags = conf.GetSettingVectorString(ConfigSetting::LFlag);
     outputFile << "LDFLAGS=";
+    for(auto it = lflags.begin(); it != lflags.end(); ++it)
+    {
+      outputFile << *it << " ";
+    }
     for(auto it = libdirs.begin(); it != libdirs.end(); ++it)
     {
       outputFile << "-Wl,-rpath=" << *it << " ";

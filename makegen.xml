@@ -7,7 +7,7 @@
     <outputtype>executable</outputtype>
     <projectname>MakeGen</projectname>
     <srcdir>src/</srcdir>
-	</configuration>
+  </configuration>
   <configuration name="Debug">
     <define>_DEBUG</define>
     <generatehfile>false</generatehfile>
@@ -17,6 +17,7 @@
     <outputtype>executable</outputtype>
     <projectname>MakeGen</projectname>
     <srcdir>src/</srcdir>
-	</configuration>
-  <version>v1.3.0</version>
+  </configuration>
+  <target>Release</target>
+  <version>v1.3.1</version>
 </makegen>

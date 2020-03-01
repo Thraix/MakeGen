@@ -18,7 +18,7 @@ struct ConfigCache
 enum class ConfigSetting
 {
   // vectors
-  Library = 0, LibraryDir = 1, IncludeDir = 2, Define = 3, CFlag = 4, Dependency = 5,
+  Library = 0, LibraryDir = 1, IncludeDir = 2, Define = 3, Dependency = 4, CFlag = 5, LFlag = 6,
   // Strings
   SourceDir = 32, OutputDir = 33, OutputName = 34, OutputType = 35, ProjectName = 36, HFileName = 37,
   // Bools
@@ -57,6 +57,8 @@ struct ConfigUtils
         return "define";
       case ConfigSetting::CFlag:
         return "cflag";
+      case ConfigSetting::LFlag:
+        return "lflag";
       case ConfigSetting::GenerateHFile:
         return "generatehfile";
       case ConfigSetting::Invalid:
@@ -66,7 +68,6 @@ struct ConfigUtils
 
   static bool IsDirectory(ConfigSetting setting)
   {
-    // Library, LibraryDir, IncludeDir, Define, CFlag, Dependency,
     switch(setting)
     {
       case ConfigSetting::SourceDir:
@@ -82,6 +83,7 @@ struct ConfigUtils
       case ConfigSetting::Library:
       case ConfigSetting::Define:
       case ConfigSetting::CFlag:
+      case ConfigSetting::LFlag:
       case ConfigSetting::GenerateHFile:
         return false;
       default:
@@ -107,6 +109,7 @@ struct ConfigUtils
       case ConfigSetting::Library:
       case ConfigSetting::Define:
       case ConfigSetting::CFlag:
+      case ConfigSetting::LFlag:
       case ConfigSetting::GenerateHFile:
       case ConfigSetting::Invalid:
         return false;
@@ -123,6 +126,7 @@ struct ConfigUtils
       case ConfigSetting::Library:
       case ConfigSetting::Define:
       case ConfigSetting::CFlag:
+      case ConfigSetting::LFlag:
         return true;
       case ConfigSetting::SourceDir:
       case ConfigSetting::OutputDir:
@@ -153,6 +157,7 @@ struct ConfigUtils
       case ConfigSetting::Library:
       case ConfigSetting::Define:
       case ConfigSetting::CFlag:
+      case ConfigSetting::LFlag:
       case ConfigSetting::Invalid:
         return false;
     }
