@@ -26,7 +26,10 @@ Then navigate into the MakeGen folder (`cd MakeGen`) and run:
     sudo make install
 
 This will install MakeGen into `/usr/bin/makegen`.
+
 If you want it to be installed in another place just run `make` and copy the file to where you want it.
+
+**NOTE**: If you are installing from the latest commit, debug flags might be enabled for the project. As such, MakeGen can run slightly slower. To resolve this edit the Makefile and remove `-D_DEBUG -g3 -w` from the `CFLAGS` variable. This should not be a problem in released versions after version `1.3.0`.
 
 ## Usage
 ### Config file
