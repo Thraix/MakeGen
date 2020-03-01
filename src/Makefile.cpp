@@ -51,11 +51,11 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   outputFile << std::endl;
   if(outputtype == "executable" || outputtype != "sharedlibrary")
   {
-    outputFile << "CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 ";
+    outputFile << "CFLAGS=$(INCLUDES) -std=c++17 -c ";
   }
   else
   {
-    outputFile << "CFLAGS=$(INCLUDES) -fPIC -std=c++17 -c -w -g3 ";
+    outputFile << "CFLAGS=$(INCLUDES) -fPIC -std=c++17 -c ";
   }
   std::vector<std::string>& defines = conf.GetSettingVectorString(ConfigSetting::Define);
   for(auto it = defines.begin(); it != defines.end(); ++it)

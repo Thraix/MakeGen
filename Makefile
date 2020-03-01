@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.3.2 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.3.3 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -8,7 +8,7 @@ BIN=bin/
 OBJPATH=$(BIN)intermediates
 INCLUDES=
 OBJECTS=$(OBJPATH)/ConfigCLI.o $(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/Utils.o $(OBJPATH)/ConfigFileConf.o $(OBJPATH)/main.o $(OBJPATH)/XML.o $(OBJPATH)/XMLObject.o 
-CFLAGS=$(INCLUDES) -std=c++17 -c -w -g3 
+CFLAGS=$(INCLUDES) -std=c++17 -c -D_DEBUG -g3 -w 
 LIBDIR=
 LDFLAGS=
 LIBS=$(LIBDIR) 
