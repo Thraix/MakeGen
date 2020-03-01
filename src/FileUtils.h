@@ -59,14 +59,22 @@ struct FileUtils
   static std::string GetRealPath(const std::string& filename)
   {
 #if defined(__linux__)
-    char* path = realpath(filename.c_str(), NULL);
-    std::string sPath = path;
-    sPath+="/";
-    free(path);
-    return sPath;
+    if(access(filename.c_str(), F_OK ) != -1)
+    {
+      char* path = realpath(filename.c_str(), NULL);
+      std::string sPath = path;
+      sPath+="/";
+      free(path);
+      return sPath;
+    }
+    else
+    {
+      LOG_ERROR("Directory doesn't exist: ", filename);
+      return "";
+    }
 #endif
     LOG_ERROR("GetRealPath not supported");
-    return filename;
+    return "";
   }
 
   static std::string GetRelativePath(std::string from, std::string to)

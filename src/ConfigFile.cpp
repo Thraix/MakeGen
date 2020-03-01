@@ -333,6 +333,8 @@ std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath)
 std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath, std::map<std::string, ConfigFile>& loadedConfigs)
 {
   std::string realPath = FileUtils::GetRealPath(filepath);
+  if(realPath == "")
+    return {};
   auto it = loadedConfigs.find(realPath);
   if(it != loadedConfigs.end())
   {
@@ -471,7 +473,7 @@ ConfigFile ConfigFile::Gen()
   configuration.AddXMLObject(XMLObject("srcdir", {}, srcdir));
   configuration.AddXMLObject(XMLObject("outputdir", {}, outputdir));
   configuration.AddXMLObject(XMLObject("hfilename", {}, hFile));
-  configuration.AddXMLObject(XMLObject("outputtype", {}, 
+  configuration.AddXMLObject(XMLObject("outputtype", {},
         executable ? "executable" : (shared ? "sharedlibrary" : "staticlibrary")));
   configuration.AddXMLObject(XMLObject("generatehfile", {}, generateHFile ? "true" : "false"));
 
@@ -489,7 +491,7 @@ ConfigFile ConfigFile::Gen()
     configuration.AddXMLObject({"dependency",{},*it});
 
   makegen.AddXMLObject(configuration);
-  return ConfigFile{makegen, FileUtils::GetRealPath("./")};
+  return ConfigFile{makegen, FileUtils::GetRealPath(".")};
 }
 
 void ConfigFile::Save() const

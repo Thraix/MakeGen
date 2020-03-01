@@ -12,7 +12,7 @@
 // Release, should be backwards compatible with any minor version
 #define MAKEGEN_VERSION_RELEASE 3
 // Minor changes, generally bug fixes
-#define MAKEGEN_VERSION_MINOR 1
+#define MAKEGEN_VERSION_MINOR 2
 
 #define MAKEGEN_VERSION ("v" STR(MAKEGEN_VERSION_MAJOR) "." STR(MAKEGEN_VERSION_RELEASE) "." STR(MAKEGEN_VERSION_MINOR))
 
