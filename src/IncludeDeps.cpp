@@ -12,7 +12,7 @@ IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, co
 IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, bool projectHFile, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
   : filepath(dir+filename), projectHFile{projectHFile}
 {
-  if(filename[filename.length() - 1] =='h')
+  if(Utils::IsHeaderFile(filename))
   {
     allDeps.emplace(filepath, this);
   }

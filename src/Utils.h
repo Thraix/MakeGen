@@ -26,6 +26,8 @@ class ConfigFile;
 
 struct Utils
 {
+  static bool IsSourceFile(const std::string& filepath);
+  static bool IsHeaderFile(const std::string& filepath);
   static std::string CommonPrefix(const std::string& s1, const std::string& s2);
   static void GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles);
   static void GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles);

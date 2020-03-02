@@ -3,6 +3,34 @@
 #include "ConfigFile.h"
 #include "FileUtils.h"
 
+bool Utils::IsSourceFile(const std::string& filepath)
+{
+  std::string_view extension(filepath);
+  size_t pSlash = filepath.find_last_of('/');
+  size_t pDot = filepath.find_last_of('.');
+  if(pDot == std::string::npos || (pSlash != std::string::npos && pSlash > pDot))
+  {
+    LOG_ERROR("No file extension for file: ", filepath);
+    return false;
+  }
+  extension.remove_prefix(pDot + 1);
+  return extension == "cpp" || extension == "c" || extension == "cxx" || extension == "cc";
+}
+
+bool Utils::IsHeaderFile(const std::string& filepath)
+{
+  std::string_view extension(filepath);
+  size_t pSlash = filepath.find_last_of('/');
+  size_t pDot = filepath.find_last_of('.');
+  if(pDot == std::string::npos || (pSlash != std::string::npos && pSlash > pDot))
+  {
+    LOG_ERROR("No file extension for file: ", filepath);
+    return false;
+  }
+  extension.remove_prefix(pDot + 1);
+  return extension == "hpp" || extension == "h" || extension == "hxx";
+}
+
 std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
 {
   size_t n = 0;
@@ -26,19 +54,14 @@ void Utils::GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
 
   for(auto it = files.begin(); it!=files.end();++it)
   {
-    size_t extensionPos = it->find_last_of(".");
-    if(extensionPos != std::string::npos)
+    std::string filename = it->substr(path.length());
+    if(IsSourceFile(filename))
     {
-      std::string extension = it->substr(extensionPos+1);
-      std::string filename = it->substr(path.length());
-      if(extension == "cpp" || extension == "c")
+      std::string sourceFile =conf.GetSettingString(ConfigSetting::SourceDir) + filename;
+      auto it = std::find(excludeSources.begin(), excludeSources.end(), sourceFile);
+      if(it == excludeSources.end())
       {
-        std::string sourceFile =conf.GetSettingString(ConfigSetting::SourceDir) + filename;
-        auto it = std::find(excludeSources.begin(), excludeSources.end(), sourceFile);
-        if(it == excludeSources.end())
-        {
-          cppFiles.emplace(filename);
-        }
+        cppFiles.emplace(filename);
       }
     }
   }
@@ -54,26 +77,19 @@ void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<
   // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder
   for(auto it = files.begin(); it!=files.end();++it)
   {
-    size_t extensionPos = it->find_last_of(".");
-    if(extensionPos != std::string::npos)
+    std::string filename = it->substr(path.length());
+    if(IsSourceFile(filename))
     {
-      std::string extension = it->substr(extensionPos+1);
-      std::string filename = it->substr(path.length());
-      if(extension == "cpp" || extension == "c")
+      std::string sourceFile =conf.GetSettingString(ConfigSetting::SourceDir) + filename;
+      auto it = std::find(excludeSources.begin(), excludeSources.end(), sourceFile);
+      if(it == excludeSources.end())
       {
-        std::string sourceFile =conf.GetSettingString(ConfigSetting::SourceDir) + filename;
-        auto it = std::find(excludeSources.begin(), excludeSources.end(), sourceFile);
-        if(it == excludeSources.end())
-        {
-          cppFiles.emplace(filename);
-        }
-        else
-          LOG_INFO("Excluding: ", sourceFile);
+        cppFiles.emplace(filename);
       }
-      else if(extension == "hpp" || extension == "h")
-      {
-        hFiles.emplace(HFile{filename,path,false});
-      }
+    }
+    else if(IsHeaderFile(filename))
+    {
+      hFiles.emplace(HFile{filename,path,false});
     }
   }
 
@@ -100,15 +116,10 @@ void Utils::GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::s
   FileUtils::GetAllFiles(depSrcDir, files);
   for(auto it = files.begin(); it!=files.end();++it)
   {
-    size_t extensionPos = it->find_last_of(".");
-    if(extensionPos != std::string::npos)
+    if(IsHeaderFile(*it))
     {
-      std::string extension = it->substr(extensionPos+1);
-      if(extension == "hpp" || extension == "h")
-      {
-        std::string filename = it->substr(depSrcDir.length());
-        hFiles.emplace(HFile{filename, depSrcDir, conf.GetSettingBool(ConfigSetting::GenerateHFile) && filename == conf.GetSettingString(ConfigSetting::HFileName)});
-      }
+      std::string filename = it->substr(depSrcDir.length());
+      hFiles.emplace(HFile{filename, depSrcDir, conf.GetSettingBool(ConfigSetting::GenerateHFile) && filename == conf.GetSettingString(ConfigSetting::HFileName)});
     }
   }
 }
