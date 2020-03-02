@@ -429,7 +429,7 @@ void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::st
 ConfigFile ConfigFile::Gen()
 {
   bool executable, shared, generateHFile;
-  std::vector<std::string> libs, libdirs, includedirs, defines, compileFlags, dependencies;
+  std::vector<std::string> libs, libdirs, includedirs, defines, compileFlags, linkingFlags, dependencies, excludeSources, excludeHeaders;
   std::string srcdir, outputdir, projectname, outputname, hFile;
 
   InputBoolean("Should it be compiled as an executable? (y/n)", executable);
@@ -453,6 +453,9 @@ ConfigFile ConfigFile::Gen()
   InputString("Enter source directories:", srcdir, true, false);
   InputMultiple("Enter preprocessor definitions:", defines, false);
   InputMultiple("Enter compile flags:", compileFlags, false);
+  InputMultiple("Enter linking flags:", linkingFlags, false);
+  InputMultiple("Enter excluded source files flags:", excludeSources, false);
+  InputMultiple("Enter excluded header files flags:", excludeHeaders, false);
   InputString("Enter output directory (default: bin):", outputdir, true, true);
   if(outputdir == "")
     outputdir = "bin/";
