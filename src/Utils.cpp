@@ -22,6 +22,7 @@ void Utils::GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
   std::vector<std::string> files;
   std::string path = conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::SourceDir);
   FileUtils::GetAllFiles(path, files);
+  const std::vector<std::string>& excludeSources = conf.GetSettingVectorString(ConfigSetting::ExcludeSource);
 
   for(auto it = files.begin(); it!=files.end();++it)
   {
@@ -32,7 +33,12 @@ void Utils::GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
       std::string filename = it->substr(path.length());
       if(extension == "cpp" || extension == "c")
       {
-        cppFiles.emplace(filename);
+        std::string sourceFile =conf.GetSettingString(ConfigSetting::SourceDir) + filename;
+        auto it = std::find(excludeSources.begin(), excludeSources.end(), sourceFile);
+        if(it == excludeSources.end())
+        {
+          cppFiles.emplace(filename);
+        }
       }
     }
   }
@@ -43,8 +49,9 @@ void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<
   std::vector<std::string> files;
   std::string path = conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::SourceDir);
   FileUtils::GetAllFiles(path,files);
+  const std::vector<std::string>& excludeSources = conf.GetSettingVectorString(ConfigSetting::ExcludeSource);
   // include paramenter with the path of the file
-  // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder 
+  // For example src/graphics/Window.h -> graphics/Window.h if src is a src folder
   for(auto it = files.begin(); it!=files.end();++it)
   {
     size_t extensionPos = it->find_last_of(".");
@@ -54,7 +61,14 @@ void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<
       std::string filename = it->substr(path.length());
       if(extension == "cpp" || extension == "c")
       {
-        cppFiles.emplace(filename);
+        std::string sourceFile =conf.GetSettingString(ConfigSetting::SourceDir) + filename;
+        auto it = std::find(excludeSources.begin(), excludeSources.end(), sourceFile);
+        if(it == excludeSources.end())
+        {
+          cppFiles.emplace(filename);
+        }
+        else
+          LOG_INFO("Excluding: ", sourceFile);
       }
       else if(extension == "hpp" || extension == "h")
       {

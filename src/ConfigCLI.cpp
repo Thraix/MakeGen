@@ -13,16 +13,16 @@ MakeGen conf is used to create, modify and query the makegen.xml file.
 Usage: makegen conf <command> [<args>] [--help]
 
 Generating config files
-  gen             Prompt the user to enter information to create config
+  gen            Prompt the user to enter information to create config
 
 Modifying config settings
-  add           Add values to config settings which support multiple arguments
-  remove        Remove values from config settings which support multiple
-                 arguments
-  set           Set value to config settings which support only one argument
+  add            Add values to config settings which support multiple arguments
+  remove         Remove values from config settings which support multiple
+                  arguments
+  set            Set value to config settings which support only one argument
 
 Querying config settings
-  get             Get value of the config setting)");
+  get            Get value of the config setting)");
 }
 
 void ConfigCLI::DisplayGenHelp()
@@ -33,10 +33,10 @@ Generate a config file from prompts
 Usage: makegen conf gen <option>
 
 options:
-  prompt        Prompt the user for all needed settings
-  default       Generate a default config file. Source directory is set to
-                 src/, outputdir is set to bin/ and project name is set to
-                 the current directory name.)");
+  prompt         Prompt the user for all needed settings
+  default        Generate a default config file. Source directory is set to
+                  src/, outputdir is set to bin/ and project name is set to
+                  the current directory name.)");
 }
 
 void ConfigCLI::DisplayAddHelp()
@@ -47,13 +47,15 @@ Add values to config settings which support multiple arguments
 Usage: makegen conf add <setting> <value> [<values>]
 
 Valid settings are:
-  library       Library
-  librarydir    Library directory
-  includedir    Include directory
-  define        Preprocessor define
-  cflag         g++ compiler flag
-  lflag         g++ linking flag
-  dependency    Project which current project depends on)");
+  library        Library
+  librarydir     Library directory
+  includedir     Include directory
+  define         Preprocessor define
+  cflag          g++ compiler flag
+  lflag          g++ linking flag
+  dependency     Project which current project depends on
+  excludesource  Exclude source file from compiling
+  excludeheader  Exclude header file from project h-file)");
 }
 
 void ConfigCLI::DisplayRemoveHelp()
@@ -64,13 +66,15 @@ Remove values to config settings which support multiple
 Usage: makegen conf remove <setting> <value> [<
 
 Valid settings are
-  library       Library name
-  librarydir    Library directory
-  includedir    Include directory
-  define        Preprocessor define
-  cflag         g++ compiler flag
-  lflag         g++ linking flag
-  dependency    Project which current project depends on)");
+  library        Library name
+  librarydir     Library directory
+  includedir     Include directory
+  define         Preprocessor define
+  cflag          g++ compiler flag
+  lflag          g++ linking flag
+  dependency     Project which current project depends on
+  excludesource  Exclude source file from compiling
+  excludeheader  Exclude header file from project h-file)");
 }
 
 void ConfigCLI::DisplaySetHelp()
@@ -108,7 +112,9 @@ Valid settings are:
   define        Preprocessor define
   cflag         g++ compiler flag
   lflag         g++ linking flag
-  dependency    Project which current project depends on
+  dependency     Project which current project depends on
+  excludesource  Exclude source file from compiling
+  excludeheader  Exclude header file from project h-file
   outputdir     Directory of the compiled output
   outputname    Name of the output executable/library
   outputtype    Type of the output, valid values are executable, sharedlibrary
@@ -134,6 +140,8 @@ ConfigSetting ConfigCLI::CLIStringToSetting(const std::string& s)
     {"define", ConfigSetting::Define},
     {"cflag", ConfigSetting::CFlag},
     {"lflag", ConfigSetting::LFlag},
+    {"excludesource", ConfigSetting::ExcludeSource},
+    {"excludeheader", ConfigSetting::ExcludeHeader},
     {"dependency", ConfigSetting::Dependency},
     {"genhfile", ConfigSetting::GenerateHFile},
   };

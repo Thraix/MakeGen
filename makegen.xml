@@ -1,7 +1,6 @@
 <makegen>
   <configuration name="Release">
     <generatehfile>false</generatehfile>
-    <hfilename>MakeGen.h</hfilename>
     <outputdir>bin/</outputdir>
     <outputname>makegen</outputname>
     <outputtype>executable</outputtype>
@@ -13,7 +12,6 @@
     <cflag>-g3</cflag>
     <cflag>-w</cflag>
     <generatehfile>false</generatehfile>
-    <hfilename>MakeGen.h</hfilename>
     <outputdir>bin/</outputdir>
     <outputname>makegen</outputname>
     <outputtype>executable</outputtype>

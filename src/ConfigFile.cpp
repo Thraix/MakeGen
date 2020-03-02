@@ -316,7 +316,7 @@ XMLObject& ConfigFile::GetConfiguration()
 
 const std::string& ConfigFile::GetConfigPath() const
 {
-  return configPath;;
+  return configPath;
 }
 
 ConfigFile& ConfigFile::GetDependencyConfig(size_t i)
