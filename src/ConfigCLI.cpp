@@ -55,7 +55,9 @@ Valid settings are:
   lflag          g++ linking flag
   dependency     Project which current project depends on
   excludesource  Exclude source file from compiling
-  excludeheader  Exclude header file from project h-file)");
+  excludeheader  Exclude header file from project h-file
+  argument       Command line argument  for the executable
+  preargument    Command line argument  before the executabe, e.g. gdb)");
 }
 
 void ConfigCLI::DisplayRemoveHelp()
@@ -74,7 +76,9 @@ Valid settings are
   lflag          g++ linking flag
   dependency     Project which current project depends on
   excludesource  Exclude source file from compiling
-  excludeheader  Exclude header file from project h-file)");
+  excludeheader  Exclude header file from project h-file
+  argument       Command line argument  for the executable
+  preargument    Command line argument  before the executabe, e.g. gdb)");
 }
 
 void ConfigCLI::DisplaySetHelp()
@@ -115,6 +119,8 @@ Valid settings are:
   dependency     Project which current project depends on
   excludesource  Exclude source file from compiling
   excludeheader  Exclude header file from project h-file
+  argument       Command line argument  for the executable
+  preargument    Command line argument  before the executabe, e.g. gdb
   outputdir     Directory of the compiled output
   outputname    Name of the output executable/library
   outputtype    Type of the output, valid values are executable, sharedlibrary
@@ -142,6 +148,8 @@ ConfigSetting ConfigCLI::CLIStringToSetting(const std::string& s)
     {"lflag", ConfigSetting::LFlag},
     {"excludesource", ConfigSetting::ExcludeSource},
     {"excludeheader", ConfigSetting::ExcludeHeader},
+    {"preargument", ConfigSetting::ExecPreArgument},
+    {"argument", ConfigSetting::ExecArgument},
     {"dependency", ConfigSetting::Dependency},
     {"genhfile", ConfigSetting::GenerateHFile},
   };

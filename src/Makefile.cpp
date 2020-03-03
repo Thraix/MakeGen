@@ -128,7 +128,16 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   outputFile << "run: all" << std::endl;
   if(outputtype == "executable")
   {
-    outputFile << "\t@./$(OUTPUT)" << std::endl;
+    std::vector<std::string>& prearguments = conf.GetSettingVectorString(ConfigSetting::ExecPreArgument);
+    std::vector<std::string>& arguments = conf.GetSettingVectorString(ConfigSetting::ExecArgument);
+
+    outputFile << "\t@";
+    for(auto&& preargument : prearguments)
+      outputFile << preargument << " ";
+    outputFile << "./$(OUTPUT)";
+    for(auto&& argument : arguments)
+      outputFile << " " << argument;
+    outputFile << std::endl;
   }
 
   // Rebuild

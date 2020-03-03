@@ -15,8 +15,8 @@
 
 void PrintHelp()
 {
+  LOG_INFO("MakeGen ", MAKEGEN_VERSION);
   LOG_INFO(1+(char*)R"(
-MakeGen ", MAKEGEN_VERSIO
 
 MakeGen is a utility tool to generate and run Makefiles in a simple manner.
 By default it always compiles code with parallell jobs.

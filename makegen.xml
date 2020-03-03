@@ -8,9 +8,9 @@
     <srcdir>src/</srcdir>
   </configuration>
   <configuration name="Debug">
-    <define>_DEBUG</define>
     <cflag>-g3</cflag>
     <cflag>-w</cflag>
+    <define>_DEBUG</define>
     <generatehfile>false</generatehfile>
     <outputdir>bin/</outputdir>
     <outputname>makegen</outputname>
