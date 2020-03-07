@@ -72,6 +72,7 @@ struct ConfigUtils
       case ConfigSetting::Invalid:
         return "invalid";
     }
+    return "";
   }
 
   static bool IsDirectory(ConfigSetting setting)
@@ -97,11 +98,10 @@ struct ConfigUtils
       case ConfigSetting::ExecPreArgument:
       case ConfigSetting::ExecArgument:
       case ConfigSetting::GenerateHFile:
+      case ConfigSetting::Invalid:
         return false;
-      default:
-        LOG_ERROR("INVALID ENUM: ", (int)setting);
-        assert(false);
     }
+    return false;
   }
 
   static bool IsStringSetting(ConfigSetting setting)
@@ -130,6 +130,7 @@ struct ConfigUtils
       case ConfigSetting::Invalid:
         return false;
     }
+    return false;
   }
 
   static bool IsVectorSetting(ConfigSetting setting)
@@ -158,6 +159,7 @@ struct ConfigUtils
       case ConfigSetting::Invalid:
         return false;
     }
+    return false;
   }
   static bool IsBoolSetting(ConfigSetting setting)
   {
@@ -185,6 +187,7 @@ struct ConfigUtils
       case ConfigSetting::Invalid:
         return false;
     }
+    return false;
   }
 
   static std::string GetDefaultSettingString(ConfigSetting setting, const std::string& path)
@@ -209,6 +212,7 @@ struct ConfigUtils
         LOG_ERROR("INVALID STRING ENUM: ", (int)setting);
         assert(false);
     }
+    return "";
   }
 
   static bool GetDefaultSettingBool(ConfigSetting setting)

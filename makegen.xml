@@ -18,6 +18,6 @@
     <projectname>MakeGen</projectname>
     <srcdir>src/</srcdir>
   </configuration>
-  <target>Debug</target>
+  <target>Release</target>
   <version>v1.3.0</version>
 </makegen>
