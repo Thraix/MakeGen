@@ -38,7 +38,7 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   std::vector<std::string>& includedirs = conf.GetSettingVectorString(ConfigSetting::IncludeDir);
   for(auto it = includedirs.begin(); it != includedirs.end(); ++it)
   {
-    outputFile << "-I./" << *it << " ";
+    outputFile << "-I " << *it << " ";
   }
   outputFile << std::endl;
   outputFile << "OBJECTS=";
@@ -74,7 +74,7 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
     outputFile << "LIBDIR=";
     for(auto it = libdirs.begin();it!=libdirs.end();++it)
     {
-      outputFile << "-L./" << *it << " ";
+      outputFile << "-L " << *it << " ";
     }
     outputFile << std::endl;
     std::vector<std::string>& lflags = conf.GetSettingVectorString(ConfigSetting::LFlag);
