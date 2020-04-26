@@ -23,7 +23,7 @@ IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, bo
     size_t pos = line.find("#include");
     if(pos != std::string::npos)
     {
-      std::string include = GetIncludeFile(line, pos, filename);
+      std::string include = FileUtils::CollapseDirectory(GetIncludeFile(line, pos, filename));
       auto it = files.find({include, "", false});
       if(it != files.end())
       {

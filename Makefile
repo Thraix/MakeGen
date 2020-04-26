@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.3.0 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.3.1 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -51,7 +51,7 @@ $(OBJPATH)/Makefile.o : src/Makefile.cpp src/IncludeDeps.h src/ConfigFile.h src/
 $(OBJPATH)/Utils.o : src/Utils.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h  src/Utils.h src/xml/XMLObject.h  
 	$(info -[60%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/ConfigFileConf.o : src/compatibility/ConfigFileConf.cpp src/compatibility/ConfigFileConf.h
+$(OBJPATH)/ConfigFileConf.o : src/compatibility/ConfigFileConf.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h  src/Utils.h src/xml/XMLObject.h  src/compatibility/ConfigFileConf.h
 	$(info -[70%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
 $(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/ConfigUtils.h  src/FileUtils.h  src/Utils.h src/xml/XMLObject.h   src/HFileGen.h  src/Makefile.h  src/Timer.h
@@ -60,6 +60,6 @@ $(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h s
 $(OBJPATH)/XML.o : src/xml/XML.cpp src/xml/XML.h src/xml/XMLObject.h src/xml/XMLException.h 
 	$(info -[90%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/XMLObject.o : src/xml/XMLObject.cpp src/xml/XMLException.h src/xml/XMLObject.h 
+$(OBJPATH)/XMLObject.o : src/xml/XMLObject.cpp src/Common.h src/Utils.h src/xml/XMLException.h src/xml/XMLObject.h 
 	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<

@@ -37,6 +37,40 @@ struct FileUtils
     return GetTopDirectory(path);
   }
 
+  // Collapsed "..", ie "example/../file.h" -> "file.h"
+  static std::string CollapseDirectory(const std::string& dir)
+  {
+    std::string ret = dir;
+    size_t pos2 = dir.find_last_of("/");
+    size_t pos1 = dir.find_last_of("/", pos2-1);
+    size_t collapse = 0;
+    size_t collapsePos = 0;
+    while(pos2 != std::string::npos)
+    {
+      if(pos1 == std::string::npos)
+        pos1 = 0;
+
+      if(std::string_view(dir.c_str()+pos1, pos2 - pos1 + 1) == "/../")
+      {
+        if(collapse == 0)
+          collapsePos = pos2;
+        collapse++;
+      }
+      else if(collapse > 0)
+      {
+        collapse--;
+        ret = ret.substr(0, pos1) + ret.substr(pos2 + 3);
+      }
+      if(pos1 == 0)
+        break;
+      pos2 = pos1;
+      pos1 = dir.find_last_of("/", pos1-1);
+    }
+    if(ret[0] == '/' && dir[0] != '/')
+      ret = ret.substr(1);
+    return ret;
+  }
+
   static std::string GetTopDirectory(const std::string& dir)
   {
     if(dir.size() == 0)

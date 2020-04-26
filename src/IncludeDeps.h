@@ -29,7 +29,7 @@ class IncludeDeps
     {
       if(printSet.find(filepath) != printSet.end())
         return stream;
-      printCounter++; 
+      printCounter++;
       printSet.emplace(filepath);
       if(!projectHFile)
         stream << FileUtils::GetRelativePath(conf.GetConfigPath(), filepath);
