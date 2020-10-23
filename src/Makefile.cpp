@@ -35,11 +35,7 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   outputFile << "BIN=" << conf.GetSettingString(ConfigSetting::OutputDir) << std::endl;
   outputFile << "OBJPATH=$(BIN)intermediates" << std::endl;
   outputFile << "INCLUDES=";
-  std::vector<std::string>& includedirs = conf.GetSettingVectorString(ConfigSetting::IncludeDir);
-  for(auto it = includedirs.begin(); it != includedirs.end(); ++it)
-  {
-    outputFile << "-I " << *it << " ";
-  }
+  GetIncludePaths(outputFile, conf);
   outputFile << std::endl;
   outputFile << "OBJECTS=";
   for(auto it = cppFiles.begin();it!=cppFiles.end();++it)
@@ -49,19 +45,14 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
     outputFile << "$(OBJPATH)/" << it->substr(slash, extensionPos - slash) << ".o ";
   }
   outputFile << std::endl;
+
   if(outputtype == "executable" || outputtype != "sharedlibrary")
-  {
     outputFile << "CFLAGS=$(INCLUDES) -std=c++17 -c ";
-  }
   else
-  {
     outputFile << "CFLAGS=$(INCLUDES) -fPIC -std=c++17 -c ";
-  }
-  std::vector<std::string>& defines = conf.GetSettingVectorString(ConfigSetting::Define);
-  for(auto it = defines.begin(); it != defines.end(); ++it)
-  {
-    outputFile << "-D" << *it << " ";
-  }
+
+  GetDefines(outputFile, conf);
+
   std::vector<std::string>& cflags = conf.GetSettingVectorString(ConfigSetting::CFlag);
   for(auto it = cflags.begin(); it != cflags.end(); ++it)
   {
@@ -70,31 +61,22 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   outputFile << std::endl;
   if(outputtype == "executable")
   {
-    std::vector<std::string>& libdirs= conf.GetSettingVectorString(ConfigSetting::LibraryDir);
-    outputFile << "LIBDIR=";
-    for(auto it = libdirs.begin();it!=libdirs.end();++it)
-    {
-      outputFile << "-L " << *it << " ";
-    }
+    outputFile << "LIBDIRS=";
+    GetLibraryPaths(outputFile, conf);
     outputFile << std::endl;
+
+    outputFile << "LIBS=";
+    GetLibraries(outputFile, conf);
+    outputFile << std::endl;
+
     std::vector<std::string>& lflags = conf.GetSettingVectorString(ConfigSetting::LFlag);
-    outputFile << "LDFLAGS=";
+    outputFile << "LDFLAGS=$(LIBDIRS) $(LIBS) ";
     for(auto it = lflags.begin(); it != lflags.end(); ++it)
     {
       outputFile << *it << " ";
     }
-    for(auto it = libdirs.begin(); it != libdirs.end(); ++it)
-    {
-      outputFile << "-Wl,-rpath=" << *it << " ";
-    }
     outputFile << std::endl;
-    std::vector<std::string>& libs = conf.GetSettingVectorString(ConfigSetting::Library);
-    outputFile << "LIBS=$(LIBDIR) ";
-    for(auto it = libs.begin(); it != libs.end(); ++it)
-    {
-      outputFile << "-l" << *it << " ";
-    }
-    outputFile << std::endl;
+
     std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
     if(!dependencies.empty())
     {
@@ -152,7 +134,7 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   outputFile << "$(OUTPUT): $(OBJECTS)" << std::endl;
   outputFile << "\t$(info Generating output file)" << std::endl;
   if(outputtype == "executable")
-    outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS) $(LIBS)" << std::endl;
+    outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS)" << std::endl;
   else
     outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS)" << std::endl;
 
@@ -181,5 +163,73 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
       outputFile << "\t$(info -[" << (int)(i / (float)cppFiles.size() * 100) << "%]- $<)" << std::endl;
       outputFile << "\t$(CC) $(CFLAGS) -o $@ $<" << std::endl;
     }
+  }
+}
+
+void Makefile::GetIncludePaths(std::ostream& file, ConfigFile& conf, const std::string& confPath)
+{
+  std::vector<std::string>& includedirs = conf.GetSettingVectorString(ConfigSetting::IncludeDir);
+  for(auto it = includedirs.begin(); it != includedirs.end(); ++it)
+  {
+    // Absolute path
+    if((*it)[0] == '/')
+      file << "-I " << *it << " ";
+    else
+      file << "-I " << confPath << *it << " ";
+  }
+
+  std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
+  for(int i = 0; i < dependencies.size(); i++)
+  {
+    GetIncludePaths(file, conf.GetDependencyConfig(i), conf.GetDependencyConfig(i).GetConfigPath());
+  }
+}
+
+void Makefile::GetLibraryPaths(std::ostream& file, ConfigFile& conf, const std::string& confPath)
+{
+  std::vector<std::string>& librarydirs = conf.GetSettingVectorString(ConfigSetting::LibraryDir);
+  for(auto it = librarydirs.begin(); it != librarydirs.end(); ++it)
+  {
+    // Absolute path
+    if((*it)[0] == '/')
+      file << "-Wl,-rpath=" << *it << " " << "-L " << *it << " ";
+    else
+      file << "-Wl,-rpath=" << confPath << *it << " " << "-L " << confPath << *it << " ";
+  }
+
+  std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
+  for(int i = 0; i < dependencies.size(); i++)
+  {
+    GetLibraryPaths(file, conf.GetDependencyConfig(i), conf.GetDependencyConfig(i).GetConfigPath());
+  }
+}
+
+void Makefile::GetLibraries(std::ostream& file, ConfigFile& conf)
+{
+  std::vector<std::string>& libraries = conf.GetSettingVectorString(ConfigSetting::Library);
+  for(auto it = libraries.begin(); it != libraries.end(); ++it)
+  {
+      file << "-l" << *it << " ";
+  }
+
+  std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
+  for(int i = 0; i < dependencies.size(); i++)
+  {
+    GetLibraries(file, conf.GetDependencyConfig(i));
+  }
+}
+
+void Makefile::GetDefines(std::ostream& file, ConfigFile& conf)
+{
+  std::vector<std::string>& defines = conf.GetSettingVectorString(ConfigSetting::Define);
+  for(auto it = defines.begin(); it != defines.end(); ++it)
+  {
+    file << "-D " << *it << " ";
+  }
+
+  std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
+  for(int i = 0; i < dependencies.size(); i++)
+  {
+    GetDefines(file, conf.GetDependencyConfig(i));
   }
 }

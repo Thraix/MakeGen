@@ -10,8 +10,8 @@ INCLUDES=
 OBJECTS=$(OBJPATH)/ConfigCLI.o $(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/Utils.o $(OBJPATH)/ConfigFileConf.o $(OBJPATH)/main.o $(OBJPATH)/XML.o $(OBJPATH)/XMLObject.o 
 CFLAGS=$(INCLUDES) -std=c++17 -c 
 LIBDIR=
-LDFLAGS=
-LIBS=$(LIBDIR) 
+LIBS=
+LDFLAGS=$(LIBDIRS) $(LIBS) 
 OUTPUT=$(BIN)makegen
 .PHONY: all directories rebuild clean run
 all: directories $(OUTPUT)
@@ -29,7 +29,7 @@ clean:
 	rm -rf $(OBJPATH)/*.o
 $(OUTPUT): $(OBJECTS)
 	$(info Generating output file)
-	$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS) $(LIBS)
+	$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
