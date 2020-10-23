@@ -4,7 +4,7 @@
 #include <string>
 
 
-struct HFile
+struct IncludeFile
 {
   std::string filename;
   std::string directory;
@@ -12,11 +12,11 @@ struct HFile
 
   std::string filepath;
 
-  HFile(const std::string& filename, const std::string& directory, bool isProjectHFile)
+  IncludeFile(const std::string& filename, const std::string& directory, bool isProjectHFile)
     : filename{filename}, directory{directory}, isProjectHFile{isProjectHFile}, filepath{directory+filename}
   {}
 
-  friend bool operator<(const HFile& h1, const HFile& h2)
+  friend bool operator<(const IncludeFile& h1, const IncludeFile& h2)
   {
     return h1.filename < h2.filename;
   }
@@ -27,11 +27,11 @@ class ConfigFile;
 struct Utils
 {
   static bool IsSourceFile(const std::string& filepath);
-  static bool IsHeaderFile(const std::string& filepath);
+  static bool IsIncludeFile(const std::string& filepath);
   static std::string CommonPrefix(const std::string& s1, const std::string& s2);
-  static void GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles);
-  static void GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles);
-  static void GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::set<HFile>& hFiles);
+  static void GetSourceFiles(ConfigFile& conf, std::set<std::string>& cppFiles);
+  static void GetSourceAndIncludeFiles(ConfigFile& conf, std::set<IncludeFile>& IncludeFiles, std::set<std::string>& cppFiles);
+  static void GetIncludeFiles(const std::string& dependencyDir, ConfigFile& conf, std::set<IncludeFile>& IncludeFiles);
 
   // Used for parsing xml
   static bool IsWhiteSpace(char c);

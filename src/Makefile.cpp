@@ -8,12 +8,12 @@
 
 void Makefile::Save(ConfigFile& conf, unsigned int flags)
 {
-  std::set<HFile> hFiles; // hFile, directory
+  std::set<IncludeFile> hFiles; // hFile, directory
   std::set<std::string> cppFiles;
   if(flags & FLAG_SIMPLE)
-    Utils::GetCppFiles(conf, cppFiles);
+    Utils::GetSourceFiles(conf, cppFiles);
   else
-    Utils::GetCppAndHFiles(conf, hFiles, cppFiles);
+    Utils::GetSourceAndIncludeFiles(conf, hFiles, cppFiles);
 
   std::ofstream outputFile(conf.GetConfigPath()+ "Makefile");
   outputFile << "# This Makefile was generated using MakeGen "<< MAKEGEN_VERSION << " made by Tim Håkansson" << std::endl;

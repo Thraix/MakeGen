@@ -17,7 +17,7 @@ void HFileGen::Create(ConfigFile& conf)
     if(extensionPos != std::string::npos)
     {
       std::string filename = it->substr(path.length());
-      if(Utils::IsHeaderFile(filename) && filename != conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::HFileName))
+      if(Utils::IsIncludeFile(filename) && filename != conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::HFileName))
       {
         // Make files sorted in alphabetical order
         hFiles.emplace(filename);

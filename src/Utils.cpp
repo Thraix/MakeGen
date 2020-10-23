@@ -17,18 +17,9 @@ bool Utils::IsSourceFile(const std::string& filepath)
   return extension == "cpp" || extension == "c" || extension == "cxx" || extension == "cc";
 }
 
-bool Utils::IsHeaderFile(const std::string& filepath)
+bool Utils::IsIncludeFile(const std::string& filepath)
 {
-  std::string_view extension(filepath);
-  size_t pSlash = filepath.find_last_of('/');
-  size_t pDot = filepath.find_last_of('.');
-  if(pDot == std::string::npos || (pSlash != std::string::npos && pSlash > pDot))
-  {
-    LOG_ERROR("No file extension for file: ", filepath);
-    return false;
-  }
-  extension.remove_prefix(pDot + 1);
-  return extension == "hpp" || extension == "h" || extension == "hxx";
+  return !IsSourceFile(filepath);
 }
 
 std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
@@ -45,7 +36,7 @@ std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
   return s1.substr(0, n);
 }
 
-void Utils::GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
+void Utils::GetSourceFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
 {
   std::vector<std::string> files;
   std::string path = conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::SourceDir);
@@ -67,7 +58,8 @@ void Utils::GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
   }
 }
 
-void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles)
+
+void Utils::GetSourceAndIncludeFiles(ConfigFile& conf, std::set<IncludeFile>& hFiles, std::set<std::string>& cppFiles)
 {
   std::vector<std::string> files;
   std::string path = conf.GetConfigPath() + conf.GetSettingString(ConfigSetting::SourceDir);
@@ -80,27 +72,27 @@ void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<
     std::string filename = it->substr(path.length());
     if(IsSourceFile(filename))
     {
-      std::string sourceFile =conf.GetSettingString(ConfigSetting::SourceDir) + filename;
+      std::string sourceFile = conf.GetSettingString(ConfigSetting::SourceDir) + filename;
       auto it = std::find(excludeSources.begin(), excludeSources.end(), sourceFile);
       if(it == excludeSources.end())
       {
         cppFiles.emplace(filename);
       }
     }
-    else if(IsHeaderFile(filename))
+    else
     {
-      hFiles.emplace(HFile{filename,path,false});
+      hFiles.emplace(IncludeFile{filename,path,false});
     }
   }
 
   std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
   for(size_t i = 0; i < dependencies.size(); ++i)
   {
-    GetHFiles(dependencies[i], conf.GetDependencyConfig(i), hFiles);
+    GetIncludeFiles(dependencies[i], conf.GetDependencyConfig(i), hFiles);
   }
 }
 
-void Utils::GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::set<HFile>& hFiles)
+void Utils::GetIncludeFiles(const std::string& dependencyDir, ConfigFile& conf, std::set<IncludeFile>& hFiles)
 {
   // TODO: Fix so that cyclic dependencies doesn't crash the tool.
   // Cyclic dependencies probably shouldn't exist.
@@ -108,7 +100,7 @@ void Utils::GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::s
   std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
   for(size_t i = 0; i < dependencies.size(); ++i)
   {
-    GetHFiles(dependencies[i], conf.GetDependencyConfig(i), hFiles);
+    GetIncludeFiles(dependencies[i], conf.GetDependencyConfig(i), hFiles);
   }
 
   std::vector<std::string> files;
@@ -116,10 +108,10 @@ void Utils::GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::s
   FileUtils::GetAllFiles(depSrcDir, files);
   for(auto it = files.begin(); it!=files.end();++it)
   {
-    if(IsHeaderFile(*it))
+    if(IsIncludeFile(*it))
     {
       std::string filename = it->substr(depSrcDir.length());
-      hFiles.emplace(HFile{filename, depSrcDir, conf.GetSettingBool(ConfigSetting::GenerateHFile) && filename == conf.GetSettingString(ConfigSetting::HFileName)});
+      hFiles.emplace(IncludeFile{filename, depSrcDir, conf.GetSettingBool(ConfigSetting::GenerateHFile) && filename == conf.GetSettingString(ConfigSetting::HFileName)});
     }
   }
 }
