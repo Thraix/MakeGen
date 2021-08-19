@@ -28,6 +28,7 @@ struct Utils
 {
   static bool IsSourceFile(const std::string& filepath);
   static bool IsIncludeFile(const std::string& filepath);
+  static bool IsHeaderFile(const std::string& filepath);
   static std::string CommonPrefix(const std::string& s1, const std::string& s2);
   static void GetSourceFiles(ConfigFile& conf, std::set<std::string>& cppFiles);
   static void GetSourceAndIncludeFiles(ConfigFile& conf, std::set<IncludeFile>& IncludeFiles, std::set<std::string>& cppFiles);

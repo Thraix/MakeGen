@@ -22,6 +22,20 @@ bool Utils::IsIncludeFile(const std::string& filepath)
   return !IsSourceFile(filepath);
 }
 
+bool Utils::IsHeaderFile(const std::string& filepath)
+{
+  std::string_view extension(filepath);
+  size_t pSlash = filepath.find_last_of('/');
+  size_t pDot = filepath.find_last_of('.');
+  if(pDot == std::string::npos || (pSlash != std::string::npos && pSlash > pDot))
+  {
+    LOG_ERROR("No file extension for file: ", filepath);
+    return false;
+  }
+  extension.remove_prefix(pDot + 1);
+  return extension == "hpp" || extension == "h" || extension == "hxx" || extension == "hh";
+}
+
 std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
 {
   size_t n = 0;
