@@ -47,9 +47,9 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   outputFile << std::endl;
 
   if(outputtype == "executable" || outputtype != "sharedlibrary")
-    outputFile << "CFLAGS=$(INCLUDES) -std=c++17 -c ";
+    outputFile << "CFLAGS=-std=c++17 $(INCLUDES) -c ";
   else
-    outputFile << "CFLAGS=$(INCLUDES) -fPIC -std=c++17 -c ";
+    outputFile << "CFLAGS=-std=c++17 $(INCLUDES) -fPIC -c ";
 
   GetDefines(outputFile, conf);
 

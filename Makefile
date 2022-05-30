@@ -8,7 +8,7 @@ BIN=bin/
 OBJPATH=$(BIN)intermediates
 INCLUDES=
 OBJECTS=$(OBJPATH)/ConfigCLI.o $(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/Utils.o $(OBJPATH)/ConfigFileConf.o $(OBJPATH)/main.o $(OBJPATH)/XML.o $(OBJPATH)/XMLObject.o 
-CFLAGS=$(INCLUDES) -std=c++17 -c 
+CFLAGS=-std=c++17 $(INCLUDES) -c 
 LIBDIRS=
 LIBS=
 LDFLAGS=$(LIBDIRS) $(LIBS) 
