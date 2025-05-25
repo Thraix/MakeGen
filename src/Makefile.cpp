@@ -2,6 +2,7 @@
 
 #include "IncludeDeps.h"
 #include "Utils.h"
+#include "Common.h"
 
 #include <fstream>
 #include <map>
@@ -166,16 +167,15 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   for(auto it = cppFiles.begin(); it != cppFiles.end();++it)
   {
     i++;
-    std::string& srcdir = conf.GetSettingString(ConfigSetting::SourceDir);
-    auto itD = dependencies.find(srcdir + *it);
+    auto itD = dependencies.find(*it);
     if(itD == dependencies.end())
     {
-      IncludeDeps* deps = new IncludeDeps(*it, conf.GetConfigPath() + srcdir,hFiles,dependencies);
+      IncludeDeps* deps = new IncludeDeps(*it, hFiles, dependencies);
       size_t extensionPos = it->find_last_of(".");
       size_t slash = it->find_last_of("/")+1;
       std::string oFile = it->substr(slash, extensionPos - slash)+".o ";
 
-      outputFile << "$(OBJPATH)/" << oFile << ": ";
+      outputFile << "$(OBJPATH)/" << oFile << ":";
       deps->Output(outputFile, conf);
       outputFile << std::endl;
       outputFile << "\t$(info -[" << (int)(i / (float)cppFiles.size() * 100) << "%]- $<)" << std::endl;

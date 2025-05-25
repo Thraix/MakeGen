@@ -8,6 +8,7 @@
 
 #include <cmath>
 #include <thread>
+#include <filesystem>
 
 #define RETURN_IF(x, b) \
   if(x)\
@@ -144,9 +145,20 @@ bool MakeGen(const std::string& filepath, unsigned int flags, ConfigFile& conf)
   std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
   for(size_t i = 0;i<dependencies.size();++i)
   {
-    bool success = MakeGen(dependencies[i], flags, conf.GetDependencyConfig(i));
-    if(!success)
-      return success;
+    std::filesystem::path currentPath = std::filesystem::current_path();
+    std::filesystem::current_path(dependencies[i]);
+
+    auto conf = ConfigFile::GetConfigFile();
+    if(conf)
+    {
+      bool success = MakeGen("./", flags, conf.value());
+      if(!success)
+      {
+        std::filesystem::current_path(currentPath);
+        return success;
+      }
+    }
+    std::filesystem::current_path(currentPath);
   }
   LOG_INFO("-----------------------------------");
   LOG_INFO("Building ", conf.GetSettingString(ConfigSetting::ProjectName));
@@ -177,7 +189,7 @@ int main(int argc, char** argv)
   }
   if(flags & FLAG_VERSION)
   {
-    LOG_INFO("MakeGen ",MAKEGEN_VERSION);
+    LOG_INFO("MakeGen ", MAKEGEN_VERSION);
     return 0;
   }
   if(flags & FLAG_CONFIG)

@@ -18,7 +18,7 @@ struct ConfigCache
 enum class ConfigSetting
 {
   // vectors
-  Library = 0, LibraryDir = 1, IncludeDir = 2, Define = 3, Dependency = 4, CFlag = 5, LFlag = 6, ExcludeSource = 7, ExcludeHeader = 8, ExecPreArgument = 9, ExecArgument = 10,
+  Library = 0, LibraryDir = 1, IncludeDir = 2, Define = 3, Dependency = 4, CFlag = 5, LFlag = 6, ExcludeSource = 7, ExcludeHeader = 8, ExecPreArgument = 9, ExecArgument = 10, SourceFile = 11,
   // Strings
   SourceDir = 32, OutputDir = 33, OutputName = 34, OutputType = 35, ProjectName = 36, HFileName = 37,
   // Bools
@@ -69,6 +69,8 @@ struct ConfigUtils
         return "argument";
       case ConfigSetting::GenerateHFile:
         return "generatehfile";
+      case ConfigSetting::SourceFile:
+        return "sourcefile";
       case ConfigSetting::Invalid:
         return "invalid";
     }
@@ -98,6 +100,7 @@ struct ConfigUtils
       case ConfigSetting::ExecPreArgument:
       case ConfigSetting::ExecArgument:
       case ConfigSetting::GenerateHFile:
+      case ConfigSetting::SourceFile:
       case ConfigSetting::Invalid:
         return false;
     }
@@ -127,6 +130,7 @@ struct ConfigUtils
       case ConfigSetting::ExecPreArgument:
       case ConfigSetting::ExecArgument:
       case ConfigSetting::GenerateHFile:
+      case ConfigSetting::SourceFile:
       case ConfigSetting::Invalid:
         return false;
     }
@@ -148,6 +152,7 @@ struct ConfigUtils
       case ConfigSetting::ExcludeSource:
       case ConfigSetting::ExecPreArgument:
       case ConfigSetting::ExecArgument:
+      case ConfigSetting::SourceFile:
         return true;
       case ConfigSetting::SourceDir:
       case ConfigSetting::OutputDir:
@@ -184,6 +189,7 @@ struct ConfigUtils
       case ConfigSetting::ExcludeSource:
       case ConfigSetting::ExecPreArgument:
       case ConfigSetting::ExecArgument:
+      case ConfigSetting::SourceFile:
       case ConfigSetting::Invalid:
         return false;
     }

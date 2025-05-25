@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
+#include <set>
 
 #define BIT(x) (1<<x)
 
@@ -12,7 +14,7 @@
 // Release, should be backwards compatible with any minor version
 #define MAKEGEN_VERSION_RELEASE 3
 // Minor changes, generally bug fixes
-#define MAKEGEN_VERSION_MINOR 1
+#define MAKEGEN_VERSION_MINOR 2
 
 #define MAKEGEN_VERSION ("v" STR(MAKEGEN_VERSION_MAJOR) "." STR(MAKEGEN_VERSION_RELEASE) "." STR(MAKEGEN_VERSION_MINOR))
 
@@ -59,4 +61,34 @@ void LogHelper(const T& var, const Ts& ...vars)
   Log(var);
   Log(vars...);
   std::cout << std::endl;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& ostream, const std::vector<T>& vec)
+{
+  ostream << "[" << std::endl;
+  for (size_t i = 0; i < vec.size(); i++)
+  {
+    if (i != 0)
+      ostream << ", " << std::endl;
+    ostream << vec[i];
+  }
+  ostream << std::endl << "]";
+  return ostream;
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& ostream, const std::set<T>& set)
+{
+  ostream << "[" << std::endl;
+  int i = 0;
+  for (const auto& elem : set)
+  {
+    if (i != 0)
+      ostream << ", " << std::endl;
+    ostream << "  " << elem;
+    i++;
+  }
+  ostream << std::endl << "]";
+  return ostream;
 }

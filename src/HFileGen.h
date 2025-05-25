@@ -2,7 +2,7 @@
 
 #include "ConfigFile.h"
 
-class HFileGen 
+class HFileGen
 {
   public:
     static void Create(ConfigFile& conf);

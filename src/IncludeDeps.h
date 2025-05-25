@@ -4,6 +4,7 @@
 #include "FileUtils.h"
 
 #include <iostream>
+#include <filesystem>
 #include <map>
 #include <set>
 #include <string>
@@ -19,23 +20,25 @@ class IncludeDeps
     static std::set<std::string> printSet;
     static int printCounter;
 
-    IncludeDeps(const std::string& filename, const std::string& dir, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps);
+    IncludeDeps(const std::string& filename, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps);
 
-    IncludeDeps(const std::string& filename, const std::string& dir, bool projectHFile, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps);
+    IncludeDeps(const std::string& filename, bool projectHFile, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps);
 
-    std::string GetIncludeFile(const std::string& line, size_t pos, const std::string& filename);
+    std::string GetIncludeFile(const std::string& line);
 
     std::ostream& Output(std::ostream& stream, const ConfigFile& conf)
     {
-      if(printSet.find(filepath) != printSet.end())
+      std::string filePathRelativeToConfig = std::filesystem::relative(conf.GetConfigPath() + "/" + filepath, "./").string();
+      if(printSet.find(filePathRelativeToConfig) != printSet.end())
         return stream;
+      printSet.emplace(filePathRelativeToConfig);
       printCounter++;
-      printSet.emplace(filepath);
       if(!projectHFile)
-        stream << FileUtils::GetRelativePath(conf.GetConfigPath(), filepath);
-      for(auto it = dependencies.begin();it!=dependencies.end();++it)
       {
-        stream << " ";
+        stream << " " << filePathRelativeToConfig;
+      }
+      for(auto it = dependencies.begin(); it != dependencies.end(); ++it)
+      {
         (it->second)->Output(stream, conf);
       }
       printCounter--;

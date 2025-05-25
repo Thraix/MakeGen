@@ -17,6 +17,7 @@ class ConfigFileConf
     std::vector<std::string> defines;
     std::vector<std::string> flags;
     std::vector<std::string> dependencies;
+    std::vector<std::string> sourceFiles;
 
     std::string outputdir;
     std::string srcdir;

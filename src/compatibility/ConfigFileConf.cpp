@@ -25,18 +25,18 @@ ConfigFileConf::ConfigFileConf()
       [](unsigned char c)
       {
       if(c == ' ')
-      return '_';
+        return '_';
       return (char)std::tolower(c);
       });
 
   // Removes all other characters
-  std::remove_if(
+  outputdir.erase(std::remove_if(
       outputdir.begin(),
       outputdir.end(),
       [](unsigned char c)
       {
       return (c < 'a' || c > 'z') && c != '_';
-      });
+      }));
 
   // Add suffix
   outputname += ".out";
@@ -78,6 +78,7 @@ void ConfigFileConf::CreateXMLFile(const std::string& filepath)
       {"#compileflags", {&conf.flags, false}},
       {"#defines", {&conf.defines, false}},
       {"#dependencies", {&conf.dependencies, true}},
+      {"#sourcefiles", {&conf.sourceFiles, false}},
     };
 
     std::map<std::string, bool*> booleans =
@@ -161,7 +162,7 @@ void ConfigFileConf::CreateXMLFile(const std::string& filepath)
     XMLObject makegen("makegen", {}, std::map<std::string, std::vector<XMLObject>>{});
 
     // Version, target and configuration is probably going to be used in the future
-    makegen.AddXMLObject(XMLObject("version", {}, "v1.3.0"));
+    makegen.AddXMLObject(XMLObject("version", {}, "v1.3.2"));
     makegen.AddXMLObject(XMLObject("target", {}, "Release"));
 
     XMLObject configuration("configuration", {{"name", "Release"}}, std::map<std::string, std::vector<XMLObject>>{});
@@ -170,7 +171,7 @@ void ConfigFileConf::CreateXMLFile(const std::string& filepath)
     configuration.AddXMLObject(XMLObject("srcdir", {}, conf.srcdir));
     configuration.AddXMLObject(XMLObject("outputdir", {}, conf.outputdir));
     configuration.AddXMLObject(XMLObject("hfilename", {}, conf.hFile));
-    configuration.AddXMLObject(XMLObject("outputtype", {}, 
+    configuration.AddXMLObject(XMLObject("outputtype", {},
           conf.executable ? "executable" : (conf.shared ? "sharedlibrary" : "staticlibrary")));
     configuration.AddXMLObject(XMLObject("generatehfile", {}, conf.generateHFile ? "true" : "false"));
 
@@ -186,6 +187,8 @@ void ConfigFileConf::CreateXMLFile(const std::string& filepath)
       configuration.AddXMLObject({"cflag",{},*it});
     for(auto it = conf.dependencies.begin();it != conf.dependencies.end(); ++it)
       configuration.AddXMLObject({"dependency",{},*it});
+    for(auto it = conf.sourceFiles.begin();it != conf.sourceFiles.end(); ++it)
+      configuration.AddXMLObject({"sourcefile",{},*it});
 
     makegen.AddXMLObject(configuration);
     std::ofstream xmlFile(conf.configPath + "makegen.xml");

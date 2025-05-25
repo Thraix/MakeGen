@@ -1,17 +1,19 @@
 #include "IncludeDeps.h"
 
 #include "Common.h"
+#include <sstream>
 
 std::set<std::string> IncludeDeps::printSet;
 int IncludeDeps::printCounter = 0;
 
-IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
-  : IncludeDeps{filename, dir, false, files, allDeps}
+IncludeDeps::IncludeDeps(const std::string& filename, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
+  : IncludeDeps{filename, false, files, allDeps}
 {}
 
-IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, bool projectHFile, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
-  : filepath(dir+filename), projectHFile{projectHFile}
+IncludeDeps::IncludeDeps(const std::string& filename, bool projectHFile, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
+  : filepath(filename), projectHFile{projectHFile}
 {
+  std::filesystem::path path{filepath};
   if(Utils::IsHeaderFile(filename))
   {
     allDeps.emplace(filepath, this);
@@ -20,42 +22,58 @@ IncludeDeps::IncludeDeps(const std::string& filename, const std::string& dir, bo
   std::string line;
   while(std::getline(file,line))
   {
-    size_t pos = line.find("#include");
-    if(pos != std::string::npos)
+    std::string start;
+    std::stringstream ss{line};
+    ss >> start;
+    if(start == "#include")
     {
-      std::string include = FileUtils::CollapseDirectory(GetIncludeFile(line, pos, filename));
-      auto it = files.find({include, "", false});
-      if(it != files.end())
+      std::string include = GetIncludeFile(line);
+
+      // Check if file can be found relative to current file:
+      std::filesystem::path includeFileRelativeToSource = std::filesystem::relative(path.parent_path(), ".").string() + "/" + include;
+      if (FileUtils::FileExists(includeFileRelativeToSource.string()))
       {
-        auto itD = allDeps.find(it->filepath);
+        auto itD = allDeps.find(includeFileRelativeToSource.string());
         if(itD == allDeps.end())
         {
-          IncludeDeps* inc = new IncludeDeps(it->filename,it->directory, it->isProjectHFile, files,allDeps);
-          dependencies.emplace(it->filepath, inc);
-        }else{
+          IncludeDeps* inc = new IncludeDeps(includeFileRelativeToSource.string(), false, files, allDeps);
+          dependencies.emplace(includeFileRelativeToSource, inc);
+        } else {
           dependencies.emplace(itD->first, itD->second);
+        }
+      }
+      else
+      {
+        auto it = files.find({include, "", false});
+        if(it != files.end())
+        {
+          auto itD = allDeps.find(it->filepath);
+          if(itD == allDeps.end())
+          {
+            IncludeDeps* inc = new IncludeDeps(it->filepath, it->isProjectHFile, files, allDeps);
+            dependencies.emplace(it->filepath, inc);
+          }else{
+            dependencies.emplace(itD->first, itD->second);
+          }
         }
       }
     }
   }
 }
 
-std::string IncludeDeps::GetIncludeFile(const std::string& line, size_t pos, const std::string& filename)
+std::string IncludeDeps::GetIncludeFile(const std::string& line)
 {
-  size_t bracket = line.find('<',pos);
+  size_t bracket = line.find('<');
   if(bracket == std::string::npos)
   {
-    bracket = line.find('\"',pos);
+    bracket = line.find('\"');
     if(bracket == std::string::npos)
     {
       return "";
     }
-    size_t slash = filename.find_last_of("/");
 
-    std::string include = line.substr(bracket+1, line.find('\"',bracket+1)-bracket-1);
-    if(slash == std::string::npos)
-      slash = -1;
-    return filename.substr(0,slash+1)+include;
+    std::string include = line.substr(bracket + 1, line.find('\"',bracket+1)-bracket-1);
+    return include;
   }
   else
   {

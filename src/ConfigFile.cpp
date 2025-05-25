@@ -86,7 +86,7 @@ std::string& ConfigFile::GetSettingString(ConfigSetting setting)
     LOG_ERROR("To many arguments for setting using first: ", (int)setting, "=", (*values)[0].GetText());
   }
   std::string s = (*values)[0].GetText();
-  if(ConfigUtils::IsDirectory(setting) && s[s.size()-1] != '/')
+  if(ConfigUtils::IsDirectory(setting) && !s.empty() && s[s.size()-1] != '/')
     s += '/';
   return cache.strings.emplace(sSetting, s).first->second;
 }
