@@ -29,8 +29,13 @@ IncludeDeps::IncludeDeps(const std::string& filename, bool projectHFile, const s
     {
       std::string include = GetIncludeFile(line);
 
+      std::filesystem::path includeFileRelativeToSource;
+      if (path.is_absolute())
+        includeFileRelativeToSource = std::filesystem::relative("/", ".").string() + "/" + include;
+      else
+        includeFileRelativeToSource = std::filesystem::relative(path.parent_path(), ".").string() + "/" + include;
+
       // Check if file can be found relative to current file:
-      std::filesystem::path includeFileRelativeToSource = std::filesystem::relative(path.parent_path(), ".").string() + "/" + include;
       if (FileUtils::FileExists(includeFileRelativeToSource.string()))
       {
         auto itD = allDeps.find(includeFileRelativeToSource.string());

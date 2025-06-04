@@ -1,8 +1,9 @@
 #pragma once
 
+#include <filesystem>
+#include <iostream>
 #include <set>
 #include <string>
-#include <iostream>
 
 
 struct HFile
@@ -10,7 +11,7 @@ struct HFile
   std::string filename;
   bool isProjectHFile;
 
-  std::string filepath;
+  std::filesystem::path filepath;
 
   HFile(const std::string& filename, const std::string& directory, bool isProjectHFile)
     : filename{filename}, isProjectHFile{isProjectHFile}, filepath{directory+filename}
@@ -19,6 +20,11 @@ struct HFile
   friend bool operator<(const HFile& h1, const HFile& h2)
   {
     return h1.filename < h2.filename;
+  }
+
+  friend std::ostream& operator<<(std::ostream& ostream, const HFile& hFile)
+  {
+    return ostream << "filename: " << hFile.filename << "\tfilepath: " << hFile.filepath.string();
   }
 };
 

@@ -15,7 +15,7 @@ class IncludeDeps
 {
   public:
     std::map<std::string, IncludeDeps*> dependencies;
-    std::string filepath;
+    std::filesystem::path filepath;
     bool projectHFile;
     static std::set<std::string> printSet;
     static int printCounter;
@@ -28,14 +28,18 @@ class IncludeDeps
 
     std::ostream& Output(std::ostream& stream, const ConfigFile& conf)
     {
-      std::string filePathRelativeToConfig = std::filesystem::relative(conf.GetConfigPath() + "/" + filepath, "./").string();
-      if(printSet.find(filePathRelativeToConfig) != printSet.end())
+      std::string filePathInMakeFile = filepath;
+      if(!filepath.is_absolute())
+        filePathInMakeFile  = std::filesystem::relative(conf.GetConfigPath() + "/" + filepath.string(), "./").string();
+
+      if(printSet.find(filePathInMakeFile) != printSet.end())
         return stream;
-      printSet.emplace(filePathRelativeToConfig);
+      printSet.emplace(filePathInMakeFile);
       printCounter++;
+
       if(!projectHFile)
       {
-        stream << " " << filePathRelativeToConfig;
+        stream << " " << filePathInMakeFile;
       }
       for(auto it = dependencies.begin(); it != dependencies.end(); ++it)
       {
