@@ -41,6 +41,11 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   {
     outputFile << "-I " << *it << " ";
   }
+  std::vector<std::string>& includedirsexcldep = conf.GetSettingVectorString(ConfigSetting::IncludeDirExclDep);
+  for(auto it = includedirsexcldep.begin(); it != includedirsexcldep.end(); ++it)
+  {
+    outputFile << "-I " << *it << " ";
+  }
   outputFile << std::endl;
   outputFile << "OBJECTS=";
   for(auto it = cppFiles.begin();it!=cppFiles.end();++it)

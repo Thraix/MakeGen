@@ -4,7 +4,6 @@
 #include "compatibility/ConfigFileConf.h"
 #include "xml/XML.h"
 
-#include <algorithm>
 #include <fstream>
 
 ConfigFile::ConfigFile(const std::string& path, int)
