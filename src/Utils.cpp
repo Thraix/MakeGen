@@ -65,16 +65,15 @@ void Utils::GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
       LOG_WARNING("Source file doesn't exist: ", sourceFile);
   }
 
-  for(auto it = files.begin(); it!=files.end();++it)
+  for(auto& filename : files)
   {
-    std::string filename = it->substr(path.length());
+    std::filesystem::path filepath = std::filesystem::relative(filename, "./");
     if(IsSourceFile(filename))
     {
-      std::string sourceFile = conf.GetSettingString(ConfigSetting::SourceDir) + filename;
-      auto it = std::find(excludeSources.begin(), excludeSources.end(), sourceFile);
+      auto it = std::find(excludeSources.begin(), excludeSources.end(), filename);
       if(it == excludeSources.end())
       {
-        cppFiles.emplace(filename);
+        cppFiles.emplace(filepath.string());
       }
     }
   }
@@ -101,10 +100,11 @@ void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<
   {
     if(IsSourceFile(filename))
     {
-      auto it = std::find(excludeSources.begin(), excludeSources.end(), filename);
+      std::filesystem::path filepath = std::filesystem::relative(filename, "./");
+      auto it = std::find(excludeSources.begin(), excludeSources.end(), filepath.string());
       if(it == excludeSources.end())
       {
-        cppFiles.emplace(filename);
+        cppFiles.emplace(filepath.string());
       }
     }
     else if(IsHeaderFile(filename))
