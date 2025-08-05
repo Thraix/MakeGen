@@ -2,7 +2,7 @@
 
 #include "ConfigFile.h"
 
-struct ConfigCLI 
+struct ConfigCLI
 {
   public:
     static int Main(int argc, char** argv);

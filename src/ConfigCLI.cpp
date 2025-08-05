@@ -3,8 +3,6 @@
 #include "Common.h"
 #include "ConfigFile.h"
 
-#include <set>
-
 void ConfigCLI::DisplayCLIHelp()
 {
   LOG_INFO(1+(char*)R"(
@@ -174,12 +172,12 @@ int ConfigCLI::Gen(int argc, char** argv)
   std::string option = argv[1];
   if(option == "prompt")
   {
-    ConfigFile::Gen().Save();
+    ConfigFile::Gen(FlagData{}).Save();
     return 0;
   }
   if(option == "default")
   {
-    ConfigFile{FileUtils::GetRealPath("."),0}.Save();
+    ConfigFile{FileUtils::GetRealPath("."), FlagData{}, 0}.Save();
     return 0;
   }
   else
@@ -324,7 +322,7 @@ int ConfigCLI::Main(int argc, char** argv)
     DisplayCLIHelp();
     return 0;
   }
-  std::optional<ConfigFile> config = ConfigFile::GetConfigFile();
+  std::optional<ConfigFile> config = ConfigFile::GetConfigFile("./", FlagData{});
   std::string command = argv[1];
   if(command == "gen")
   {
@@ -351,7 +349,7 @@ int ConfigCLI::Main(int argc, char** argv)
       return 1;
     }
   }
-  else 
+  else
   {
     LOG_ERROR("There is no config file in the current directory");
     return 1;

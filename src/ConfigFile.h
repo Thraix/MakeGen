@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ConfigUtils.h"
+#include "FlagData.h"
 #include "xml/XMLObject.h"
 
 #include <map>
@@ -26,9 +27,9 @@ class ConfigFile
 
   public:
     // Generates a new default config file
-    ConfigFile(const std::string& path, int);
-    ConfigFile(const std::string& path);
-    ConfigFile(XMLObject& config, const std::string& path);
+    ConfigFile(const std::string& path, const FlagData& flagData, int);
+    ConfigFile(const std::string& path, const FlagData& flagData);
+    ConfigFile(XMLObject& config, const std::string& path, const FlagData& flagData);
 
     void Save() const;
 
@@ -45,13 +46,13 @@ class ConfigFile
     const std::string& GetConfigPath() const;
     ConfigFile& GetDependencyConfig(size_t i);
   private:
-    void Init();
+    void Init(const FlagData& flagData);
 
   public:
-    static ConfigFile Gen();
-    static std::optional<ConfigFile> GetConfigFile(const std::string& filepath = "./");
+    static ConfigFile Gen(const FlagData& flagData);
+    static std::optional<ConfigFile> GetConfigFile(const std::string& filepath, const FlagData& flagData);
   private:
-    static std::optional<ConfigFile> GetConfigFile(const std::string& filepath, std::map<std::string, ConfigFile>& loadedConfigs);
+    static std::optional<ConfigFile> GetConfigFile(const std::string& filepath, std::map<std::string, ConfigFile>& loadedConfigs, const FlagData& flagData);
     static std::optional<ConfigFile> Load(const std::string& filename);
     static void InputBoolean(const std::string& inputText, bool& b);
     static void InputMultiple(const std::string& inputText, std::vector<std::string>& vec, bool needEnding);

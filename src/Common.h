@@ -14,7 +14,7 @@
 // Release, should be backwards compatible with any minor version
 #define MAKEGEN_VERSION_RELEASE 3
 // Minor changes, generally bug fixes
-#define MAKEGEN_VERSION_MINOR 5
+#define MAKEGEN_VERSION_MINOR 6
 
 #define MAKEGEN_VERSION ("v" STR(MAKEGEN_VERSION_MAJOR) "." STR(MAKEGEN_VERSION_RELEASE) "." STR(MAKEGEN_VERSION_MINOR))
 
@@ -29,6 +29,7 @@ const static unsigned int FLAG_SINGLE_THREAD = BIT(7);
 const static unsigned int FLAG_DEPENDENCY = BIT(8);
 const static unsigned int FLAG_SIMPLE = BIT(9);
 const static unsigned int FLAG_CONFIG = BIT(10);
+const static unsigned int FLAG_TARGET = BIT(11);
 
 
 #define LOG_INFO(...) LogHelper(__VA_ARGS__)

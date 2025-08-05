@@ -32,6 +32,15 @@ bool Utils::IsHeaderFile(const std::string& filepath)
   return extension == "hpp" || extension == "h" || extension == "hxx";
 }
 
+bool Utils::StartsWith(const std::string& str, const std::string& prefix)
+{
+  if (str.size() < prefix.size())
+    return false;
+
+  return str.compare(0, prefix.size(), prefix) == 0;
+}
+
+
 std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
 {
   size_t n = 0;

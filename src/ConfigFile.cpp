@@ -6,7 +6,7 @@
 
 #include <fstream>
 
-ConfigFile::ConfigFile(const std::string& path, int)
+ConfigFile::ConfigFile(const std::string& path, const FlagData& flagData, int)
   : configPath{path}
 {
   // Converts project name (current directory) to lowercase
@@ -16,7 +16,10 @@ ConfigFile::ConfigFile(const std::string& path, int)
 
   // Version, target and configuration is probably going to be used in the future
   makegen.AddXMLObject(XMLObject("version", {}, "v1.3.0"));
-  makegen.AddXMLObject(XMLObject("target", {}, "Release"));
+  if(flagData.flags & FLAG_TARGET)
+    makegen.AddXMLObject(XMLObject("target", {}, flagData.target));
+  else
+    makegen.AddXMLObject(XMLObject("target", {}, "Release"));
 
   XMLObject configuration("configuration", {{"name", "Release"}}, std::map<std::string, std::vector<XMLObject>>{});
   configuration.AddXMLObject(XMLObject("projectname", {}, ConfigUtils::GetDefaultProjectName(configPath)));
@@ -29,35 +32,42 @@ ConfigFile::ConfigFile(const std::string& path, int)
 
   makegen.AddXMLObject(configuration);
   config = makegen;
-  Init();
+  Init(flagData);
 }
 
-ConfigFile::ConfigFile(const std::string& path)
+ConfigFile::ConfigFile(const std::string& path, const FlagData& flagData)
   : config{XML::FromFile(path + CONFIG_FILENAME)}, configPath{path}
 {
-  Init();
+  Init(flagData);
 }
 
-ConfigFile::ConfigFile(XMLObject& config, const std::string& path)
+ConfigFile::ConfigFile(XMLObject& config, const std::string& path, const FlagData& flagData)
   : config{config}, configPath{path}
 {
-  Init();
+  Init(flagData);
 }
 
-void ConfigFile::Init()
+void ConfigFile::Init(const FlagData& flagData)
 {
-  const std::vector<XMLObject>* targetXml = config.GetObjectPtr("target");
-  target = "Release";
-  if(!targetXml || targetXml->size() == 0)
+  if (flagData.flags & FLAG_TARGET)
   {
-    LOG_ERROR("No target found in config file. Using target=", target);
-    return;
+    target = flagData.target;
+  }
+  else
+  {
+    const std::vector<XMLObject>* targetXml = config.GetObjectPtr("target");
+    target = "Release";
+    if(!targetXml || targetXml->size() == 0)
+    {
+      LOG_ERROR("No target found in config file. Using target=", target);
+      return;
+    }
+    if(targetXml->size() > 1)
+      LOG_ERROR("To many targets in config file. Using target=", (*targetXml)[0].GetText());
+    if(targetXml->size() > 0)
+      target = (*targetXml)[0].GetText();
   }
 
-  if(targetXml->size() > 1)
-    LOG_ERROR("To many targets in config file. Using target=", (*targetXml)[0].GetText());
-  if(targetXml->size() > 0)
-    target = (*targetXml)[0].GetText();
 }
 
 std::string& ConfigFile::GetSettingString(ConfigSetting setting)
@@ -323,13 +333,13 @@ ConfigFile& ConfigFile::GetDependencyConfig(size_t i)
   return dependencyConfigs[i];
 }
 
-std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath)
+std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath, const FlagData& flagData)
 {
   std::map<std::string, ConfigFile> loadedConfigs;
-  return GetConfigFile(filepath, loadedConfigs);
+  return GetConfigFile(filepath, loadedConfigs, flagData);
 }
 
-std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath, std::map<std::string, ConfigFile>& loadedConfigs)
+std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath, std::map<std::string, ConfigFile>& loadedConfigs, const FlagData& flagData)
 {
   std::string realPath = FileUtils::GetRealPath(filepath);
   if(realPath == "")
@@ -354,7 +364,7 @@ std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath,
   if(f.good())
   {
     f.close();
-    ConfigFile conf = ConfigFile(filepath);
+    ConfigFile conf = ConfigFile(filepath, flagData);
     if(conf.hasInitError)
       return {};
     loadedConfigs.emplace(realPath, conf);
@@ -363,7 +373,7 @@ std::optional<ConfigFile> ConfigFile::GetConfigFile(const std::string& filepath,
     // Create dependency config files.
     for(size_t i = 0; i < dependencies.size();++i)
     {
-      std::optional<ConfigFile> dep = GetConfigFile(conf.configPath + dependencies[i], loadedConfigs);
+      std::optional<ConfigFile> dep = GetConfigFile(conf.configPath + dependencies[i], loadedConfigs, flagData);
       if(dep)
       {
         conf.dependencyConfigs.push_back(*dep);
@@ -425,7 +435,7 @@ void ConfigFile::InputMultiple(const std::string& inputText, std::vector<std::st
   }
 }
 
-ConfigFile ConfigFile::Gen()
+ConfigFile ConfigFile::Gen(const FlagData& flagData)
 {
   bool executable, shared, generateHFile;
   std::vector<std::string> libs, libdirs, includedirs, defines, compileFlags, linkingFlags, dependencies, excludeSources, excludeHeaders;
@@ -467,7 +477,10 @@ ConfigFile ConfigFile::Gen()
 
   // Version, target and configuration is probably going to be used in the future
   makegen.AddXMLObject(XMLObject("version", {}, "v1.3.0"));
-  makegen.AddXMLObject(XMLObject("target", {}, "Release"));
+  if(flagData.flags & FLAG_TARGET)
+    makegen.AddXMLObject(XMLObject("target", {}, flagData.target));
+  else
+    makegen.AddXMLObject(XMLObject("target", {}, "Release"));
 
   XMLObject configuration("configuration", {{"name", "Release"}}, std::map<std::string, std::vector<XMLObject>>{});
   configuration.AddXMLObject(XMLObject("projectname", {}, projectname));
@@ -493,7 +506,7 @@ ConfigFile ConfigFile::Gen()
     configuration.AddXMLObject({"dependency",{},*it});
 
   makegen.AddXMLObject(configuration);
-  return ConfigFile{makegen, FileUtils::GetRealPath(".")};
+  return ConfigFile{makegen, FileUtils::GetRealPath("."), flagData};
 }
 
 void ConfigFile::Save() const
