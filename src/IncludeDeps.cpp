@@ -1,31 +1,39 @@
 #include "IncludeDeps.h"
 
-#include "Common.h"
 #include <sstream>
+
+#include "Common.h"
 
 std::set<std::string> IncludeDeps::printSet;
 int IncludeDeps::printCounter = 0;
 
-IncludeDeps::IncludeDeps(const std::string& filename, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
+IncludeDeps::IncludeDeps(const std::string& filename,
+                         const std::set<HFile>& files,
+                         std::map<std::string, IncludeDeps*>& allDeps)
   : IncludeDeps{filename, false, files, allDeps}
-{}
+{
+}
 
-IncludeDeps::IncludeDeps(const std::string& filename, bool projectHFile, const std::set<HFile>& files, std::map<std::string, IncludeDeps*>& allDeps)
-  : filepath(filename), projectHFile{projectHFile}
+IncludeDeps::IncludeDeps(const std::string& filename,
+                         bool projectHFile,
+                         const std::set<HFile>& files,
+                         std::map<std::string, IncludeDeps*>& allDeps)
+  : filepath(filename),
+    projectHFile{projectHFile}
 {
   std::filesystem::path path{filepath};
-  if(Utils::IsHeaderFile(filename))
+  if (Utils::IsHeaderFile(filename))
   {
     allDeps.emplace(filepath, this);
   }
   std::ifstream file(filepath);
   std::string line;
-  while(std::getline(file,line))
+  while (std::getline(file, line))
   {
     std::string start;
     std::stringstream ss{line};
     ss >> start;
-    if(start == "#include")
+    if (start == "#include")
     {
       std::string include = GetIncludeFile(line);
 
@@ -39,25 +47,29 @@ IncludeDeps::IncludeDeps(const std::string& filename, bool projectHFile, const s
       if (FileUtils::FileExists(includeFileRelativeToSource.string()))
       {
         auto itD = allDeps.find(includeFileRelativeToSource.string());
-        if(itD == allDeps.end())
+        if (itD == allDeps.end())
         {
           IncludeDeps* inc = new IncludeDeps(includeFileRelativeToSource.string(), false, files, allDeps);
           dependencies.emplace(includeFileRelativeToSource, inc);
-        } else {
+        }
+        else
+        {
           dependencies.emplace(itD->first, itD->second);
         }
       }
       else
       {
         auto it = files.find({include, "", false});
-        if(it != files.end())
+        if (it != files.end())
         {
           auto itD = allDeps.find(it->filepath);
-          if(itD == allDeps.end())
+          if (itD == allDeps.end())
           {
             IncludeDeps* inc = new IncludeDeps(it->filepath, it->isProjectHFile, files, allDeps);
             dependencies.emplace(it->filepath, inc);
-          }else{
+          }
+          else
+          {
             dependencies.emplace(itD->first, itD->second);
           }
         }
@@ -69,19 +81,19 @@ IncludeDeps::IncludeDeps(const std::string& filename, bool projectHFile, const s
 std::string IncludeDeps::GetIncludeFile(const std::string& line)
 {
   size_t bracket = line.find('<');
-  if(bracket == std::string::npos)
+  if (bracket == std::string::npos)
   {
     bracket = line.find('\"');
-    if(bracket == std::string::npos)
+    if (bracket == std::string::npos)
     {
       return "";
     }
 
-    std::string include = line.substr(bracket + 1, line.find('\"',bracket+1)-bracket-1);
+    std::string include = line.substr(bracket + 1, line.find('\"', bracket + 1) - bracket - 1);
     return include;
   }
   else
   {
-    return line.substr(bracket+1, line.find('>',bracket+1)-bracket-1);
+    return line.substr(bracket + 1, line.find('>', bracket + 1) - bracket - 1);
   }
 }

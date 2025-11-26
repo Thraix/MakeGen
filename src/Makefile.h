@@ -4,6 +4,6 @@
 
 class Makefile
 {
-  public:
-    static void Save(ConfigFile& conf, unsigned int flags);
+public:
+  static void Save(ConfigFile& conf, unsigned int flags);
 };

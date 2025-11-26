@@ -1,16 +1,16 @@
 #include "Utils.h"
 
+#include <filesystem>
+
 #include "ConfigFile.h"
 #include "FileUtils.h"
-
-#include <filesystem>
 
 bool Utils::IsSourceFile(const std::string& filepath)
 {
   std::string_view extension(filepath);
   size_t pSlash = filepath.find_last_of('/');
   size_t pDot = filepath.find_last_of('.');
-  if(pDot == std::string::npos || (pSlash != std::string::npos && pSlash > pDot))
+  if (pDot == std::string::npos || (pSlash != std::string::npos && pSlash > pDot))
   {
     LOG_ERROR("No file extension for file: ", filepath);
     return false;
@@ -24,7 +24,7 @@ bool Utils::IsHeaderFile(const std::string& filepath)
   std::string_view extension(filepath);
   size_t pSlash = filepath.find_last_of('/');
   size_t pDot = filepath.find_last_of('.');
-  if(pDot == std::string::npos || (pSlash != std::string::npos && pSlash > pDot))
+  if (pDot == std::string::npos || (pSlash != std::string::npos && pSlash > pDot))
   {
     return false;
   }
@@ -40,13 +40,12 @@ bool Utils::StartsWith(const std::string& str, const std::string& prefix)
   return str.compare(0, prefix.size(), prefix) == 0;
 }
 
-
 std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
 {
   size_t n = 0;
-  for(size_t i = 0; i<s1.size() && i<s2.size();++i)
+  for (size_t i = 0; i < s1.size() && i < s2.size(); ++i)
   {
-    if(s1[i] != s2[i])
+    if (s1[i] != s2[i])
     {
       n = i;
       break;
@@ -66,21 +65,21 @@ void Utils::GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles)
   }
   const std::vector<std::string>& excludeSources = conf.GetSettingVectorString(ConfigSetting::ExcludeSource);
 
-  for(const auto& sourceFile : conf.GetSettingVectorString(ConfigSetting::SourceFile))
+  for (const auto& sourceFile : conf.GetSettingVectorString(ConfigSetting::SourceFile))
   {
-    if(FileUtils::FileExists(conf.GetConfigPath() + sourceFile))
+    if (FileUtils::FileExists(conf.GetConfigPath() + sourceFile))
       cppFiles.emplace(conf.GetConfigPath() + sourceFile);
     else
       LOG_WARNING("Source file doesn't exist: ", sourceFile);
   }
 
-  for(auto& filename : files)
+  for (auto& filename : files)
   {
     std::filesystem::path filepath = std::filesystem::relative(filename, "./");
-    if(IsSourceFile(filename))
+    if (IsSourceFile(filename))
     {
       auto it = std::find(excludeSources.begin(), excludeSources.end(), filename);
-      if(it == excludeSources.end())
+      if (it == excludeSources.end())
       {
         cppFiles.emplace(filepath.string());
       }
@@ -98,39 +97,39 @@ void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<
     FileUtils::GetAllFiles(path, files);
   }
   const std::vector<std::string>& excludeSources = conf.GetSettingVectorString(ConfigSetting::ExcludeSource);
-  for(const auto& sourceFile : conf.GetSettingVectorString(ConfigSetting::SourceFile))
+  for (const auto& sourceFile : conf.GetSettingVectorString(ConfigSetting::SourceFile))
   {
-    if(FileUtils::FileExists(conf.GetConfigPath() + sourceFile))
+    if (FileUtils::FileExists(conf.GetConfigPath() + sourceFile))
       cppFiles.emplace(conf.GetConfigPath() + sourceFile);
     else
       LOG_WARNING("Source file doesn't exist: ", sourceFile);
   }
-  for(const auto& filename : files)
+  for (const auto& filename : files)
   {
-    if(IsSourceFile(filename))
+    if (IsSourceFile(filename))
     {
       std::filesystem::path filepath = std::filesystem::relative(filename, "./");
       auto it = std::find(excludeSources.begin(), excludeSources.end(), filepath.string());
-      if(it == excludeSources.end())
+      if (it == excludeSources.end())
       {
         cppFiles.emplace(filepath.string());
       }
     }
-    else if(IsHeaderFile(filename))
+    else if (IsHeaderFile(filename))
     {
       std::filesystem::path path = std::filesystem::relative(filename, sourceDir);
       hFiles.emplace(HFile{path.string(), sourceDir, false});
     }
   }
 
-  for(const auto& includePath : conf.GetSettingVectorString(ConfigSetting::IncludeDir))
+  for (const auto& includePath : conf.GetSettingVectorString(ConfigSetting::IncludeDir))
   {
     std::vector<std::string> files;
     FileUtils::GetAllFiles(includePath, files);
-    for(const auto& file : files)
+    for (const auto& file : files)
     {
       std::filesystem::path path = std::filesystem::relative(file, includePath);
-      if(IsHeaderFile(path.string()))
+      if (IsHeaderFile(path.string()))
       {
         hFiles.emplace(HFile{path.string(), includePath, false});
       }
@@ -138,7 +137,7 @@ void Utils::GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<
   }
 
   std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
-  for(size_t i = 0; i < dependencies.size(); ++i)
+  for (size_t i = 0; i < dependencies.size(); ++i)
   {
     GetHFiles(dependencies[i], conf.GetDependencyConfig(i), hFiles);
   }
@@ -150,7 +149,7 @@ void Utils::GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::s
   // Cyclic dependencies probably shouldn't exist.
   // so just warn the user that it does and terminate.
   std::vector<std::string>& dependencies = conf.GetSettingVectorString(ConfigSetting::Dependency);
-  for(size_t i = 0; i < dependencies.size(); ++i)
+  for (size_t i = 0; i < dependencies.size(); ++i)
   {
     GetHFiles(dependencies[i], conf.GetDependencyConfig(i), hFiles);
   }
@@ -158,15 +157,15 @@ void Utils::GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::s
   std::vector<std::string> files;
   std::string depSrcDir = dependencyDir + conf.GetSettingString(ConfigSetting::SourceDir);
   FileUtils::GetAllFiles(depSrcDir, files);
-  for(auto it = files.begin(); it!=files.end();++it)
+  for (auto it = files.begin(); it != files.end(); ++it)
   {
-    if(IsHeaderFile(*it))
+    if (IsHeaderFile(*it))
     {
       std::string filename = it->substr(depSrcDir.length());
       auto it = hFiles.find({filename, "", false});
-      if(it != hFiles.end())
+      if (it != hFiles.end())
       {
-        if(filename == conf.GetSettingString(ConfigSetting::HFileName) && !it->isProjectHFile)
+        if (filename == conf.GetSettingString(ConfigSetting::HFileName) && !it->isProjectHFile)
         {
           HFile hfile = *it;
           hfile.isProjectHFile = true;
@@ -176,11 +175,15 @@ void Utils::GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::s
       }
       else
       {
-        hFiles.emplace(HFile{filename, depSrcDir, conf.GetSettingBool(ConfigSetting::GenerateHFile) && filename == conf.GetSettingString(ConfigSetting::HFileName)});
+        hFiles.emplace(HFile{filename,
+                             depSrcDir,
+                             conf.GetSettingBool(ConfigSetting::GenerateHFile) &&
+                               filename == conf.GetSettingString(ConfigSetting::HFileName)});
       }
     }
   }
 }
+
 bool Utils::IsWhiteSpace(char c)
 {
   return c == '\n' || c == '\t' || c == '\r' || c == ' ' || c == '\t';
@@ -193,9 +196,9 @@ bool Utils::IsLetter(char c)
 
 bool Utils::IsWord(const std::string& string)
 {
-  for(auto it{string.begin()}; it != string.end();++it)
+  for (auto it{string.begin()}; it != string.end(); ++it)
   {
-    if(!IsLetter(*it))
+    if (!IsLetter(*it))
       return false;
   }
   return true;

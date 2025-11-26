@@ -1,9 +1,9 @@
 #include "XMLObject.h"
 
+#include <cstring>
+
 #include "../Common.h"
 #include "../Utils.h"
-
-#include <cstring>
 #include "XMLException.h"
 
 XMLObject::XMLObject(const std::string& string)
@@ -11,7 +11,7 @@ XMLObject::XMLObject(const std::string& string)
   int pos = 0;
   int line = 1;
   XMLLoadData data{pos, line, ""};
-  if(!ReadHead(string, data))
+  if (!ReadHead(string, data))
     ReadBodyTail(string, data);
 }
 
@@ -28,16 +28,22 @@ XMLObject::XMLObject(const std::string& string, XMLLoadData& data)
     ReadBodyTail(string, data);
 }
 
-XMLObject::XMLObject(const std::string& name, const std::map<std::string, std::string>& attributes, const std::string& text)
-  :name(name), attributes(attributes), text(text)
+XMLObject::XMLObject(const std::string& name,
+                     const std::map<std::string, std::string>& attributes,
+                     const std::string& text)
+  : name(name),
+    attributes(attributes),
+    text(text)
 {
-
 }
 
-XMLObject::XMLObject(const std::string& name, const std::map<std::string, std::string>& attributes, const std::map<std::string,std::vector<XMLObject>>& objects)
-  : name(name), attributes(attributes), objects(objects)
+XMLObject::XMLObject(const std::string& name,
+                     const std::map<std::string, std::string>& attributes,
+                     const std::map<std::string, std::vector<XMLObject>>& objects)
+  : name(name),
+    attributes(attributes),
+    objects(objects)
 {
-
 }
 
 bool XMLObject::HasAttribute(const std::string& property) const
@@ -69,7 +75,7 @@ unsigned int XMLObject::GetObjectCount() const
 std::vector<XMLObject>* XMLObject::GetObjectPtr(const std::string& name)
 {
   auto it = objects.find(name);
-  if(it == objects.end())
+  if (it == objects.end())
     return nullptr;
 
   return &it->second;
@@ -92,7 +98,7 @@ const std::string& XMLObject::GetText() const
 
 void XMLObject::SetName(const std::string& name)
 {
-  if(Utils::IsWord(name))
+  if (Utils::IsWord(name))
     this->name = name;
   else
     LOG_ERROR("XML Head can only be made up of letters");
@@ -105,7 +111,7 @@ void XMLObject::SetText(const std::string& text)
 
 void XMLObject::AddAttribute(const std::string& property, const std::string& value)
 {
-  if(Utils::IsWord(property))
+  if (Utils::IsWord(property))
     attributes.emplace(property, value);
   else
     LOG_ERROR("XML property name can only be made up of letters");
@@ -114,7 +120,7 @@ void XMLObject::AddAttribute(const std::string& property, const std::string& val
 void XMLObject::AddXMLObject(const XMLObject& object)
 {
   auto it = objects.find(object.name);
-  if(it == objects.end())
+  if (it == objects.end())
     objects.emplace(object.name, std::vector<XMLObject>{object});
   else
     it->second.push_back(object);
@@ -123,18 +129,18 @@ void XMLObject::AddXMLObject(const XMLObject& object)
 bool XMLObject::RemoveXMLObject(const XMLObject& object)
 {
   auto it = objects.find(object.name);
-  if(it == objects.end())
+  if (it == objects.end())
     return false;
 
   bool removed = false;
-  for(auto it2 = it->second.begin(); it2 != it->second.end();)
+  for (auto it2 = it->second.begin(); it2 != it->second.end();)
   {
-    if(*it2 == object)
+    if (*it2 == object)
     {
       it2 = it->second.erase(it2);
       removed = true;
     }
-    else 
+    else
       ++it2;
   }
   return removed;
@@ -142,7 +148,7 @@ bool XMLObject::RemoveXMLObject(const XMLObject& object)
 
 XMLObject XMLObject::GetStrippedXMLObject() const
 {
-  if(text == "")
+  if (text == "")
     return XMLObject(name, attributes, objects);
   else
     return XMLObject(name, attributes, text);
@@ -153,7 +159,6 @@ XMLObject XMLObject::GetStrippedXMLObject() const
 // Everything below here handles the reading of xml files //
 //                                                        //
 ////////////////////////////////////////////////////////////
-
 
 bool XMLObject::ReadHead(const std::string& string, XMLLoadData& data)
 {
@@ -179,7 +184,8 @@ bool XMLObject::ReadHead(const std::string& string, XMLLoadData& data)
     data.pos++;
     ReadWhiteSpace(string, data);
     if (string[data.pos] != '>')
-      throw XMLException((std::string("Invalid character proceeding / in opening XML Tag \"") + string[data.pos] + "\".").c_str(), data);
+      throw XMLException(
+        (std::string("Invalid character proceeding / in opening XML Tag \"") + string[data.pos] + "\".").c_str(), data);
     data.pos++;
     // nothing more to read.
     return true;
@@ -187,7 +193,9 @@ bool XMLObject::ReadHead(const std::string& string, XMLLoadData& data)
 
   ReadWhiteSpace(string, data);
   if (string[data.pos] != '>')
-    throw XMLException((std::string("Invalid character proceeding attributes in opening XML Tag \"") + string[data.pos] + "\".").c_str(), data);
+    throw XMLException(
+      (std::string("Invalid character proceeding attributes in opening XML Tag \"") + string[data.pos] + "\".").c_str(),
+      data);
   (data.pos)++;
   return false;
 }
@@ -203,7 +211,8 @@ void XMLObject::ReadName(const std::string& string, XMLLoadData& data)
   ReadWhiteSpace(string, data);
   if (string[data.pos] != '/' && string[data.pos] != '>' && Utils::IsWhiteSpace(string[data.pos]))
   {
-    throw XMLException((std::string("Invalid character proceeding name in XML Tag \"") + string[data.pos] + "\".").c_str(), data);
+    throw XMLException(
+      (std::string("Invalid character proceeding name in XML Tag \"") + string[data.pos] + "\".").c_str(), data);
   }
 }
 
@@ -230,7 +239,9 @@ void XMLObject::ReadAttribute(const std::string& string, XMLLoadData& data)
 
   // Read =
   if (string[data.pos] != '=')
-    throw XMLException((std::string("Invalid character proceeding property name in XML Tag \"") + string[data.pos] + "\".").c_str(), data);
+    throw XMLException(
+      (std::string("Invalid character proceeding property name in XML Tag \"") + string[data.pos] + "\".").c_str(),
+      data);
   (data.pos)++;
   ReadWhiteSpace(string, data);
 
@@ -256,7 +267,10 @@ void XMLObject::ReadBodyTail(const std::string& string, XMLLoadData& data)
     ReadWhiteSpace(string, data);
     std::string closeTag = GetClosingTag(string, data);
     if (closeTag.length() == 0)
-      throw XMLException("Tag after XML Test was not a closing tag. XMLObject doesn't support text and other XMLObjects at the same time.", data);
+      throw XMLException(
+        "Tag after XML Test was not a closing tag. XMLObject doesn't support text and other XMLObjects at the same "
+        "time.",
+        data);
     return;
   }
   // Check if we can read the closing tag.
@@ -279,13 +293,13 @@ void XMLObject::ReadText(const std::string& string, XMLLoadData& data)
 
 void XMLObject::ReadWhiteSpace(const std::string& string, XMLLoadData& data)
 {
-  while (Utils::IsWhiteSpace(string[data.pos])) {
+  while (Utils::IsWhiteSpace(string[data.pos]))
+  {
     if (string[data.pos] == '\n')
       (data.line)++;
     (data.pos)++;
   }
 }
-
 
 std::string XMLObject::GetClosingTag(const std::string& string, XMLLoadData& data)
 {
@@ -307,7 +321,8 @@ std::string XMLObject::GetClosingTag(const std::string& string, XMLLoadData& dat
   ReadWhiteSpace(string, data);
   std::string tag = Utils::GetWord(string, data.pos);
   if (tag != name)
-    throw XMLException((std::string("Closing tag doesn't match opening tag. (\"") + name + "\" != \"" + tag+ "\")").c_str(), data);
+    throw XMLException(
+      (std::string("Closing tag doesn't match opening tag. (\"") + name + "\" != \"" + tag + "\")").c_str(), data);
   data.pos += tag.length();
   ReadWhiteSpace(string, data);
   if (string[data.pos] != '>')
@@ -318,82 +333,72 @@ std::string XMLObject::GetClosingTag(const std::string& string, XMLLoadData& dat
 
 void XMLObject::ReplacePredefinedEntities(std::string& string, XMLLoadData& data)
 {
-  std::vector<std::pair<std::string, std::string>> entities
-  {
-    {"&quot;","\""},
-      {"&apos;", "\'"},
-      {"&lt;", "<"},
-      {"&gt;",">"},
-      {"&amp;", "&"}
-  };
+  std::vector<std::pair<std::string, std::string>> entities{
+    {"&quot;", "\""}, {"&apos;", "\'"}, {"&lt;", "<"}, {"&gt;", ">"}, {"&amp;", "&"}};
   size_t pos = string.find('&');
-  while(pos != std::string::npos)
+  while (pos != std::string::npos)
   {
     bool found = false;
-    for(auto entity : entities)
+    for (auto entity : entities)
     {
-      if(strncmp(&string[pos], entity.first.c_str(), entity.first.length()) == 0)
+      if (strncmp(&string[pos], entity.first.c_str(), entity.first.length()) == 0)
       {
         string.replace(pos, entity.first.length(), entity.second);
         found = true;
       }
     }
-    if(!found)
-      LOG_ERROR("(" + data.file + ":" + std::to_string(data.line) + "): ""Ampersand found in xml but isn't a predefined entity.");
-    pos = string.find('&', pos+1);
+    if (!found)
+      LOG_ERROR("(" + data.file + ":" + std::to_string(data.line) +
+                "): "
+                "Ampersand found in xml but isn't a predefined entity.");
+    pos = string.find('&', pos + 1);
   }
 }
 
 std::string XMLObject::ReadXMLName(const std::string& string, XMLLoadData& data)
 {
-  if(!(Utils::IsLetter(string[data.pos]) ||
-        string[data.pos] == '_' ||
-        string[data.pos] == ':'))
+  if (!(Utils::IsLetter(string[data.pos]) || string[data.pos] == '_' || string[data.pos] == ':'))
     throw XMLException(std::string("Name doesn't start with a letter."), data);
 
   int endPos = data.pos + 1;
-  while (endPos < string.length() && (
-        Utils::IsLetter(string[endPos]) ||
-        string[endPos] == '_' ||
-        string[endPos] == '-' ||
-        string[endPos] == ':' ||
-        string[endPos] == '.'))
+  while (endPos < string.length() && (Utils::IsLetter(string[endPos]) || string[endPos] == '_' ||
+                                      string[endPos] == '-' || string[endPos] == ':' || string[endPos] == '.'))
     endPos++;
   return string.substr(data.pos, endPos - data.pos);
 }
 
 std::ostream& XMLObject::WriteToStream(std::ostream& stream, int indent) const
 {
-  for(int i = 0;i<indent;i++)
+  for (int i = 0; i < indent; i++)
   {
     stream << "  ";
   }
   stream << "<" << name;
-  for(auto it = attributes.begin();it!=attributes.end();++it)
+  for (auto it = attributes.begin(); it != attributes.end(); ++it)
   {
     stream << " " << it->first << "=\"" << it->second << "\"";
   }
   stream << ">";
-  if(text != "")
+  if (text != "")
   {
     stream << text;
   }
   else
   {
     bool hasChild = false;
-    for(auto it = objects.begin(); it != objects.end();++it)
+    for (auto it = objects.begin(); it != objects.end(); ++it)
     {
-      for(auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+      for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
       {
         stream << "\n";
-        it2->WriteToStream(stream, indent+1);
+        it2->WriteToStream(stream, indent + 1);
         hasChild = true;
       }
     }
-    if(hasChild)
+    if (hasChild)
     {
       stream << "\n";
-      for(int i = 0;i<indent;i++)
+      for (int i = 0; i < indent; i++)
       {
         stream << "  ";
       }
@@ -403,4 +408,3 @@ std::ostream& XMLObject::WriteToStream(std::ostream& stream, int indent) const
 
   return stream;
 }
-

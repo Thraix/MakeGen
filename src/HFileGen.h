@@ -4,6 +4,6 @@
 
 class HFileGen
 {
-  public:
-    static void Create(ConfigFile& conf);
+public:
+  static void Create(ConfigFile& conf);
 };

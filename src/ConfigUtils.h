@@ -1,12 +1,13 @@
 #pragma once
 
+#include <assert.h>
+
+#include <map>
+#include <string>
+#include <vector>
+
 #include "Common.h"
 #include "FileUtils.h"
-
-#include <assert.h>
-#include <map>
-#include <vector>
-#include <string>
 
 struct ConfigCache
 {
@@ -18,9 +19,26 @@ struct ConfigCache
 enum class ConfigSetting
 {
   // vectors
-  Library = 0, LibraryDir = 1, IncludeDir = 2, Define = 3, Dependency = 4, CFlag = 5, LFlag = 6, ExcludeSource = 7, ExcludeHeader = 8, ExecPreArgument = 9, ExecArgument = 10, SourceFile = 11, IncludeDirExclDep = 12,
+  Library = 0,
+  LibraryDir = 1,
+  IncludeDir = 2,
+  Define = 3,
+  Dependency = 4,
+  CFlag = 5,
+  LFlag = 6,
+  ExcludeSource = 7,
+  ExcludeHeader = 8,
+  ExecPreArgument = 9,
+  ExecArgument = 10,
+  SourceFile = 11,
+  IncludeDirExclDep = 12,
   // Strings
-  SourceDir = 32, OutputDir = 33, OutputName = 34, OutputType = 35, ProjectName = 36, HFileName = 37,
+  SourceDir = 32,
+  OutputDir = 33,
+  OutputName = 34,
+  OutputType = 35,
+  ProjectName = 36,
+  HFileName = 37,
   // Bools
   GenerateHFile = 64,
   // Other
@@ -31,7 +49,7 @@ struct ConfigUtils
 {
   static std::string GetSettingName(ConfigSetting setting)
   {
-    switch(setting)
+    switch (setting)
     {
       case ConfigSetting::SourceDir:
         return "srcdir";
@@ -81,7 +99,7 @@ struct ConfigUtils
 
   static bool IsDirectory(ConfigSetting setting)
   {
-    switch(setting)
+    switch (setting)
     {
       case ConfigSetting::SourceDir:
       case ConfigSetting::OutputDir:
@@ -112,7 +130,7 @@ struct ConfigUtils
 
   static bool IsStringSetting(ConfigSetting setting)
   {
-    switch(setting)
+    switch (setting)
     {
       case ConfigSetting::SourceDir:
       case ConfigSetting::OutputDir:
@@ -143,7 +161,7 @@ struct ConfigUtils
 
   static bool IsVectorSetting(ConfigSetting setting)
   {
-    switch(setting)
+    switch (setting)
     {
       case ConfigSetting::LibraryDir:
       case ConfigSetting::IncludeDir:
@@ -171,9 +189,10 @@ struct ConfigUtils
     }
     return false;
   }
+
   static bool IsBoolSetting(ConfigSetting setting)
   {
-    switch(setting)
+    switch (setting)
     {
       case ConfigSetting::GenerateHFile:
         return true;
@@ -204,7 +223,7 @@ struct ConfigUtils
 
   static std::string GetDefaultSettingString(ConfigSetting setting, const std::string& path)
   {
-    switch(setting)
+    switch (setting)
     {
       case ConfigSetting::SourceDir:
         return "src/";
@@ -229,7 +248,7 @@ struct ConfigUtils
 
   static bool GetDefaultSettingBool(ConfigSetting setting)
   {
-    switch(setting)
+    switch (setting)
     {
       case ConfigSetting::GenerateHFile:
         return false;
@@ -248,23 +267,18 @@ struct ConfigUtils
   {
     std::string projectname = GetDefaultProjectName(path);
     std::string outputname;
-    std::transform(
-        projectname.begin(),
-        projectname.end(),
-        std::back_inserter(outputname),
-        [](unsigned char c)
-        {
-          if(c == ' ')
-            return '_';
-          return (char)std::tolower(c);
-        });
-    auto it = std::remove_if(
-        outputname.begin(),
-        outputname.end(),
-        [](unsigned char c)
-        {
-          return (c < '0' || c > '9') && (c < 'a' || c > 'z') && c != '_';
-        });
+    std::transform(projectname.begin(),
+                   projectname.end(),
+                   std::back_inserter(outputname),
+                   [](unsigned char c)
+                   {
+                     if (c == ' ')
+                       return '_';
+                     return (char)std::tolower(c);
+                   });
+    auto it = std::remove_if(outputname.begin(),
+                             outputname.end(),
+                             [](unsigned char c) { return (c < '0' || c > '9') && (c < 'a' || c > 'z') && c != '_'; });
     outputname.erase(it, outputname.end());
     outputname += ".out";
     return outputname;
@@ -274,12 +288,7 @@ struct ConfigUtils
   {
     std::string hfile = GetDefaultProjectName(path);
     auto it = std::remove_if(
-        hfile.begin(),
-        hfile.end(),
-        [](unsigned char c)
-        {
-          return (c < 'a' || c > 'z') && (c < 'A' || c > 'Z');
-        });
+      hfile.begin(), hfile.end(), [](unsigned char c) { return (c < 'a' || c > 'z') && (c < 'A' || c > 'Z'); });
     hfile.erase(it, hfile.end());
     hfile += ".h";
     return hfile;

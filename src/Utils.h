@@ -5,7 +5,6 @@
 #include <set>
 #include <string>
 
-
 struct HFile
 {
   std::string filename;
@@ -14,8 +13,11 @@ struct HFile
   std::filesystem::path filepath;
 
   HFile(const std::string& filename, const std::string& directory, bool isProjectHFile)
-    : filename{filename}, isProjectHFile{isProjectHFile}, filepath{directory+filename}
-  {}
+    : filename{filename},
+      isProjectHFile{isProjectHFile},
+      filepath{directory + filename}
+  {
+  }
 
   friend bool operator<(const HFile& h1, const HFile& h2)
   {

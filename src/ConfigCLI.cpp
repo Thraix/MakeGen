@@ -5,7 +5,7 @@
 
 void ConfigCLI::DisplayCLIHelp()
 {
-  LOG_INFO(1+(char*)R"(
+  LOG_INFO(1 + (char*)R"(
 MakeGen conf is used to create, modify and query the makegen.xml file.
 
 Usage: makegen conf <command> [<args>] [--help]
@@ -25,7 +25,7 @@ Querying config settings
 
 void ConfigCLI::DisplayGenHelp()
 {
-  LOG_INFO(1+(char*)R"(
+  LOG_INFO(1 + (char*)R"(
 Generate a config file from prompts
 
 Usage: makegen conf gen <option>
@@ -39,7 +39,7 @@ options:
 
 void ConfigCLI::DisplayAddHelp()
 {
-  LOG_INFO(1+(char*)R"(
+  LOG_INFO(1 + (char*)R"(
 Add values to config settings which support multiple arguments
 
 Usage: makegen conf add <setting> <value> [<values>]
@@ -60,7 +60,7 @@ Valid settings are:
 
 void ConfigCLI::DisplayRemoveHelp()
 {
-  LOG_INFO(1+(char*)R"(
+  LOG_INFO(1 + (char*)R"(
 Remove values to config settings which support multiple
 
 Usage: makegen conf remove <setting> <value> [<
@@ -81,7 +81,7 @@ Valid settings are
 
 void ConfigCLI::DisplaySetHelp()
 {
-  LOG_INFO(1+(char*)R"(
+  LOG_INFO(1 + (char*)R"(
 Set value to config settings which only support one argument
 
 Usage: makegen conf set <setting> <value>
@@ -102,7 +102,7 @@ Boolean values can be set to either true/t/yes/y or false/f/no/n)");
 
 void ConfigCLI::DisplayGetHelp()
 {
-  LOG_INFO(1+(char*)R"(
+  LOG_INFO(1 + (char*)R"(
 Get value of the config setting
 
 Usage: makegen conf get <setting>
@@ -128,7 +128,6 @@ Valid settings are:
   genhfile      Specifies if MakeGen should generate a project h-file)");
 }
 
-
 ConfigSetting ConfigCLI::CLIStringToSetting(const std::string& s)
 {
   static std::map<std::string, ConfigSetting> map{
@@ -152,30 +151,30 @@ ConfigSetting ConfigCLI::CLIStringToSetting(const std::string& s)
     {"genhfile", ConfigSetting::GenerateHFile},
   };
   auto it = map.find(s);
-  if(it == map.end())
+  if (it == map.end())
     return ConfigSetting::Invalid;
   return it->second;
 }
 
 int ConfigCLI::Gen(int argc, char** argv)
 {
-  if(argc < 2 || std::string(argv[1]) == "--help")
+  if (argc < 2 || std::string(argv[1]) == "--help")
   {
     DisplayGenHelp();
     return 0;
   }
-  if(argc < 2)
+  if (argc < 2)
   {
     LOG_ERROR("gen needs exactly one parameter");
     return 1;
   }
   std::string option = argv[1];
-  if(option == "prompt")
+  if (option == "prompt")
   {
     ConfigFile::Gen(FlagData{}).Save();
     return 0;
   }
-  if(option == "default")
+  if (option == "default")
   {
     ConfigFile{FileUtils::GetRealPath("."), FlagData{}, 0}.Save();
     return 0;
@@ -189,21 +188,21 @@ int ConfigCLI::Gen(int argc, char** argv)
 
 int ConfigCLI::Add(int argc, char** argv, ConfigFile& config)
 {
-  if(argc < 2 || std::string(argv[1]) == "--help")
+  if (argc < 2 || std::string(argv[1]) == "--help")
   {
     DisplayAddHelp();
     return 0;
   }
-  if(argc < 3)
+  if (argc < 3)
   {
     LOG_ERROR("add needs at least two parameters");
     return 1;
   }
 
   ConfigSetting setting = CLIStringToSetting(argv[1]);
-  if(!ConfigUtils::IsVectorSetting(setting))
+  if (!ConfigUtils::IsVectorSetting(setting))
   {
-    if(setting == ConfigSetting::Invalid)
+    if (setting == ConfigSetting::Invalid)
     {
       LOG_ERROR("No such setting: ", argv[1]);
     }
@@ -214,7 +213,7 @@ int ConfigCLI::Add(int argc, char** argv, ConfigFile& config)
     }
     return 1;
   }
-  for(int i = 2; i<argc;++i)
+  for (int i = 2; i < argc; ++i)
   {
     config.AddSettingVectorString(setting, argv[i]);
   }
@@ -225,21 +224,21 @@ int ConfigCLI::Add(int argc, char** argv, ConfigFile& config)
 
 int ConfigCLI::Remove(int argc, char** argv, ConfigFile& config)
 {
-  if(argc < 2 || std::string(argv[1]) == "--help")
+  if (argc < 2 || std::string(argv[1]) == "--help")
   {
     DisplayRemoveHelp();
     return 0;
   }
-  if(argc < 3)
+  if (argc < 3)
   {
     LOG_ERROR("remove needs at least two parameters");
     return 1;
   }
 
   ConfigSetting setting = CLIStringToSetting(argv[1]);
-  if(!ConfigUtils::IsVectorSetting(setting))
+  if (!ConfigUtils::IsVectorSetting(setting))
   {
-    if(setting == ConfigSetting::Invalid)
+    if (setting == ConfigSetting::Invalid)
     {
       LOG_ERROR("No such setting: ", argv[1]);
     }
@@ -251,7 +250,7 @@ int ConfigCLI::Remove(int argc, char** argv, ConfigFile& config)
     return 1;
   }
 
-  for(int i = 2; i<argc;++i)
+  for (int i = 2; i < argc; ++i)
   {
     config.RemoveSettingVectorString(setting, argv[i]);
   }
@@ -262,21 +261,21 @@ int ConfigCLI::Remove(int argc, char** argv, ConfigFile& config)
 
 int ConfigCLI::Set(int argc, char** argv, ConfigFile& config)
 {
-  if(argc < 2 || std::string(argv[1]) == "--help")
+  if (argc < 2 || std::string(argv[1]) == "--help")
   {
     DisplaySetHelp();
     return 0;
   }
-  if(argc != 3)
+  if (argc != 3)
   {
     LOG_ERROR("set needs exactly two parameters");
     return 1;
   }
 
   ConfigSetting setting = CLIStringToSetting(argv[1]);
-  if(!ConfigUtils::IsStringSetting(setting) && !ConfigUtils::IsBoolSetting(setting))
+  if (!ConfigUtils::IsStringSetting(setting) && !ConfigUtils::IsBoolSetting(setting))
   {
-    if(setting == ConfigSetting::Invalid)
+    if (setting == ConfigSetting::Invalid)
     {
       LOG_ERROR("No such setting: ", argv[1]);
     }
@@ -295,19 +294,19 @@ int ConfigCLI::Set(int argc, char** argv, ConfigFile& config)
 
 int ConfigCLI::Get(int argc, char** argv, ConfigFile& config)
 {
-  if(argc < 2 || std::string(argv[1]) == "--help")
+  if (argc < 2 || std::string(argv[1]) == "--help")
   {
     DisplayGetHelp();
     return 0;
   }
-  if(argc != 2)
+  if (argc != 2)
   {
     LOG_ERROR("get needs exactly one parameter");
     return 1;
   }
   ConfigSetting setting = CLIStringToSetting(argv[1]);
   std::vector<std::string> vector = config.GetSetting(setting);
-  for(auto it = vector.begin(); it != vector.end(); ++it)
+  for (auto it = vector.begin(); it != vector.end(); ++it)
   {
     LOG_INFO(*it);
   }
@@ -317,32 +316,32 @@ int ConfigCLI::Get(int argc, char** argv, ConfigFile& config)
 int ConfigCLI::Main(int argc, char** argv)
 {
   // Do nothing
-  if(argc < 2 || std::string(argv[1]) == "--help")
+  if (argc < 2 || std::string(argv[1]) == "--help")
   {
     DisplayCLIHelp();
     return 0;
   }
   std::optional<ConfigFile> config = ConfigFile::GetConfigFile("./", FlagData{});
   std::string command = argv[1];
-  if(command == "gen")
+  if (command == "gen")
   {
-    if(config)
+    if (config)
     {
       LOG_ERROR("Config file already exist (", CONFIG_FILENAME, ")");
       return 1;
     }
-    return Gen(argc-1, &argv[1]);
+    return Gen(argc - 1, &argv[1]);
   }
-  else if(config)
+  else if (config)
   {
-    if(command == "add")
-      return Add(argc-1, &argv[1], *config);
-    else if(command == "remove")
-      return Remove(argc-1, &argv[1], *config);
-    else if(command == "set")
-      return Set(argc-1, &argv[1], *config);
-    else if(command == "get")
-      return Get(argc-1, &argv[1], *config);
+    if (command == "add")
+      return Add(argc - 1, &argv[1], *config);
+    else if (command == "remove")
+      return Remove(argc - 1, &argv[1], *config);
+    else if (command == "set")
+      return Set(argc - 1, &argv[1], *config);
+    else if (command == "get")
+      return Get(argc - 1, &argv[1], *config);
     else
     {
       LOG_ERROR("Unknown config command: ", command);

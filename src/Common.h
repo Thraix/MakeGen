@@ -1,10 +1,10 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include <set>
+#include <vector>
 
-#define BIT(x) (1<<x)
+#define BIT(x) (1 << x)
 
 #define STRINGIFY(x) #x
 #define STR(x) STRINGIFY(x)
@@ -31,7 +31,6 @@ const static unsigned int FLAG_SIMPLE = BIT(9);
 const static unsigned int FLAG_CONFIG = BIT(10);
 const static unsigned int FLAG_TARGET = BIT(11);
 
-
 #define LOG_INFO(...) LogHelper(__VA_ARGS__)
 #define LOG_WARNING(...) LogHelper(__VA_ARGS__)
 #define LOG_ERROR(...) LogHelper(__VA_ARGS__)
@@ -42,22 +41,22 @@ void Log(const T& var)
   std::cout << var;
 }
 
-template <typename T, typename ...Ts>
-void Log(const T& var, const Ts& ...vars)
+template <typename T, typename... Ts>
+void Log(const T& var, const Ts&... vars)
 {
   Log(var);
   Log(vars...);
 }
 
-template <typename T, typename ...Ts>
+template <typename T, typename... Ts>
 void LogHelper(const T& var)
 {
   Log(var);
   std::cout << std::endl;
 }
 
-template <typename T, typename ...Ts>
-void LogHelper(const T& var, const Ts& ...vars)
+template <typename T, typename... Ts>
+void LogHelper(const T& var, const Ts&... vars)
 {
   Log(var);
   Log(vars...);
