@@ -54,7 +54,9 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   {
     std::filesystem::path cppFile(*it);
     std::filesystem::path oFile = cppFile.replace_extension("o");
-    outputFile << "$(OBJPATH)/" << oFile.string() << " ";
+    std::string oFileStr = oFile.string();
+    Utils::Replace(oFileStr, "..", "dotdot");
+    outputFile << "$(OBJPATH)/" << oFileStr << " ";
   }
   outputFile << std::endl;
   if (outputtype == "executable" || outputtype != "sharedlibrary")
@@ -182,7 +184,9 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
     {
       std::filesystem::path cppFile(*it);
       std::filesystem::path oFile = cppFile.replace_extension("o");
-      outputFile << "$(OBJPATH)/" << oFile.string() << ":";
+      std::string oFileStr = oFile.string();
+      Utils::Replace(oFileStr, "..", "dotdot");
+      outputFile << "$(OBJPATH)/" << oFileStr << ":";
       if (flags & FLAG_SIMPLE)
       {
         outputFile << " " << *it;
@@ -206,7 +210,9 @@ std::set<std::string> Makefile::GetIntermediateDirectories(const std::set<std::s
   {
     std::filesystem::path cppPath{cppFile};
     std::filesystem::path oFile = cppPath.replace_extension("o");
-    intermediateDirectories.emplace("$(OBJPATH)/" + oFile.parent_path().string());
+    std::string parentPathStr = oFile.parent_path().string();
+    Utils::Replace(parentPathStr, "..", "dotdot");
+    intermediateDirectories.emplace("$(OBJPATH)/" + parentPathStr);
   }
   return intermediateDirectories;
 }

@@ -38,7 +38,9 @@ struct Utils
   static bool IsHeaderFile(const std::string& filepath);
 
   static std::string CommonPrefix(const std::string& s1, const std::string& s2);
+
   static bool StartsWith(const std::string& str, const std::string& prefix);
+  static void Replace(std::string& str, const std::string& from, const std::string& to);
   static void GetCppFiles(ConfigFile& conf, std::set<std::string>& cppFiles);
   static void GetCppAndHFiles(ConfigFile& conf, std::set<HFile>& hFiles, std::set<std::string>& cppFiles);
   static void GetHFiles(const std::string& dependencyDir, ConfigFile& conf, std::set<HFile>& hFiles);

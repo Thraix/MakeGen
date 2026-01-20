@@ -40,6 +40,19 @@ bool Utils::StartsWith(const std::string& str, const std::string& prefix)
   return str.compare(0, prefix.size(), prefix) == 0;
 }
 
+void Utils::Replace(std::string& str, const std::string& from, const std::string& to)
+{
+  if (from.empty())
+    return;
+
+  size_t pos = str.find(from, 0);
+  while (pos != std::string::npos)
+  {
+    str.replace(pos, from.length(), to);
+    pos = str.find(from, pos + to.length());
+  }
+}
+
 std::string Utils::CommonPrefix(const std::string& s1, const std::string& s2)
 {
   size_t n = 0;
