@@ -42,6 +42,7 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   {
     outputFile << "-I " << *it << " ";
   }
+
   std::vector<std::string>& includedirsexcldep = conf.GetSettingVectorString(ConfigSetting::IncludeDirExclDep);
   for (auto it = includedirsexcldep.begin(); it != includedirsexcldep.end(); ++it)
   {
@@ -51,9 +52,9 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   outputFile << "OBJECTS=";
   for (auto it = cppFiles.begin(); it != cppFiles.end(); ++it)
   {
-    size_t extensionPos = it->find_last_of(".");
-    size_t slash = it->find_last_of("/") + 1;
-    outputFile << "$(OBJPATH)/" << it->substr(slash, extensionPos - slash) << ".o ";
+    std::filesystem::path cppFile(*it);
+    std::filesystem::path oFile = cppFile.replace_extension("o");
+    outputFile << "$(OBJPATH)/" << oFile.string() << " ";
   }
   outputFile << std::endl;
   if (outputtype == "executable" || outputtype != "sharedlibrary")
@@ -120,16 +121,20 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
   outputFile << "all: directories $(OUTPUT)" << std::endl;
 
   // Directories
-  outputFile << "directories: $(BIN) $(OBJPATH)" << std::endl;
+  std::set<std::string> intermediateDirectories = GetIntermediateDirectories(cppFiles);
+  outputFile << "directories: ";
+  for (const auto& intermediateDirectory : intermediateDirectories)
+  {
+    outputFile << intermediateDirectory << " ";
+  }
+  outputFile << std::endl;
 
-  // Bin path
-  outputFile << "$(BIN):" << std::endl;
-  outputFile << "\t$(info Creating output directories)" << std::endl;
-  outputFile << "\t@$(MKDIR_P) $(BIN)" << std::endl;
-
-  // Object path
-  outputFile << "$(OBJPATH):" << std::endl;
-  outputFile << "\t@$(MKDIR_P) $(OBJPATH)" << std::endl;
+  // Intermediate directories
+  for (const auto& intermediateDirectory : intermediateDirectories)
+  {
+    outputFile << intermediateDirectory << ":" << std::endl;
+    outputFile << "\t@$(MKDIR_P) $@" << std::endl;
+  }
 
   // Run
   outputFile << "run: all" << std::endl;
@@ -150,12 +155,12 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
 
   // Clean
   outputFile << "clean:" << std::endl;
-  outputFile << "\t$(info Removing intermediates)" << std::endl;
-  outputFile << "\trm -rf $(OBJPATH)/*.o" << std::endl;
+  outputFile << "\t$(info Removing $(OBJPATH))" << std::endl;
+  outputFile << "\t@rm -rf $(OBJPATH)/" << std::endl;
 
   // Output file
   outputFile << "$(OUTPUT): $(OBJECTS)" << std::endl;
-  outputFile << "\t$(info Generating output file)" << std::endl;
+  outputFile << "\t$(info Generating output file $(OUTPUT))" << std::endl;
   if (outputtype == "executable")
     outputFile << "\t$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS) $(LIBS)" << std::endl;
   else
@@ -175,11 +180,9 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
     auto itD = dependencies.find(*it);
     if (itD == dependencies.end())
     {
-      size_t extensionPos = it->find_last_of(".");
-      size_t slash = it->find_last_of("/") + 1;
-      std::string oFile = it->substr(slash, extensionPos - slash) + ".o ";
-
-      outputFile << "$(OBJPATH)/" << oFile << ":";
+      std::filesystem::path cppFile(*it);
+      std::filesystem::path oFile = cppFile.replace_extension("o");
+      outputFile << "$(OBJPATH)/" << oFile.string() << ":";
       if (flags & FLAG_SIMPLE)
       {
         outputFile << " " << *it;
@@ -194,4 +197,16 @@ void Makefile::Save(ConfigFile& conf, unsigned int flags)
       outputFile << "\t$(CC) $(CFLAGS) -o $@ $<" << std::endl;
     }
   }
+}
+
+std::set<std::string> Makefile::GetIntermediateDirectories(const std::set<std::string>& cppFiles)
+{
+  std::set<std::string> intermediateDirectories;
+  for (const auto& cppFile : cppFiles)
+  {
+    std::filesystem::path cppPath{cppFile};
+    std::filesystem::path oFile = cppPath.replace_extension("o");
+    intermediateDirectories.emplace("$(OBJPATH)/" + oFile.parent_path().string());
+  }
+  return intermediateDirectories;
 }

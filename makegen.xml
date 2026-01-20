@@ -19,5 +19,5 @@
     <srcdir>src/</srcdir>
   </configuration>
   <target>Release</target>
-  <version>v1.3.5</version>
+  <version>v1.3.7</version>
 </makegen>

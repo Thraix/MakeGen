@@ -41,13 +41,12 @@ Usage: makegen [options]
     -s,     single             Runs additional makegen options as single thread
                                 (no --jobs=X flag)
             --simple           Creates a simple Makefile without include dependencies
-                                (no --jobs=X flag)
             --target=<target>  Run the makegen.xml file with the specified target
 
-  If no option is given it will run \"make all\"
+  If no option is given it will run "make all"
 
   If multiple make options are given it will run in the following order:
-    clean all install run, rebuild will be translated to \"clean make\")");
+    clean all install run, rebuild will be translated to "clean make")");
 }
 
 void GenMakefile(ConfigFile& conf, unsigned int flags)

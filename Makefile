@@ -1,4 +1,4 @@
-# This Makefile was generated using MakeGen v1.3.6 made by Tim Håkansson
+# This Makefile was generated using MakeGen v1.3.7 made by Tim Håkansson
 # and is licensed under MIT. Full source of the project can be found at
 # https://github.com/Thraix/MakeGen
 CC=@g++
@@ -7,7 +7,7 @@ MKDIR_P=mkdir -p
 BIN=bin/
 OBJPATH=$(BIN)intermediates
 INCLUDES=
-OBJECTS=$(OBJPATH)/ConfigCLI.o $(OBJPATH)/ConfigFile.o $(OBJPATH)/HFileGen.o $(OBJPATH)/IncludeDeps.o $(OBJPATH)/Makefile.o $(OBJPATH)/Utils.o $(OBJPATH)/ConfigFileConf.o $(OBJPATH)/main.o $(OBJPATH)/XML.o $(OBJPATH)/XMLObject.o 
+OBJECTS=$(OBJPATH)/src/ConfigCLI.o $(OBJPATH)/src/ConfigFile.o $(OBJPATH)/src/HFileGen.o $(OBJPATH)/src/IncludeDeps.o $(OBJPATH)/src/Makefile.o $(OBJPATH)/src/Utils.o $(OBJPATH)/src/compatibility/ConfigFileConf.o $(OBJPATH)/src/main.o $(OBJPATH)/src/xml/XML.o $(OBJPATH)/src/xml/XMLObject.o 
 CFLAGS=$(INCLUDES) -std=c++17 -c 
 LIBDIR=
 LDFLAGS=
@@ -15,51 +15,52 @@ LIBS=$(LIBDIR)
 OUTPUT=$(BIN)makegen
 .PHONY: all directories rebuild clean run
 all: directories $(OUTPUT)
-directories: $(BIN) $(OBJPATH)
-$(BIN):
-	$(info Creating output directories)
-	@$(MKDIR_P) $(BIN)
-$(OBJPATH):
-	@$(MKDIR_P) $(OBJPATH)
+directories: $(OBJPATH)/src $(OBJPATH)/src/compatibility $(OBJPATH)/src/xml 
+$(OBJPATH)/src:
+	@$(MKDIR_P) $@
+$(OBJPATH)/src/compatibility:
+	@$(MKDIR_P) $@
+$(OBJPATH)/src/xml:
+	@$(MKDIR_P) $@
 run: all
 	@./$(OUTPUT)
 rebuild: clean all
 clean:
-	$(info Removing intermediates)
-	rm -rf $(OBJPATH)/*.o
+	$(info Removing $(OBJPATH))
+	@rm -rf $(OBJPATH)/
 $(OUTPUT): $(OBJECTS)
-	$(info Generating output file)
+	$(info Generating output file $(OUTPUT))
 	$(CO) $(OUTPUT) $(OBJECTS) $(LDFLAGS) $(LIBS)
 install: all
 	$(info Installing MakeGen to /usr/bin/)
 	@cp $(OUTPUT) /usr/bin/makegen
-$(OBJPATH)/ConfigCLI.o : src/ConfigCLI.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/ConfigUtils.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h
+$(OBJPATH)/src/ConfigCLI.o: src/ConfigCLI.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/ConfigUtils.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h
 	$(info -[10%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/ConfigFile.o : src/ConfigFile.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h src/compatibility/ConfigFileConf.h src/xml/XML.h
+$(OBJPATH)/src/ConfigFile.o: src/ConfigFile.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h src/compatibility/ConfigFileConf.h src/xml/XML.h
 	$(info -[20%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/HFileGen.o : src/HFileGen.cpp src/FileUtils.h src/Common.h src/Utils.h src/HFileGen.h src/ConfigFile.h src/ConfigUtils.h src/FlagData.h src/xml/XMLObject.h
+$(OBJPATH)/src/HFileGen.o: src/HFileGen.cpp src/FileUtils.h src/Common.h src/Utils.h src/HFileGen.h src/ConfigFile.h src/ConfigUtils.h src/FlagData.h src/xml/XMLObject.h
 	$(info -[30%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/IncludeDeps.o : src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/ConfigUtils.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h
+$(OBJPATH)/src/IncludeDeps.o: src/IncludeDeps.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/ConfigUtils.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h
 	$(info -[40%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/Makefile.o : src/Makefile.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/ConfigUtils.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h src/Makefile.h
+$(OBJPATH)/src/Makefile.o: src/Makefile.cpp src/Common.h src/IncludeDeps.h src/ConfigFile.h src/ConfigUtils.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h src/Makefile.h
 	$(info -[50%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/Utils.o : src/Utils.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h
+$(OBJPATH)/src/Utils.o: src/Utils.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h
 	$(info -[60%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/ConfigFileConf.o : src/compatibility/ConfigFileConf.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h src/compatibility/ConfigFileConf.h
+$(OBJPATH)/src/compatibility/ConfigFileConf.o: src/compatibility/ConfigFileConf.cpp src/ConfigFile.h src/ConfigUtils.h src/Common.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h src/compatibility/ConfigFileConf.h
 	$(info -[70%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/main.o : src/main.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/ConfigUtils.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h src/HFileGen.h src/Makefile.h src/Timer.h
+$(OBJPATH)/src/main.o: src/main.cpp src/Common.h src/ConfigCLI.h src/ConfigFile.h src/ConfigUtils.h src/FileUtils.h src/Utils.h src/FlagData.h src/xml/XMLObject.h src/HFileGen.h src/Makefile.h src/Timer.h
 	$(info -[80%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/XML.o : src/xml/XML.cpp src/xml/XML.h src/xml/XMLObject.h src/xml/XMLException.h
+$(OBJPATH)/src/xml/XML.o: src/xml/XML.cpp src/xml/XML.h src/xml/XMLObject.h src/xml/XMLException.h
 	$(info -[90%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
-$(OBJPATH)/XMLObject.o : src/xml/XMLObject.cpp src/Common.h src/Utils.h src/xml/XMLException.h src/xml/XMLObject.h
+$(OBJPATH)/src/xml/XMLObject.o: src/xml/XMLObject.cpp src/Common.h src/Utils.h src/xml/XMLException.h src/xml/XMLObject.h
 	$(info -[100%]- $<)
 	$(CC) $(CFLAGS) -o $@ $<
